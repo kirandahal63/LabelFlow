@@ -1,0 +1,589 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ project.name }} - LabelFlow</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-color: #e0e0e0;
+            --text-muted: #888888;
+            --primary-blue: #3b71ca;
+            --primary-blue-hover: #305da8;
+            --nav-bg: #1a1a1a;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --success-green: #2ecc71;
+            --danger-red: #e74c3c;
+            --warning-yellow: #f1c40f;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .navbar-custom {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--card-border);
+            padding: 15px 30px;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            color: #fff !important;
+            font-size: 1.4rem;
+        }
+
+        .container-custom {
+            max-width: 1250px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .header-panel {
+            margin-bottom: 35px;
+        }
+
+        .project-title {
+            font-weight: 800;
+            color: #fff;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .card-custom {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-title-custom {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-control-custom, .form-select-custom {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: #fff !important;
+            padding: 10px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .form-control-custom:focus, .form-select-custom:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 113, 202, 0.25);
+            outline: none;
+        }
+
+        .form-control-custom::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-custom {
+            background-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s;
+        }
+
+        .btn-custom:hover {
+            background-color: var(--primary-blue-hover);
+        }
+
+        .btn-custom-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-custom-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-color: #fff;
+        }
+
+        .btn-custom-danger {
+            background-color: transparent;
+            color: var(--danger-red);
+            border: 1px solid rgba(231, 76, 60, 0.3);
+            font-weight: 500;
+            border-radius: 6px;
+            padding: 4px 10px;
+            transition: all 0.2s;
+        }
+
+        .btn-custom-danger:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+            border-color: var(--danger-red);
+        }
+
+        /* Badges & Lists */
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success-green);
+        }
+
+        .status-draft {
+            background-color: rgba(241, 196, 15, 0.15);
+            color: var(--warning-yellow);
+        }
+
+        .badge-label {
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #ccc;
+            margin-right: 6px;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+
+        .table-custom {
+            color: var(--text-color);
+        }
+
+        .table-custom th {
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--card-border);
+            padding: 10px;
+        }
+
+        .table-custom td {
+            padding: 14px 10px;
+            border-bottom: 1px solid var(--card-border);
+            vertical-align: middle;
+        }
+
+        .table-custom tr:hover {
+            background-color: rgba(255, 255, 255, 0.02);
+        }
+
+        .alert-custom {
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .alert-custom-success {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: var(--success-green);
+        }
+
+        .alert-custom-danger {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--danger-red);
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-custom-outline btn-sm"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container-custom">
+    <!-- Top Header Panel -->
+    <div class="header-panel d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <h1 class="project-title">{{ project.name }}</h1>
+            <p class="text-muted fs-5 mb-0">{{ project.description|default:"No description provided." }}</p>
+        </div>
+        <div>
+            <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %} fs-6 py-2 px-3">
+                {{ project.status }}
+            </span>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left Column: Details, Datasets & Tasks -->
+        <div class="col-lg-8">
+            <!-- Project Overview Metadata Card -->
+            <div class="card-custom">
+                <h3 class="card-title-custom"><i class="fas fa-info-circle text-primary me-2"></i>Project Details</h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="text-muted small mb-1">Created By</div>
+                        <div class="fw-semibold">{{ project.created_by.email }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="text-muted small mb-1">Created At</div>
+                        <div class="fw-semibold">{{ project.created_at|date:"F d, Y" }}</div>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <div class="text-muted small mb-2">Annotation Labels</div>
+                    <div>
+                        {% for label in project.label_set %}
+                            <span class="badge-label">{{ label }}</span>
+                        {% empty %}
+                            <span class="text-muted small">No labels defined.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Datasets Card -->
+            <div class="card-custom">
+                <div class="card-title-custom">
+                    <span><i class="fas fa-database text-success me-2"></i>Media Datasets</span>
+                    {% if role == "owner" or request.user.role == "admin" %}
+                        <a href="/datasets/upload/{{ project.id }}/" class="btn btn-custom btn-sm"><i class="fas fa-upload me-1"></i> Upload Dataset</a>
+                    {% endif %}
+                </div>
+
+                {% if datasets %}
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Dataset Name</th>
+                                <th>Total Images</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dataset in datasets %}
+                            <tr>
+                                <td>{{ dataset.name }}</td>
+                                <td>{{ dataset.total_images }}</td>
+                                <td>
+                                    <span class="badge {% if dataset.status == 'ready' %}bg-success{% else %}bg-warning{% endif %}">
+                                        {{ dataset.status }}
+                                    </span>
+                                </td>
+                                <td class="text-muted small">{{ dataset.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">No datasets uploaded to this project yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Annotation Tasks Card -->
+            <div class="card-custom">
+                <h3 class="card-title-custom"><i class="fas fa-tasks text-warning me-2"></i>Annotation Tasks</h3>
+                {% if tasks %}
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Image File</th>
+                                <th>Assigned To</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr>
+                                <td>{{ task.image.filename }}</td>
+                                <td>{{ task.assigned_to.email|default:"Unassigned" }}</td>
+                                <td>
+                                    <span class="badge text-uppercase {% if task.status == 'approved' %}bg-success{% elif task.status == 'submitted' %}bg-primary{% elif task.status == 'assigned' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ task.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if task.assigned_to == request.user %}
+                                        <a href="/annotations/task/{{ task.id }}/" class="btn btn-custom btn-sm">Annotate</a>
+                                    {% else %}
+                                        <span class="text-muted small">None</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center my-4">No annotation tasks generated. Upload datasets to generate tasks.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Members & Assign Inline Section -->
+        <div class="col-lg-4">
+            <!-- Member Assignment and Listing Card -->
+            <div class="card-custom">
+                <h3 class="card-title-custom"><i class="fas fa-users-cog text-primary me-2"></i>Project Members</h3>
+                
+                {% if role == "owner" or request.user.role == "admin" %}
+                <!-- Admin Inline Add Member Form -->
+                <div class="mb-4 p-3 rounded" style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border);">
+                    <div class="fw-semibold mb-3 small text-muted text-uppercase">Assign Project Member</div>
+                    <form id="assignMemberForm">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="small text-muted mb-1" for="memberUser">Select User</label>
+                            <select id="memberUser" class="form-select form-select-custom w-100" required>
+                                <option value="" disabled selected>-- Select a user --</option>
+                                {% for user in potential_users %}
+                                    <option value="{{ user.id }}">{{ user.email }} ({{ user.first_name }} {{ user.last_name }})</option>
+                                {% empty %}
+                                    <option value="" disabled>No other registered users</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-muted mb-1" for="memberRole">Role</label>
+                            <select id="memberRole" class="form-select form-select-custom w-100">
+                                <option value="annotator">Annotator</option>
+                                <option value="reviewer">Reviewer</option>
+                            </select>
+                        </div>
+                        <div id="assignMessageBox"></div>
+                        <button type="submit" class="btn btn-custom btn-sm w-100 mt-2"><i class="fas fa-user-plus me-1"></i> Assign Member</button>
+                    </form>
+                </div>
+                {% endif %}
+
+                <!-- Members Table/List -->
+                <div class="table-responsive">
+                    <table class="table table-custom mb-0" id="membersTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                {% if role == "owner" or request.user.role == "admin" %}
+                                    <th class="text-end">Action</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                            <tr id="member-row-{{ member.user.id }}">
+                                <td>
+                                    <div class="fw-semibold">{{ member.user.first_name }} {{ member.user.last_name }}</div>
+                                    <div class="small text-muted">{{ member.user.email }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge text-uppercase {% if member.role_in_project == 'reviewer' %}bg-info{% else %}bg-secondary{% endif %}">
+                                        {{ member.role_in_project }}
+                                    </span>
+                                </td>
+                                {% if role == "owner" or request.user.role == "admin" %}
+                                <td class="text-end">
+                                    <button class="btn btn-custom-danger btn-sm" onclick="removeMember('{{ member.user.id }}')"><i class="fas fa-trash-alt"></i></button>
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% empty %}
+                            <tr id="noMembersRow">
+                                <td colspan="3" class="text-muted text-center py-3">No members assigned yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const projectId = "{{ project.id }}";
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+{% if role == "owner" or request.user.role == "admin" %}
+document.getElementById("assignMemberForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    
+    const userSelect = document.getElementById("memberUser");
+    const roleSelect = document.getElementById("memberRole");
+    const assignMessageBox = document.getElementById("assignMessageBox");
+    
+    const userId = userSelect.value;
+    const roleVal = roleSelect.value;
+    
+    if (!userId) {
+        return;
+    }
+    
+    assignMessageBox.innerHTML = '';
+    
+    try {
+        const response = await fetch(`/api/${projectId}/members/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({
+                user: userId,
+                role_in_project: roleVal
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            assignMessageBox.innerHTML = `
+                <div class="alert alert-custom alert-custom-success p-2 small mt-2">
+                    <i class="fas fa-check-circle me-1"></i> Member assigned successfully!
+                </div>
+            `;
+            
+            // Remove no members row if it exists
+            const noMembersRow = document.getElementById("noMembersRow");
+            if (noMembersRow) {
+                noMembersRow.remove();
+            }
+            
+            // Check if member already exists in DOM table
+            const existingRow = document.getElementById(`member-row-${result.user}`);
+            const roleBadgeClass = result.role_in_project === 'reviewer' ? 'bg-info' : 'bg-secondary';
+            
+            if (existingRow) {
+                existingRow.children[1].innerHTML = `<span class="badge text-uppercase ${roleBadgeClass}">${result.role_in_project}</span>`;
+            } else {
+                const tableBody = document.querySelector("#membersTable tbody");
+                const newRow = document.createElement("tr");
+                newRow.id = `member-row-${result.user}`;
+                newRow.innerHTML = `
+                    <td>
+                        <div class="fw-semibold">${result.user_name}</div>
+                        <div class="small text-muted">${result.user_email}</div>
+                    </td>
+                    <td>
+                        <span class="badge text-uppercase ${roleBadgeClass}">${result.role_in_project}</span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-custom-danger btn-sm" onclick="removeMember('${result.user}')"><i class="fas fa-trash-alt"></i></button>
+                    </td>
+                `;
+                tableBody.appendChild(newRow);
+            }
+            
+            // Remove option from dropdown list
+            const optionToRemove = userSelect.querySelector(`option[value="${userId}"]`);
+            if (optionToRemove) {
+                optionToRemove.remove();
+            }
+            userSelect.value = "";
+            
+        } else {
+            assignMessageBox.innerHTML = `
+                <div class="alert alert-custom alert-custom-danger p-2 small mt-2">
+                    <i class="fas fa-exclamation-circle me-1"></i> ${result.detail || "Error adding member."}
+                </div>
+            `;
+        }
+    } catch (err) {
+        assignMessageBox.innerHTML = `
+            <div class="alert alert-custom alert-custom-danger p-2 small mt-2">
+                <i class="fas fa-exclamation-triangle me-1"></i> API connection error.
+            </div>
+        `;
+    }
+});
+
+async function removeMember(userId) {
+    if (!confirm("Are you sure you want to remove this member from the project?")) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/${projectId}/members/`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": csrfToken
+            },
+            body: JSON.stringify({
+                user: userId
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok) {
+            const rowToRemove = document.getElementById(`member-row-${userId}`);
+            if (rowToRemove) {
+                const userName = rowToRemove.querySelector('td .fw-semibold').innerText;
+                const userEmail = rowToRemove.querySelector('td .text-muted').innerText;
+                
+                rowToRemove.remove();
+                
+                // Add option back to dropdown
+                const userSelect = document.getElementById("memberUser");
+                const newOption = document.createElement("option");
+                newOption.value = userId;
+                newOption.text = `${userEmail} (${userName})`;
+                userSelect.appendChild(newOption);
+            }
+            
+            const tableBody = document.querySelector("#membersTable tbody");
+            if (tableBody.children.length === 0) {
+                const emptyRow = document.createElement("tr");
+                emptyRow.id = "noMembersRow";
+                emptyRow.innerHTML = `<td colspan="3" class="text-muted text-center py-3">No members assigned yet.</td>`;
+                tableBody.appendChild(emptyRow);
+            }
+        } else {
+            alert(result.detail || "Could not remove member.");
+        }
+    } catch (err) {
+        alert("API connection error.");
+    }
+}
+{% endif %}
+</script>
+
+</body>
+</html>

@@ -204,3 +204,55 @@ def review_task_view(request, task_id):
         'existing_labels_json': json.dumps(annotation.labels),
     }
     return render(request, 'annotations/review.html', context)
+
+@login_required
+def bulk_assign_view(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    if project.created_by != request.user:
+        messages.error(request, "Only the project owner can assign tasks.")
+        return redirect('project_detail', project_id=project.id)
+        
+    if request.method == 'POST':
+        annotator_id = request.POST.get('annotator_id')
+        num_tasks_str = request.POST.get('num_tasks', '0')
+        dataset_id = request.POST.get('dataset_id')
+        
+        try:
+            num_tasks = int(num_tasks_str)
+        except ValueError:
+            num_tasks = 0
+            
+        if not annotator_id or num_tasks <= 0:
+            messages.error(request, "Invalid annotator selection or number of images.")
+            return redirect('project_detail', project_id=project.id)
+            
+        annotator = get_object_or_404(User, id=annotator_id)
+        
+        # Verify annotator is project member
+        if not ProjectMember.objects.filter(project=project, user=annotator, role_in_project='annotator').exists():
+            messages.error(request, "User is not an annotator in this project.")
+            return redirect('project_detail', project_id=project.id)
+            
+        # Get unassigned tasks
+        tasks = AnnotationTask.objects.filter(project=project, status='unassigned')
+        if dataset_id:
+            tasks = tasks.filter(image__dataset_id=dataset_id)
+            
+        tasks = list(tasks[:num_tasks])
+        
+        assigned_count = 0
+        with transaction.atomic():
+            for task in tasks:
+                task.assigned_to = annotator
+                task.status = 'assigned'
+                task.image.status = 'assigned'
+                task.save()
+                task.image.save()
+                assigned_count += 1
+                
+        if assigned_count > 0:
+            messages.success(request, f"Successfully assigned {assigned_count} tasks to {annotator.email}.")
+        else:
+            messages.warning(request, "No unassigned tasks matching your criteria were found.")
+            
+    return redirect('project_detail', project_id=project.id)
