@@ -1,87 +1,333 @@
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-<!-- Section: Design Block -->
-<section class="text-center">
-  <!-- Background image -->
-  <div class="p-5 bg-image" style="
-        background-image: url('https://mdbootstrap.com/img/new/textures/full/171.jpg');
-        height: 300px;
-        "></div>
-  <!-- Background image -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-  <div class="card mx-4 mx-md-5 shadow-5-strong bg-body-tertiary" style="
-        margin-top: -100px;
-        backdrop-filter: blur(30px);
-        ">
-    <div class="card-body py-5 px-md-5">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - LabelFlow</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome for Social Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-      <div class="row d-flex justify-content-center">
-        <div class="col-lg-8">
-          <h2 class="fw-bold mb-5">Sign up now</h2>
-          <form>
-            <!-- 2 column grid layout with text inputs for the first and last names -->
-            <div class="row">
-              <div class="col-md-6 mb-4">
-                <div data-mdb-input-init class="form-outline">
-                  <input type="text" id="form3Example1" class="form-control" />
-                  <label class="form-label" for="form3Example1">First name</label>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --input-bg: rgba(255, 255, 255, 0.06);
+            --input-border: rgba(255, 255, 255, 0.15);
+            --input-border-focus: #3b71ca;
+            --text-color: #ffffff;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --primary-blue: #3b71ca;
+            --primary-blue-hover: #305da8;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 40px 0;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 900px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background-color: var(--card-bg);
+        }
+
+        /* Banner styling matching register page */
+        .login-banner {
+            background-image: url("{% static 'images/signup_banner.png' %}");
+            background-size: cover;
+            background-position: center;
+            height: 260px;
+            position: relative;
+        }
+
+        /* Card container overlay with negative margin */
+        .login-card {
+            background-color: var(--card-bg);
+            padding: 40px 50px;
+            margin-top: -60px;
+            position: relative;
+            border-radius: 16px 16px 0 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .login-title {
+            font-weight: 700;
+            font-size: 2.2rem;
+            margin-bottom: 35px;
+            text-align: center;
+            color: var(--text-color);
+        }
+
+        /* Input styling */
+        .form-control-custom {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-color) !important;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.25s ease;
+        }
+
+        .form-control-custom:focus {
+            background-color: rgba(255, 255, 255, 0.09);
+            border-color: var(--input-border-focus);
+            box-shadow: 0 0 0 4px rgba(59, 113, 202, 0.25);
+            outline: none;
+        }
+
+        .form-control-custom::placeholder {
+            color: var(--text-muted);
+        }
+
+        /* Custom Checkbox */
+        .form-check-input-custom {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .form-check-input-custom:checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .form-check-label-custom {
+            font-size: 0.95rem;
+            color: var(--text-color);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Custom Primary Button */
+        .btn-custom-primary {
+            background-color: var(--primary-blue);
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            width: 100%;
+            transition: all 0.25s ease;
+            margin-bottom: 25px;
+        }
+
+        .btn-custom-primary:hover {
+            background-color: var(--primary-blue-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-custom-primary:active {
+            transform: translateY(0);
+        }
+
+        /* Divider text */
+        .divider-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Social buttons */
+        .social-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 15px;
+        }
+
+        .social-btn {
+            color: var(--text-color);
+            font-size: 1.25rem;
+            transition: color 0.2s, transform 0.2s;
+            text-decoration: none;
+        }
+
+        .social-btn:hover {
+            color: var(--primary-blue);
+            transform: scale(1.15);
+        }
+
+        /* Alert styling */
+        .alert {
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border: none;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(40, 167, 69, 0.3);
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.2);
+            color: #e74c3c;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+
+        /* Additional link to register */
+        .register-link {
+            text-align: center;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+
+        .register-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <!-- Banner matching register page -->
+        <div class="login-banner"></div>
+
+        <!-- Login form card content overlaying the banner -->
+        <div class="login-card">
+            <h2 class="login-title">Welcome to LabelFlow</h2>
+
+            <form id="loginForm">
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <input type="email" id="email" class="form-control form-control-custom" placeholder="Email address"
+                        required>
                 </div>
-              </div>
-              <div class="col-md-6 mb-4">
-                <div data-mdb-input-init class="form-outline">
-                  <input type="text" id="form3Example2" class="form-control" />
-                  <label class="form-label" for="form3Example2">Last name</label>
+
+                <div class="mb-4">
+                    <input type="password" id="password" class="form-control form-control-custom" placeholder="Password"
+                        required>
                 </div>
-              </div>
-            </div>
 
-            <!-- Email input -->
-            <div data-mdb-input-init class="form-outline mb-4">
-              <input type="email" id="form3Example3" class="form-control" />
-              <label class="form-label" for="form3Example3">Email address</label>
-            </div>
+                <!-- Checkbox matching the check styling in image -->
+                <div class="form-check d-flex justify-content-center align-items-center mb-4 gap-2">
+                    <input class="form-check-input form-check-input-custom me-2" type="checkbox" id="rememberMe"
+                        checked>
+                    <label class="form-check-label-custom" for="rememberMe">
+                        Remember me
+                    </label>
+                </div>
 
-            <!-- Password input -->
-            <div data-mdb-input-init class="form-outline mb-4">
-              <input type="password" id="form3Example4" class="form-control" />
-              <label class="form-label" for="form3Example4">Password</label>
-            </div>
+                <div id="messageBox" class="mb-4"></div>
 
-            <!-- Checkbox -->
-            <div class="form-check d-flex justify-content-center mb-4">
-              <input class="form-check-input me-2" type="checkbox" value="" id="form2Example33" checked />
-              <label class="form-check-label" for="form2Example33">
-                Subscribe to our newsletter
-              </label>
-            </div>
+                <button type="submit" class="btn btn-custom-primary">
+                    Sign In
+                </button>
 
-            <!-- Submit button -->
-            <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-block mb-4">
-              Sign up
-            </button>
+                <p class="divider-text">or sign in with:</p>
 
-            <!-- Register buttons -->
-            <div class="text-center">
-              <p>or sign up with:</p>
-              <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-                <i class="fab fa-facebook-f"></i>
-              </button>
+                <div class="social-buttons">
+                    <a href="#" class="social-btn"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-google"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-btn"><i class="fab fa-github"></i></a>
+                </div>
 
-              <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-                <i class="fab fa-google"></i>
-              </button>
-
-              <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-                <i class="fab fa-twitter"></i>
-              </button>
-
-              <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-                <i class="fab fa-github"></i>
-              </button>
-            </div>
-          </form>
+                <div class="register-link">
+                    Don't have an account? <a href="/register/">Sign Up</a>
+                </div>
+            </form>
         </div>
-      </div>
     </div>
-  </div>
-</section>
-<!-- Section: Design Block -->
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.getElementById("loginForm").addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const messageBox = document.getElementById("messageBox");
+
+            const data = {
+                email: document.getElementById("email").value.trim(),
+                password: document.getElementById("password").value
+            };
+
+            messageBox.innerHTML = '';
+
+            try {
+                const response = await fetch("/api/login/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": csrfToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    messageBox.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i> ${result.message || "Login successful."}
+                </div>
+            `;
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 1000);
+                } else {
+                    let errorMsg = "";
+                    if (typeof result === "object") {
+                        errorMsg = Object.entries(result)
+                            .map(([key, val]) => `${key.replace('_', ' ')}: ${Array.isArray(val) ? val.join(', ') : val}`)
+                            .join("<br>");
+                    } else {
+                        errorMsg = result.message || JSON.stringify(result);
+                    }
+                    messageBox.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i> ${errorMsg}
+                </div>
+            `;
+                }
+            } catch (error) {
+                messageBox.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle me-2"></i> A server error occurred. Please try again.
+            </div>
+        `;
+            }
+        });
+    </script>
+
+</body>
+
+</html>
