@@ -16,6 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.conf import settings
+from django.conf.urls.static import static
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,4 +28,5 @@ urlpatterns = [
     path('', include('projects.urls')),
     path('datasets/', include('datasets.urls')),
     path('annotations/', include('annotations.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) \
+  + static('/dataset-files/', document_root=BASE_DIR / 'datasets')

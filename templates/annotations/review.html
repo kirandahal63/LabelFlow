@@ -1,0 +1,275 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Workspace - LabelFlow</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --card-border: rgba(255, 255, 255, 0.05);
+            --text-color: #e0e0e0;
+            --text-muted: #888888;
+            --primary-blue: #3b71ca;
+            --nav-bg: #1a1a1a;
+            --input-bg: rgba(255, 255, 255, 0.05);
+            --input-border: rgba(255, 255, 255, 0.1);
+            --success-green: #2ecc71;
+            --danger-red: #e74c3c;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar-custom {
+            background-color: var(--nav-bg);
+            border-bottom: 1px solid var(--card-border);
+            padding: 15px 30px;
+        }
+
+        .navbar-brand-custom {
+            font-weight: 700;
+            color: #fff !important;
+            font-size: 1.4rem;
+        }
+
+        .workspace-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Left/Canvas Area */
+        .canvas-area {
+            flex: 1;
+            background-color: #161616;
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+            min-height: 500px;
+            box-shadow: inset 0 4px 20px rgba(0,0,0,0.4);
+            padding: 20px;
+        }
+
+        .canvas-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            object-fit: contain;
+        }
+
+        /* Right/Sidebar Area */
+        .sidebar-area {
+            width: 380px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-control-custom {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: #fff !important;
+            padding: 10px 14px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .form-control-custom:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(59, 113, 202, 0.25);
+            outline: none;
+        }
+
+        /* Label tag elements read-only */
+        .label-tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 25px;
+        }
+
+        .badge-label {
+            background-color: rgba(59, 113, 202, 0.15);
+            border: 1px solid var(--primary-blue);
+            color: #fff;
+            font-size: 0.9rem;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .notes-box {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            color: #ccc;
+            min-height: 60px;
+            margin-bottom: 25px;
+        }
+
+        /* Buttons styling */
+        .btn-approve {
+            background-color: var(--success-green);
+            color: #fff;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .btn-approve:hover {
+            background-color: #27ae60;
+        }
+
+        .btn-reject {
+            background-color: var(--danger-red);
+            color: #fff;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            transition: all 0.2s;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .btn-reject:hover {
+            background-color: #c0392b;
+        }
+
+        .btn-custom-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 500;
+            border-radius: 8px;
+            padding: 10px 20px;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            width: 100%;
+        }
+
+        .btn-custom-outline:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border-color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="/" class="btn btn-custom-outline btn-sm py-2 px-3"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+        </div>
+    </div>
+</nav>
+
+<div class="workspace-container">
+    <!-- Left Panel: Canvas Image Display -->
+    <div class="canvas-area">
+        <img src="{{ task.image.storage_url }}" alt="Image to review" class="canvas-image">
+    </div>
+
+    <!-- Right Panel: Labeled Details & Review Decision -->
+    <div class="sidebar-area">
+        <h3 class="sidebar-title"><i class="fas fa-search text-primary"></i>Review Annotation</h3>
+        
+        <div class="mb-4">
+            <label class="small text-muted mb-2 d-block">Submitted Labels</label>
+            <div class="label-tag-list" id="labelTagList">
+                <!-- Populated labels -->
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="small text-muted mb-2 d-block">Annotator's Notes</label>
+            <div class="notes-box">
+                {{ annotation.notes|default:"No notes provided." }}
+            </div>
+        </div>
+
+        <form method="POST" action="/annotations/review/{{ task.id }}/" class="mt-auto">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="small text-muted mb-2 d-block" for="comment">Feedback / Review Comment</label>
+                <textarea id="comment" name="comment" class="form-control form-control-custom" rows="3" placeholder="Explain the reason for approval or rejection..."></textarea>
+            </div>
+
+            <button type="submit" name="decision" value="approved" class="btn-approve"><i class="fas fa-check me-2"></i>Approve Annotation</button>
+            <button type="submit" name="decision" value="rejected" class="btn-reject"><i class="fas fa-times me-2"></i>Reject Annotation</button>
+            <a href="/{{ task.project.id }}/" class="btn btn-custom-outline">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<script>
+// Load labels submitted by annotator
+const existingLabels = {{ existing_labels_json|safe }};
+const tagListContainer = document.getElementById("labelTagList");
+
+if (existingLabels && existingLabels.length > 0) {
+    existingLabels.forEach(label => {
+        const span = document.createElement("span");
+        span.className = "badge-label";
+        span.innerText = label;
+        tagListContainer.appendChild(span);
+    });
+} else {
+    tagListContainer.innerHTML = '<span class="text-muted small">No labels submitted.</span>';
+}
+</script>
+
+</body>
+</html>

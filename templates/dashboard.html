@@ -350,6 +350,45 @@
         <p class="text-muted text-center my-4">No active annotation tasks assigned.</p>
         {% endif %}
     </div>
+
+    <!-- Review tasks: Tasks pending review by Reviewer -->
+    <div class="card-custom">
+        <div class="card-title-custom">
+            <span><i class="fas fa-clipboard-check me-2 text-info"></i>Pending Reviews</span>
+            <span class="fs-6 text-muted">{{ pending_reviews|length }} tasks pending</span>
+        </div>
+
+        {% if pending_reviews %}
+        <div class="table-responsive">
+            <table class="table table-custom">
+                <thead>
+                    <tr>
+                        <th>Project</th>
+                        <th>Image File</th>
+                        <th>Annotated By</th>
+                        <th>Submitted Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in pending_reviews %}
+                    <tr>
+                        <td><a href="/{{ task.project.id }}/" class="project-link">{{ task.project.name }}</a></td>
+                        <td>{{ task.image.filename }}</td>
+                        <td>{{ task.annotation.annotated_by.email }}</td>
+                        <td class="text-muted small">{{ task.annotation.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="/annotations/review/{{ task.id }}/" class="btn btn-custom btn-sm">Review</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted text-center my-4">No pending reviews found.</p>
+        {% endif %}
+    </div>
 </div>
 
 <script>

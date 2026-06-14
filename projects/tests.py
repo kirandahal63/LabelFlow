@@ -118,3 +118,62 @@ class ProjectAPITests(APITestCase):
         response = self.client.delete(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(ProjectMember.objects.filter(project=self.project, user=self.normal_user).exists())
+
+    def test_bulk_assign_view(self):
+        # Authenticate admin
+        self.client.force_login(self.admin_user)
+        
+        # Add normal_user as project member with annotator role
+        ProjectMember.objects.create(
+            project=self.project,
+            user=self.normal_user,
+            role_in_project="annotator"
+        )
+        
+        # Create dataset and image records to generate unassigned tasks
+        from datasets.models import Dataset, Image
+        from annotations.models import AnnotationTask
+        
+        dataset = Dataset.objects.create(
+            project=self.project,
+            name="Test Dataset",
+            original_filename="test.zip",
+            uploaded_by=self.admin_user,
+            status="ready"
+        )
+        
+        # Create 3 images and their unassigned tasks
+        for i in range(3):
+            img = Image.objects.create(
+                dataset=dataset,
+                filename=f"img_{i}.png",
+                storage_url=f"/media/img_{i}.png",
+                file_size_bytes=100,
+                width_px=10,
+                height_px=10,
+                md5_hash=f"hash_{i}",
+                status="pending"
+            )
+            AnnotationTask.objects.create(
+                image=img,
+                project=self.project,
+                status="unassigned"
+            )
+            
+        # Post to bulk assign URL
+        url = reverse("bulk_assign", kwargs={"project_id": self.project.id})
+        response = self.client.post(url, {
+            "annotator_id": str(self.normal_user.id),
+            "num_tasks": "2",
+            "dataset_id": ""
+        })
+        
+        # Should redirect back to project_detail
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+        
+        # Check task statuses: 2 should be assigned to normal_user, 1 unassigned
+        assigned_tasks = AnnotationTask.objects.filter(project=self.project, status="assigned", assigned_to=self.normal_user)
+        self.assertEqual(assigned_tasks.count(), 2)
+        
+        unassigned_tasks = AnnotationTask.objects.filter(project=self.project, status="unassigned")
+        self.assertEqual(unassigned_tasks.count(), 1)

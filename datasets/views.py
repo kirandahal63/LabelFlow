@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.conf import settings
 import os
+import posixpath
 import zipfile
 import hashlib
 from PIL import Image as PILImage
@@ -15,9 +16,9 @@ from annotations.models import AnnotationTask
 def upload_dataset_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     
-    # Verify authorization (only creator can upload)
-    if project.created_by != request.user:
-        messages.error(request, "Only the project owner can upload datasets.")
+    # Verify authorization (only creator or admin can upload)
+    if project.created_by != request.user and request.user.role != "admin":
+        messages.error(request, "Only the project owner or admins can upload datasets.")
         return redirect('project_detail', project_id=project.id)
         
     if request.method == 'POST':
@@ -90,10 +91,9 @@ def upload_dataset_view(request, project_id):
                             os.remove(target_path)
                         continue
                         
-                    # Create Image record
-                    # Calculate storage URL
-                    relative_path = os.path.relpath(target_path, settings.MEDIA_ROOT)
-                    storage_url = os.path.join(settings.MEDIA_URL, relative_path).replace('\\', '/')
+                    # Create Image record — build URL as posix path relative to MEDIA_ROOT
+                    relative_path = target_path.relative_to(Path(settings.MEDIA_ROOT))
+                    storage_url = posixpath.join(settings.MEDIA_URL, *relative_path.parts)
                     
                     image_record = Image.objects.create(
                         dataset=dataset,

@@ -1,0 +1,696 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Annotation Workspace — {{ task.image.filename }} - LabelFlow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0d0e12;
+            --panel: #13151c;
+            --card: #181b24;
+            --border: rgba(255,255,255,0.07);
+            --text: #f0f2f8;
+            --muted: #8990a8;
+            --primary: #5b6ef5;
+            --primary-glow: rgba(91,110,245,0.25);
+            --success: #10b981;
+            --success-glow: rgba(16,185,129,0.2);
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --input-bg: rgba(255,255,255,0.04);
+            --input-border: rgba(255,255,255,0.09);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ─── Navbar ─── */
+        .topbar {
+            height: 58px;
+            background: var(--panel);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 22px;
+            gap: 14px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .topbar-brand {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-brand i {
+            background: linear-gradient(135deg, #5b6ef5, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .topbar-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+        }
+
+        .topbar-info {
+            font-size: 0.85rem;
+            color: var(--muted);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 260px;
+        }
+
+        .topbar-info strong {
+            color: var(--text);
+        }
+
+        .topbar-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ─── Progress bar strip under navbar ─── */
+        .progress-strip {
+            height: 3px;
+            background: rgba(255,255,255,0.04);
+            flex-shrink: 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            transition: width 0.4s ease;
+        }
+
+        /* ─── Main workspace ─── */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+            gap: 0;
+        }
+
+        /* ─── Image Canvas ─── */
+        .canvas-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #090a0e;
+            border-right: 1px solid var(--border);
+            position: relative;
+            overflow: auto;
+            padding: 24px;
+        }
+
+        .image-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .canvas-img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 10px;
+            box-shadow: 0 12px 48px rgba(0,0,0,0.7);
+            object-fit: contain;
+            display: block;
+        }
+
+        .img-error-msg {
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .img-error-msg i {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+        }
+
+        /* ─── Sidebar ─── */
+        .sidebar {
+            width: 360px;
+            flex-shrink: 0;
+            background: var(--panel);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            padding: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+
+        /* ─── Image meta strip ─── */
+        .image-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .image-filename {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #fff;
+            word-break: break-all;
+        }
+
+        .image-meta-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            font-size: 0.78rem;
+            color: var(--muted);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 2px 9px;
+        }
+
+        /* ─── Label selector ─── */
+        .label-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .label-item {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 9px;
+            padding: 11px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .label-item:hover {
+            border-color: rgba(91,110,245,0.35);
+            background: rgba(91,110,245,0.05);
+        }
+
+        .label-item.active {
+            background: rgba(91,110,245,0.12);
+            border-color: var(--primary);
+        }
+
+        .label-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .check-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 1.5px solid var(--input-border);
+            background: var(--input-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.15s;
+        }
+
+        .label-item.active .check-box {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .label-item.active .check-box::after {
+            content: "\f00c";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            color: #fff;
+            font-size: 9px;
+        }
+
+        /* ─── Notes ─── */
+        .notes-textarea {
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text) !important;
+            border-radius: 9px;
+            padding: 11px 14px;
+            width: 100%;
+            resize: vertical;
+            min-height: 80px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        .notes-textarea::placeholder {
+            color: var(--muted);
+        }
+
+        /* ─── Action buttons ─── */
+        .btn-save {
+            background: linear-gradient(135deg, var(--primary), #7c8ff7);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+
+        .btn-save:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(255,255,255,0.25);
+            color: var(--text);
+        }
+
+        /* ─── Submit Dataset section ─── */
+        .dataset-submit-item {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .dataset-submit-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .dataset-name {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .btn-submit-ds {
+            background: linear-gradient(135deg, var(--success), #34d399);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .btn-submit-ds:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--success-glow);
+        }
+
+        /* ─── Alert box ─── */
+        .alert-box {
+            border-radius: 9px;
+            padding: 11px 14px;
+            font-size: 0.88rem;
+            display: none;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .alert-success {
+            background: rgba(16,185,129,0.12);
+            border: 1px solid rgba(16,185,129,0.25);
+            color: #34d399;
+        }
+
+        .alert-error {
+            background: rgba(239,68,68,0.12);
+            border: 1px solid rgba(239,68,68,0.25);
+            color: #f87171;
+        }
+
+        /* ─── Status badge ─── */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .chip-draft     { background: rgba(245,158,11,0.12); color: var(--warning); }
+        .chip-submitted { background: rgba(91,110,245,0.12); color: #818cf8; }
+        .chip-approved  { background: rgba(16,185,129,0.12); color: var(--success); }
+
+        /* ─── Progress counter ─── */
+        .progress-counter {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.82rem;
+        }
+
+        .progress-bar-mini {
+            height: 5px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .progress-bar-mini-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 3px;
+        }
+
+        /* ─── Scrollbar ─── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+    </style>
+</head>
+
+<body>
+
+    <!-- Topbar -->
+    <div class="topbar">
+        <a href="/" class="topbar-brand">
+            <i class="fas fa-layer-group"></i> LabelFlow
+        </a>
+        <div class="topbar-divider"></div>
+        <div class="topbar-info">
+            <strong>{{ project.name }}</strong> &rsaquo; {{ task.image.filename }}
+        </div>
+        <div class="topbar-right">
+            {% if annotation %}
+                <span class="status-chip
+                    {% if annotation.status == 'submitted' %}chip-submitted
+                    {% elif annotation.status == 'approved' %}chip-approved
+                    {% else %}chip-draft{% endif %}">
+                    <i class="fas fa-circle" style="font-size:6px;"></i>
+                    {{ annotation.status|title }}
+                </span>
+            {% endif %}
+            <a href="/" class="btn-outline" style="width:auto; padding: 7px 16px; margin: 0;">
+                <i class="fas fa-arrow-left me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Progress strip -->
+    {% if total_assigned > 0 %}
+    <div class="progress-strip">
+        <div class="progress-fill" style="width: {% widthratio completed_count total_assigned 100 %}%"></div>
+    </div>
+    {% endif %}
+
+    <!-- Workspace -->
+    <div class="workspace">
+
+        <!-- Left: Image Canvas -->
+        <div class="canvas-panel">
+            <div class="image-wrapper">
+                <img id="annotationImage"
+                     src="{{ task.image.storage_url }}"
+                     alt="{{ task.image.filename }}"
+                     class="canvas-img"
+                     onerror="this.style.display='none'; document.getElementById('imgError').style.display='flex';">
+                <div id="imgError" class="img-error-msg" style="display:none; flex-direction:column; align-items:center;">
+                    <i class="fas fa-image-slash"></i>
+                    <p class="mb-1 fw-semibold">Image could not be loaded</p>
+                    <p class="small text-muted">{{ task.image.storage_url }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Sidebar -->
+        <div class="sidebar">
+
+            <!-- Image Meta -->
+            <div class="sidebar-section">
+                <div class="section-label">Current Image</div>
+                <div class="image-meta">
+                    <div class="image-filename">{{ task.image.filename }}</div>
+                    <div class="image-meta-row">
+                        <span class="meta-pill"><i class="fas fa-expand-alt me-1"></i>{{ task.image.width_px }} × {{ task.image.height_px }}</span>
+                        <span class="meta-pill"><i class="fas fa-weight me-1"></i>{{ task.image.file_size_bytes|filesizeformat }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div class="sidebar-section">
+                <div class="section-label">Your Progress</div>
+                <div class="progress-counter">
+                    <span>Tasks completed</span>
+                    <span><strong>{{ completed_count }}</strong> / {{ total_assigned }}</span>
+                </div>
+                <div class="progress-bar-mini">
+                    {% if total_assigned > 0 %}
+                    <div class="progress-bar-mini-fill" style="width: {% widthratio completed_count total_assigned 100 %}%"></div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Labels -->
+            <div class="sidebar-section" style="flex: 1;">
+                <div class="section-label">Assign Labels</div>
+                <div class="label-grid" id="labelGrid">
+                    <!-- dynamically rendered -->
+                </div>
+                {% if not project.label_set %}
+                <p class="small" style="color: var(--muted);">No labels defined for this project.</p>
+                {% endif %}
+            </div>
+
+            <!-- Notes -->
+            <div class="sidebar-section">
+                <div class="section-label">Notes (Optional)</div>
+                <textarea id="notesInput" class="notes-textarea"
+                    placeholder="Describe bounding details, edge cases, or any observations...">{{ annotation.notes|default:"" }}</textarea>
+            </div>
+
+            <!-- Actions: Save / Cancel -->
+            <div class="sidebar-section">
+                <div id="alertBox" class="alert-box"></div>
+                <button id="saveBtn" class="btn-save">
+                    <i class="fas fa-arrow-right-to-bracket"></i> Save & Next Image
+                </button>
+                <a href="/" class="btn-outline">
+                    <i class="fas fa-times me-1"></i> Cancel &amp; Go to Dashboard
+                </a>
+            </div>
+
+            <!-- Submit Dataset for Review -->
+            {% if datasets %}
+            <div class="sidebar-section">
+                <div class="section-label">Submit Dataset for Review</div>
+                <p class="small mb-3" style="color: var(--muted); line-height: 1.5;">
+                    When you're done annotating a dataset, submit it in batch so reviewers can approve all at once.
+                </p>
+                {% for dataset in datasets %}
+                <div class="dataset-submit-item">
+                    <div class="dataset-name"><i class="fas fa-database me-2" style="opacity:0.5;"></i>{{ dataset.name }}</div>
+                    <form action="/annotations/submit-dataset/{{ dataset.id }}/" method="POST" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-submit-ds">
+                            <i class="fas fa-paper-plane me-1"></i> Submit
+                        </button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script>
+        const labelSet = {{ label_set_json|safe }};
+        const existingLabels = {{ existing_labels_json|safe }};
+        const csrfToken = "{{ csrf_token }}";
+
+        // Build label selector
+        const labelGrid = document.getElementById('labelGrid');
+        const selectedLabels = new Set(existingLabels);
+
+        labelSet.forEach(label => {
+            const item = document.createElement('div');
+            item.className = 'label-item' + (selectedLabels.has(label) ? ' active' : '');
+            item.dataset.label = label;
+            item.innerHTML = `<span class="label-name">${label}</span><div class="check-box"></div>`;
+
+            item.addEventListener('click', () => {
+                if (selectedLabels.has(label)) {
+                    selectedLabels.delete(label);
+                    item.classList.remove('active');
+                } else {
+                    selectedLabels.add(label);
+                    item.classList.add('active');
+                }
+            });
+
+            labelGrid.appendChild(item);
+        });
+
+        // Alert helper
+        const alertBox = document.getElementById('alertBox');
+
+        function showAlert(type, msg) {
+            alertBox.className = 'alert-box ' + (type === 'success' ? 'alert-success' : 'alert-error');
+            alertBox.style.display = 'flex';
+            alertBox.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}`;
+        }
+
+        function hideAlert() {
+            alertBox.style.display = 'none';
+        }
+
+        // Save & Next
+        document.getElementById('saveBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('saveBtn');
+            const notes = document.getElementById('notesInput').value.trim();
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+            hideAlert();
+
+            try {
+                const res = await fetch(window.location.pathname, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        labels: Array.from(selectedLabels),
+                        notes: notes,
+                        action: 'save',
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    if (data.next_task_url) {
+                        showAlert('success', 'Saved! Loading next image…');
+                        setTimeout(() => {
+                            window.location.href = data.next_task_url;
+                        }, 700);
+                    } else {
+                        showAlert('success', '✅ All done! No more images to annotate in this project.');
+                        btn.innerHTML = '<i class="fas fa-check"></i> All Images Done!';
+                        btn.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
+                    }
+                } else {
+                    showAlert('error', data.message || 'Failed to save annotation.');
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Save & Next Image';
+                }
+            } catch (err) {
+                showAlert('error', 'Network error. Please check your connection.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Save & Next Image';
+            }
+        });
+    </script>
+
+</body>
+</html>

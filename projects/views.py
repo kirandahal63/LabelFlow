@@ -48,7 +48,7 @@ def dashboard_view(request):
     pending_reviews = AnnotationTask.objects.filter(
         project_id__in=reviewer_project_ids,
         status='submitted'
-    ).select_related('project', 'image', 'annotation').order_by('-created_at')
+    ).select_related('project', 'image', 'assigned_to').order_by('-created_at')
 
     # All registered users (for display or assigning, but we'll fetch them as needed)
     
@@ -115,6 +115,18 @@ def project_detail_view(request, project_id):
     existing_member_ids = members.values_list('user_id', flat=True)
     potential_users = User.objects.exclude(id__in=existing_member_ids).exclude(id=project.created_by.id)
     
+    # Calculate stats for dashboard
+    stats = {
+        'total_datasets': datasets.count(),
+        'total_tasks': tasks.count(),
+        'unassigned': tasks.filter(status='unassigned').count(),
+        'assigned': tasks.filter(status='assigned').count(),
+        'in_progress': tasks.filter(status='in_progress').count(),
+        'submitted': tasks.filter(status='submitted').count(),
+        'approved': tasks.filter(status='approved').count(),
+        'rejected': tasks.filter(status='rejected').count(),
+    }
+    
     context = {
         'project': project,
         'role': role,
@@ -124,6 +136,7 @@ def project_detail_view(request, project_id):
         'tasks': tasks,
         'annotators': annotators,
         'potential_users': potential_users,
+        'stats': stats,
     }
     return render(request, 'projects/detail.html', context)
 
