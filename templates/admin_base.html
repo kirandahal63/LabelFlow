@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}lf-has-sidebar{% endblock %}
+
+{% block sidebar %}
+<aside class="lf-sidebar">
+    <div class="sidebar-header">
+        <a href="/admin-panel/" class="sidebar-logo">
+            <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
+            LabelFlow
+        </a>
+        <div class="sidebar-sub-label">Admin Panel</div>
+    </div>
+
+    {% block sidebar_context %}{% endblock %}
+
+    <div class="section-label">Admin</div>
+    <ul class="sidebar-nav">
+        <li>
+            <a href="/admin-panel/" class="{% block nav_projects_class %}{% endblock %}">
+                <span class="nav-icon"><i class="fas fa-folder-open"></i></span>
+                Manage Projects
+            </a>
+        </li>
+        <li>
+            <a href="/admin-panel/?tab=review" class="{% block nav_review_class %}{% endblock %}">
+                <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                Review &amp; Analytics
+            </a>
+        </li>
+        <li>
+            <a href="/admin-panel/?tab=profile" class="{% block nav_profile_class %}{% endblock %}">
+                <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+                My Profile
+            </a>
+        </li>
+    </ul>
+
+    <div class="section-label">Quick Links</div>
+    <ul class="sidebar-nav">
+        <li>
+            <a href="/create/">
+                <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
+                New Project
+            </a>
+        </li>
+        <li>
+            <a href="/login/">
+                <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
+                Logout
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-footer">
+        <div class="user-chip">
+            <div class="avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+            <div class="info">
+                <div class="name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                <div class="role">Administrator</div>
+            </div>
+        </div>
+    </div>
+</aside>
+{% endblock %}
+
+{% block navbar_class %}navbar-custom navbar-admin{% endblock %}
+
+{% block navbar_brand %}
+<div class="admin-breadcrumb">
+    {% block breadcrumb %}
+    <a href="/admin-panel/" class="bc-link">Admin Panel</a>
+    {% endblock %}
+</div>
+{% endblock %}
+
+{% block navbar_actions %}
+<span class="text-muted small" style="color: rgba(255,255,255,0.5) !important;">
+    <i class="fas fa-user-circle me-1"></i>{{ request.user.email }}
+</span>
+<button class="btn btn-logout-sm" id="logoutBtn">
+    <i class="fas fa-sign-out-alt me-1"></i> Logout
+</button>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .navbar-admin {
+        background-color: #0f1015;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        padding: 14px 28px;
+    }
+    .admin-breadcrumb {
+        font-size: 0.875rem;
+        color: rgba(255,255,255,0.45);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .admin-breadcrumb .bc-link {
+        color: rgba(255,255,255,0.45);
+        text-decoration: none;
+        transition: color 0.15s;
+    }
+    .admin-breadcrumb .bc-link:hover { color: #fff; }
+    .admin-breadcrumb .bc-sep { color: rgba(255,255,255,0.2); }
+    .admin-breadcrumb .bc-current { color: rgba(255,255,255,0.85); font-weight: 500; }
+    .btn-logout-sm {
+        background: rgba(239,68,68,0.08);
+        color: #f87171;
+        border: 1px solid rgba(239,68,68,0.2);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 0.83rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-logout-sm:hover {
+        background: rgba(239,68,68,0.15);
+        border-color: #f87171;
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const _csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+    || '{{ csrf_token }}';
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async function() {
+        try {
+            const r = await fetch('/api/logout/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken }
+            });
+            if (r.ok) window.location.href = '/login/';
+        } catch(e) { console.error(e); }
+    });
+}
+</script>
+{% block page_js %}{% endblock %}
+{% endblock %}

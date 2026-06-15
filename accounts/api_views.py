@@ -29,7 +29,8 @@ class RegisterAPIView(APIView):
             return Response(
                 {
                     "success": True,
-                    "message": "User registered successfully."
+                    "message": "User registered successfully.",
+                    "role": user.role,
                 },
                 status=status.HTTP_201_CREATED
             )
@@ -66,7 +67,8 @@ class LoginAPIView(APIView):
                 return Response(
                     {
                         "success": True,
-                        "message": "Login successful."
+                        "message": "Login successful.",
+                        "role": user.role,
                     }
                 )
 

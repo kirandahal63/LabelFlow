@@ -1,1076 +1,1037 @@
+{% extends "base.html" %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ project.name }} - LabelFlow</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-color: #0d0e12;
-            --card-bg: #15171e;
-            --card-border: rgba(255, 255, 255, 0.05);
-            --text-color: #f1f3f9;
-            --text-muted: #8e95a5;
-            --primary-blue: #4f46e5;
-            --primary-blue-hover: #4338ca;
-            --nav-bg: #0f1015;
-            --input-bg: rgba(255, 255, 255, 0.04);
-            --input-border: rgba(255, 255, 255, 0.08);
-            
-            --success-green: #10b981;
-            --danger-red: #ef4444;
-            --warning-yellow: #f59e0b;
-            --info-cyan: #06b6d4;
-            --purple-badge: #8b5cf6;
-        }
 
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-            margin: 0;
-            background-image: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.05) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.03) 0%, transparent 40%);
-            background-attachment: fixed;
-        }
+{% block title %}{{ project.name }} - LabelFlow{% endblock %}
 
-        /* Navbar Styling */
-        .navbar-custom {
-            background-color: var(--nav-bg);
-            border-bottom: 1px solid var(--card-border);
-            padding: 18px 30px;
-        }
+{# ── Apply sidebar layout class when admin ── #}
+{% block body_class %}{% if request.user.role == 'admin' %}lf-has-sidebar{% endif %}{% endblock %}
 
-        .navbar-brand-custom {
-            font-weight: 800;
-            color: #fff !important;
-            font-size: 1.5rem;
-            letter-spacing: -0.5px;
-        }
+{# ═══════════════════════════════════════════
+   SIDEBAR — shown only to admin users
+   ═══════════════════════════════════════════ #}
+{% block sidebar %}
+{% if request.user.role == 'admin' %}
+<aside class="lf-sidebar">
+    <div class="sidebar-header">
+        <a href="/admin-panel/" class="sidebar-logo">
+            <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
+            LabelFlow
+        </a>
+        <div class="sidebar-sub-label">Admin Panel</div>
+    </div>
 
-        .navbar-brand-custom i {
-            background: linear-gradient(135deg, #4f46e5, #10b981);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+    <!-- Current project chip -->
 
-        .container-custom {
-            max-width: 1320px;
-            margin: 40px auto;
-            padding: 0 25px;
-        }
+    <div class="section-label">{{ project.name|truncatechars:26 }} Project</div>
+    <ul class="sidebar-nav">
+        <li><a href="/{{ project.id }}/#overview" class="active">
+            <span class="nav-icon"><i class="fas fa-folder-open"></i></span> Project Overview
+        </a></li>
+        <li><a href="/{{ project.id }}/#datasets">
+            <span class="nav-icon"><i class="fas fa-database"></i></span> Datasets
+        </a></li>
+        <li><a href="/{{ project.id }}/#tasks">
+            <span class="nav-icon"><i class="fas fa-tasks"></i></span> Annotation Tasks
+        </a></li>
+        <li><a href="/{{ project.id }}/#members">
+            <span class="nav-icon"><i class="fas fa-users"></i></span> Members
+        </a></li>
+    </ul>
 
-        /* Top Header Panel */
-        .header-panel {
-            margin-bottom: 30px;
-            background: linear-gradient(135deg, rgba(21, 23, 30, 0.8), rgba(15, 16, 21, 0.8));
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-        }
+    <div class="section-label">Admin</div>
+    <ul class="sidebar-nav">
+        <li><a href="/admin-panel/">
+            <span class="nav-icon"><i class="fas fa-th-large"></i></span> Manage Projects
+        </a></li>
+        <li><a href="/admin-panel/?tab=review">
+            <span class="nav-icon"><i class="fas fa-chart-bar"></i></span> Review &amp; Analytics
+        </a></li>
+        <li><a href="/admin-panel/?tab=profile">
+            <span class="nav-icon"><i class="fas fa-user-circle"></i></span> My Profile
+        </a></li>
+        <li><a href="/create/">
+            <span class="nav-icon"><i class="fas fa-plus-circle"></i></span> New Project
+        </a></li>
+    </ul>
 
-        .project-title {
-            font-weight: 800;
-            color: #fff;
-            font-size: 2.2rem;
-            letter-spacing: -0.5px;
-            margin-bottom: 8px;
-        }
+    <div class="sidebar-footer">
+        <ul class="sidebar-nav">
+        <li>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </li>
+        </ul>
+        <div class="user-chip">
+            <div class="avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
+            <div class="info">
+                <div class="name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                <div class="role">Administrator</div>
+            </div>
+        </div>
+    </div>
+</aside>
+{% endif %}
+{% endblock %}
 
-        /* Cards styling */
-        .card-custom {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 26px;
-            margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
+{# ═══════════════════════════════════════════
+   NAVBAR
+   ═══════════════════════════════════════════ #}
+{% block navbar_class %}navbar-custom{% endblock %}
 
-        .card-custom:hover {
-            border-color: rgba(79, 70, 229, 0.2);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-        }
+{% block navbar_brand %}
+{% if request.user.role == 'admin' %}
+    <div style="font-size:0.875rem; color:rgba(255,255,255,0.45); display:flex; align-items:center; gap:8px;">
+        <a href="/admin-panel/" style="color:rgba(255,255,255,0.45); text-decoration:none;">Admin Panel</a>
+        <span style="color:rgba(255,255,255,0.2);">/</span>
+        <span style="color:rgba(255,255,255,0.85); font-weight:500;">{{ project.name|truncatechars:36 }}</span>
+    </div>
+{% else %}
+    <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+{% endif %}
+{% endblock %}
 
-        .card-title-custom {
-            font-weight: 700;
-            font-size: 1.25rem;
-            margin-bottom: 22px;
-            color: #fff;
+{% block navbar_actions %}
+{% if request.user.role != 'admin' %}
+    <a href="/" class="btn btn-custom-outline btn-sm"><i class="fas fa-arrow-left me-1"></i> Dashboard</a>
+{% endif %}
+{% endblock %}
+
+{# ═══════════════════════════════════════════
+   PAGE-SPECIFIC CSS
+   ═══════════════════════════════════════════ #}
+{% block extra_css %}
+<style>
+    :root {
+        --bg-color: #f5f6fa;
+        --card-bg: #ffffff;
+        --card-border: rgba(255,255,255,0.05);
+        --text-color: #181818;
+        --text-muted: #323438;
+        --primary-blue: #4f46e5;
+        --primary-blue-hover: #4338ca;
+        --nav-bg: #0f1015;
+        --input-bg: rgba(255,255,255,0.04);
+        --input-border: rgba(255,255,255,0.08);
+        --success-green: #10b981;
+        --danger-red: #ef4444;
+        --warning-yellow: #f59e0b;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        background-image: radial-gradient(circle at 10% 20%, rgba(79,70,229,0.05) 0%, transparent 40%),
+                          radial-gradient(circle at 90% 80%, rgba(16,185,129,0.03) 0%, transparent 40%);
+        background-attachment: fixed;
+    }
+
+    .navbar-custom {
+        background-color: var(--nav-bg);
+        border-bottom: 1px solid var(--card-border);
+        padding: 18px 30px;
+    }
+
+    .navbar-brand-custom {
+        font-weight: 800;
+        color: #fff !important;
+        font-size: 1.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .navbar-brand-custom i {
+        background: linear-gradient(135deg, #4f46e5, #10b981);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        color: var(--text-color);
+        border: 1px solid #4ed8a6;
+        font-weight: 500;
+        border-radius: 10px;
+        padding: 9px 18px;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-custom-outline:hover {
+        background-color: rgba(255,255,255,0.05);
+        color: #000000;
+        border-color: rgba(41, 40, 40, 0.3);
+    }
+
+    .container-custom {
+        max-width: 1320px;
+        margin: 40px auto;
+        padding: 0 25px;
+    }
+
+    /* Messages */
+    .lf-messages .alert {
+        border-radius: 12px;
+        border: none;
+        font-size: 0.95rem;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
+    .lf-messages .alert-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.25); }
+    .lf-messages .alert-danger  { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .lf-messages .alert-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.25); }
+
+    /* Header panel */
+    .header-panel {
+        margin-bottom: 30px;
+        background: #1d1d21;
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(10px);
+    }
+
+    .project-title { font-weight: 800; color: #fff; font-size: 2.2rem; letter-spacing: -0.5px; margin-bottom: 8px; }
+
+    /* Cards */
+    .card-custom {
+        background-color: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 26px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card-custom:hover { border-color: rgba(79,70,229,0.2); box-shadow: 0 12px 35px rgba(0,0,0,0.25); }
+    .card-title-custom { font-weight: 700; font-size: 1.25rem; margin-bottom: 22px; color: #fff; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Buttons */
+    .btn-logout {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-        }
-
-        /* Form elements */
-        .form-control-custom, .form-select-custom {
-            background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: #fff !important;
-            padding: 11px 15px;
+            gap: 11px;
+            padding: 10px 14px;
             border-radius: 10px;
-            transition: all 0.2s;
-            font-size: 0.95rem;
-        }
-
-        .form-control-custom:focus, .form-select-custom:focus {
-            background-color: rgba(255, 255, 255, 0.07);
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-            outline: none;
-        }
-
-        .form-control-custom::placeholder {
-            color: var(--text-muted);
-        }
-
-        /* Buttons styling */
-        .btn-custom {
-            background: linear-gradient(135deg, var(--primary-blue), #5850ec);
-            color: #fff;
-            font-weight: 600;
-            padding: 10px 22px;
-            border-radius: 10px;
-            border: none;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-custom:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-            color: #fff;
-            background: linear-gradient(135deg, #4338ca, #4f46e5);
-        }
-
-        .btn-custom-outline {
-            background-color: transparent;
-            color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 0.9rem;
             font-weight: 500;
-            border-radius: 10px;
-            padding: 9px 18px;
-            transition: all 0.2s;
             text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-custom-outline:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-custom-danger {
-            background-color: transparent;
-            color: var(--danger-red);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            font-weight: 500;
-            border-radius: 8px;
-            padding: 6px 12px;
-            transition: all 0.2s;
-        }
-
-        .btn-custom-danger:hover {
-            background-color: rgba(239, 68, 68, 0.1);
-            border-color: var(--danger-red);
-            color: var(--danger-red);
-        }
-
-        /* Badges */
-        .status-badge {
-            font-size: 0.8rem;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-active {
-            background-color: rgba(16, 185, 129, 0.12);
-            color: var(--success-green);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-
-        .status-draft {
-            background-color: rgba(245, 158, 11, 0.12);
-            color: var(--warning-yellow);
-            border: 1px solid rgba(245, 158, 11, 0.2);
-        }
-
-        .badge-label {
-            background-color: rgba(79, 70, 229, 0.08);
-            color: #c7d2fe;
-            border: 1px solid rgba(79, 70, 229, 0.2);
-            margin-right: 6px;
-            margin-bottom: 6px;
-            font-size: 0.8rem;
-            padding: 4px 10px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-
-        /* Stats Cards */
-        .stat-card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 20px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .stat-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
-        }
-
-        .stat-icon-blue {
-            background-color: rgba(79, 70, 229, 0.12);
-            color: #818cf8;
-        }
-
-        .stat-icon-green {
-            background-color: rgba(16, 185, 129, 0.12);
-            color: #34d399;
-        }
-
-        .stat-icon-yellow {
-            background-color: rgba(245, 158, 11, 0.12);
-            color: #fbbf24;
-        }
-
-        .stat-icon-purple {
-            background-color: rgba(139, 92, 246, 0.12);
-            color: #a78bfa;
-        }
-
-        .stat-number {
-            font-size: 1.6rem;
-            font-weight: 800;
-            color: #fff;
-            line-height: 1.2;
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Tables design */
-        .table-custom {
-            color: var(--text-color);
-            margin-bottom: 0;
-        }
-
-        .table-custom th {
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 2px solid var(--card-border);
-            padding: 12px 16px;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .table-custom td {
-            padding: 14px 16px;
-            border-bottom: 1px solid var(--card-border);
-            vertical-align: middle;
-            font-size: 0.95rem;
-        }
-
-        .table-custom tr:hover {
-            background-color: rgba(255, 255, 255, 0.015);
-        }
-
-        .scrollable-card-body {
-            max-height: 400px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-        }
-
-        .scrollable-card-body::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .scrollable-card-body::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .scrollable-card-body::-webkit-scrollbar-thumb {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        /* Alerts */
-        .alert {
-            border-radius: 12px;
+            transition: all 0.18s;
+            width: 100%;
             border: none;
-            font-size: 0.95rem;
-            padding: 15px 20px;
-            margin-bottom: 25px;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+            background: rgba(239,68,68,0.08);
+            color: #dc2626;          
+           
         }
 
-        .alert-success {
-            background-color: rgba(16, 185, 129, 0.15);
-            color: #34d399;
-            border: 1px solid rgba(16, 185, 129, 0.25);
+        .btn-logout:hover {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-color: #dc2626;
         }
 
-        .alert-danger {
-            background-color: rgba(239, 68, 68, 0.15);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, 0.25);
-        }
+    .btn-custom {
+        background: linear-gradient(135deg, var(--primary-blue), #5850ec);
+        color: #fff;
+        font-weight: 600;
+        padding: 10px 22px;
+        border-radius: 10px;
+        border: none;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        text-decoration: none;
+    }
+    .btn-custom:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(79,70,229,0.4); color: #fff; background: linear-gradient(135deg, #4338ca, #4f46e5); }
 
-        .alert-warning {
-            background-color: rgba(245, 158, 11, 0.15);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.25);
-        }
+    .btn-custom-danger { background: transparent; color: var(--danger-red); border: 1px solid rgba(239,68,68,0.2); font-weight: 500; border-radius: 8px; padding: 6px 12px; transition: all 0.2s; }
+    .btn-custom-danger:hover { background: rgba(239,68,68,0.1); border-color: var(--danger-red); color: var(--danger-red); }
 
-        /* Toolbars and search wrapper */
-        .toolbar-wrapper {
-            background-color: rgba(255, 255, 255, 0.02);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
+    /* Badges */
+    .status-badge { font-size: 0.8rem; padding: 6px 12px; border-radius: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .status-active { background: rgba(16,185,129,0.12); color: var(--success-green); border: 1px solid rgba(16,185,129,0.2); }
+    .status-draft { background: rgba(245,158,11,0.12); color: var(--warning-yellow); border: 1px solid rgba(245,158,11,0.2); }
 
-        /* Processing animation */
-        @keyframes pulse-light {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .pulse-processing {
-            animation: pulse-light 1.5s infinite;
-        }
+    .badge-label { background: rgba(79,70,229,0.08); color: #494f69; border: 1px solid rgba(79,70,229,0.2); margin: 3px; font-size: 0.8rem; padding: 4px 10px; border-radius: 6px; display: inline-block; }
 
-        /* Modal custom CSS */
-        .modal-content-custom {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-        }
+    /* Stats */
+    .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; height: 100%; display: flex; align-items: center; gap: 15px; }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.35rem; }
+    .stat-icon-blue { background: rgba(79,70,229,0.12); color: #818cf8; }
+    .stat-icon-green { background: rgba(16,185,129,0.12); color: #34d399; }
+    .stat-icon-yellow { background: rgba(245,158,11,0.12); color: #fbbf24; }
+    .stat-icon-purple { background: rgba(139,92,246,0.12); color: #a78bfa; }
+    .stat-number { font-size: 1.6rem; font-weight: 800; color: #000000; line-height: 1.2; }
+    .stat-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .modal-header-custom {
-            border-bottom: 1px solid var(--card-border);
-            padding: 20px 25px;
-        }
+    /* Progress */
+    .progress-bar-container { background: rgba(255,255,255,0.05); border-radius: 8px; height: 8px; overflow: hidden; margin-top: 10px; }
+    .progress-bar-fill { background: linear-gradient(90deg, var(--primary-blue), var(--success-green)); height: 100%; border-radius: 8px; transition: width 0.4s ease-out; }
 
-        .modal-footer-custom {
-            border-top: 1px solid var(--card-border);
-            padding: 15px 25px;
-        }
+    /* Tables */
+    .table-custom { color: var(--text-color); margin-bottom: 0; }
+    .table-custom th { color: var(--text-muted); font-weight: 600; border-bottom: 2px solid var(--card-border); padding: 12px 16px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .table-custom td { padding: 14px 16px; border-bottom: 1px solid var(--card-border); vertical-align: middle; font-size: 0.95rem; }
+    .table-custom tr:hover { background: rgba(255,255,255,0.015); }
 
-        .modal-body-custom {
-            padding: 25px;
-        }
+    .scrollable-card-body { max-height: 400px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent; }
+    .scrollable-card-body::-webkit-scrollbar { width: 6px; }
+    .scrollable-card-body::-webkit-scrollbar-track { background: transparent; }
+    .scrollable-card-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
-        .progress-bar-container {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            height: 8px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
+    /* Toolbar */
+    .toolbar-wrapper { background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
 
-        .progress-bar-fill {
-            background: linear-gradient(90deg, var(--primary-blue), var(--success-green));
-            height: 100%;
-            border-radius: 8px;
-            transition: width 0.4s ease-out;
-        }
-    </style>
-</head>
-<body>
+    /* Forms */
+    .form-control-custom, .form-select-custom { background: var(--input-bg); border: 1px solid rgb(0 0 0 / 8%); color: #000000 !important; padding: 11px 15px; border-radius: 10px; transition: all 0.2s; font-size: 0.95rem; }
+    .form-control-custom:focus, .form-select-custom:focus { background: rgba(255,255,255,0.07); border-color: var(--primary-blue); box-shadow: 0 0 0 3px rgba(79,70,229,0.2); outline: none; }
+    .form-control-custom::placeholder { color: var(--text-muted); }
 
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <div class="container-fluid">
-        <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
-        <div class="d-flex align-items-center gap-3">
-            <span class="text-muted small"><i class="fas fa-user-circle me-1"></i> {{ request.user.email }}</span>
-            <a href="/" class="btn btn-custom-outline btn-sm"><i class="fas fa-arrow-left me-1"></i> Back to Dashboard</a>
+    /* Modal */
+    .modal-content-custom { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+    .modal-header-custom { border-bottom: 1px solid var(--card-border); padding: 20px 25px; }
+    .modal-footer-custom { border-top: 1px solid var(--card-border); padding: 15px 25px; }
+    .modal-body-custom { padding: 25px; }
+
+    /* Animations */
+    @keyframes pulse-light { 0%,100%{opacity:1;} 50%{opacity:0.5;} }
+    .pulse-processing { animation: pulse-light 1.5s infinite; }
+
+    /* ── Label tag editor ── */
+    .label-editor-box {
+        display: none;
+        margin-top: 14px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--card-border);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    .label-editor-box.open { display: block; }
+
+    .label-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: rgba(79,70,229,0.12);
+        border: 1px solid rgba(79,70,229,0.25);
+        color: #494f69;
+        padding: 4px 10px;
+        border-radius: 7px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin: 3px;
+        transition: border-color 0.15s;
+    }
+    .label-tag:hover { border-color: rgba(79,70,229,0.5); }
+
+    .label-tag .remove-label {
+        cursor: pointer;
+        color: #dc3545;
+        font-size: 1rem;
+        line-height: 1;
+        background: none;
+        border: none;
+        padding: 0 0 0 2px;
+        transition: color 0.15s;
+    }
+    .label-tag .remove-label:hover { color: #f87171; }
+
+    .label-add-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+    }
+    .label-add-row input { flex: 1; }
+</style>
+{% endblock %}
+
+{# ═══════════════════════════════════════════
+   CONTAINER CLASS
+   ═══════════════════════════════════════════ #}
+{% block container_class %}container-custom{% endblock %}
+
+{# ═══════════════════════════════════════════
+   MAIN CONTENT
+   ═══════════════════════════════════════════ #}
+{% block content %}
+
+<!-- Top Header Panel -->
+<div class="header-panel d-flex justify-content-between align-items-start flex-wrap gap-3" id="overview">
+    <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <h1 class="project-title m-0">{{ project.name }}</h1>
+            <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">{{ project.status }}</span>
+        </div>
+        <p class=" fs-6 mt-2 mb-0" style="color: rgb(194, 190, 190);">{{ project.description|default:"No description provided for this project." }}</p>
+    </div>
+</div>
+
+<!-- Stats row -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-blue"><i class="fas fa-database"></i></div>
+            <div><div class="stat-number">{{ stats.total_datasets }}</div><div class="stat-label">Datasets</div></div>
         </div>
     </div>
-</nav>
-
-<div class="container-custom">
-    {% if messages %}
-    <div class="messages-container">
-        {% for message in messages %}
-        <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
-            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %} me-2"></i>
-            {{ message }}
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Top Header Panel -->
-    <div class="header-panel d-flex justify-content-between align-items-start flex-wrap gap-3">
-        <div class="flex-grow-1">
-            <div class="d-flex align-items-center gap-3 flex-wrap">
-                <h1 class="project-title m-0">{{ project.name }}</h1>
-                <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
-                    {{ project.status }}
-                </span>
-            </div>
-            <p class="text-muted fs-6 mt-2 mb-0">{{ project.description|default:"No description provided for this project." }}</p>
-        </div>
-        <div class="d-flex gap-2">
-            {% if role == "owner" or request.user.role == "admin" %}
-                <button type="button" class="btn btn-custom" data-bs-toggle="modal" data-bs-target="#uploadDatasetModal">
-                    <i class="fas fa-cloud-upload-alt"></i> Upload Dataset
-                </button>
-            {% endif %}
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-purple"><i class="fas fa-images"></i></div>
+            <div><div class="stat-number">{{ stats.total_tasks }}</div><div class="stat-label">Total Images</div></div>
         </div>
     </div>
-
-    <!-- Stats dashboard counters row -->
-    <div class="row g-4 mb-4">
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-blue">
-                    <i class="fas fa-database"></i>
-                </div>
-                <div>
-                    <div class="stat-number">{{ stats.total_datasets }}</div>
-                    <div class="stat-label">Datasets</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-purple">
-                    <i class="fas fa-images"></i>
-                </div>
-                <div>
-                    <div class="stat-number">{{ stats.total_tasks }}</div>
-                    <div class="stat-label">Total Images</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-green">
-                    <i class="fas fa-check-double"></i>
-                </div>
-                <div>
-                    <div class="stat-number">{{ stats.approved }}</div>
-                    <div class="stat-label">Approved Tasks</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-icon stat-icon-yellow">
-                    <i class="fas fa-spinner"></i>
-                </div>
-                <div>
-                    <div class="stat-number">{{ stats.submitted }}</div>
-                    <div class="stat-label">Pending Review</div>
-                </div>
-            </div>
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-green"><i class="fas fa-check-double"></i></div>
+            <div><div class="stat-number">{{ stats.approved }}</div><div class="stat-label">Approved Tasks</div></div>
         </div>
     </div>
-
-    <!-- Stats Breakdown Progress Bar -->
-    {% if stats.total_tasks > 0 %}
-    <div class="card-custom py-3 px-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="small text-muted fw-bold">Overall Project Progress</span>
-            <span class="small text-white fw-bold">
-                {% widthratio stats.approved stats.total_tasks 100 %}% ({{ stats.approved }}/{{ stats.total_tasks }} approved)
-            </span>
-        </div>
-        <div class="progress-bar-container">
-            <div class="progress-bar-fill" style="width: {% widthratio stats.approved stats.total_tasks 100 %}%"></div>
-        </div>
-        <div class="d-flex gap-3 flex-wrap mt-2 pt-1">
-            <span class="small text-muted"><span class="badge bg-secondary me-1">{{ stats.unassigned }}</span> Unassigned</span>
-            <span class="small text-muted"><span class="badge bg-warning text-dark me-1">{{ stats.assigned }}</span> Assigned</span>
-            <span class="small text-muted"><span class="badge bg-info text-dark me-1">{{ stats.in_progress }}</span> In Progress</span>
-            <span class="small text-muted"><span class="badge bg-primary me-1">{{ stats.submitted }}</span> Submitted</span>
-            <span class="small text-muted"><span class="badge bg-success me-1">{{ stats.approved }}</span> Approved</span>
-            <span class="small text-muted"><span class="badge bg-danger me-1">{{ stats.rejected }}</span> Rejected</span>
-        </div>
-    </div>
-    {% endif %}
-
-    <div class="row">
-        <!-- Left Column: Details, Datasets & Tasks -->
-        <div class="col-lg-8">
-            <!-- Project Details Card -->
-            <div class="card-custom">
-                <h3 class="card-title-custom"><i class="fas fa-info-circle text-primary me-2"></i>Project Details</h3>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <div class="text-muted small mb-1">Owner</div>
-                        <div class="fw-semibold">{{ project.created_by.email }}</div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="text-muted small mb-1">Created At</div>
-                        <div class="fw-semibold">{{ project.created_at|date:"F d, Y" }}</div>
-                    </div>
-                </div>
-                <div class="mt-4">
-                    <div class="text-muted small mb-2">Annotation Classes / Labels</div>
-                    <div class="d-flex flex-wrap">
-                        {% for label in project.label_set %}
-                            <span class="badge-label">{{ label }}</span>
-                        {% empty %}
-                            <span class="text-muted small">No labels defined for this project.</span>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-
-            <!-- Datasets Card -->
-            <div class="card-custom">
-                <div class="card-title-custom">
-                    <span><i class="fas fa-database text-success me-2"></i>Media Datasets</span>
-                </div>
-
-                {% if datasets %}
-                <div class="table-responsive">
-                    <table class="table table-custom">
-                        <thead>
-                            <tr>
-                                <th>Dataset Name</th>
-                                <th>Total Images</th>
-                                <th>Status</th>
-                                <th>Created At</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for dataset in datasets %}
-                            <tr>
-                                <td class="fw-semibold text-white">{{ dataset.name }}</td>
-                                <td>{{ dataset.total_images }}</td>
-                                <td>
-                                    {% if dataset.status == 'ready' %}
-                                        <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Ready</span>
-                                    {% elif dataset.status == 'processing' %}
-                                        <span class="badge bg-warning text-dark pulse-processing"><i class="fas fa-spinner fa-spin me-1"></i> Processing</span>
-                                    {% else %}
-                                        <span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i> Error</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-muted small">{{ dataset.created_at|date:"M d, Y" }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center my-4 py-3">
-                    <p class="text-muted mb-3">No datasets uploaded to this project yet.</p>
-                    {% if role == "owner" or request.user.role == "admin" %}
-                        <button type="button" class="btn btn-custom btn-sm" data-bs-toggle="modal" data-bs-target="#uploadDatasetModal">
-                            <i class="fas fa-upload me-1"></i> Upload Your First Dataset
-                        </button>
-                    {% endif %}
-                </div>
-                {% endif %}
-            </div>
-
-            <!-- Annotation Tasks Card -->
-            <div class="card-custom">
-                <h3 class="card-title-custom">
-                    <span><i class="fas fa-tasks text-warning me-2"></i>Annotation Tasks</span>
-                    <span class="badge bg-secondary fs-6">{{ tasks|length }} total</span>
-                </h3>
-
-                {% if tasks %}
-                <!-- Filter & Search Toolbar -->
-                <div class="toolbar-wrapper">
-                    <div class="row g-3 align-items-center">
-                        <div class="col-md-7 col-sm-12">
-                            <div class="input-group">
-                                <span class="input-group-text" style="background-color: rgba(255,255,255,0.02); border-color: var(--input-border); color: var(--text-muted);">
-                                    <i class="fas fa-search"></i>
-                                </span>
-                                <input type="text" id="taskSearchInput" class="form-control form-control-custom" placeholder="Search by image filename...">
-                            </div>
-                        </div>
-                        <div class="col-md-5 col-sm-12">
-                            <div class="d-flex align-items-center gap-2">
-                                <label for="taskStatusFilter" class="small text-muted text-nowrap m-0">Status:</label>
-                                <select id="taskStatusFilter" class="form-select form-select-custom w-100">
-                                    <option value="all">All Tasks</option>
-                                    <option value="unassigned">Unassigned</option>
-                                    <option value="assigned">Assigned</option>
-                                    <option value="in_progress">In Progress</option>
-                                    <option value="submitted">Submitted</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="rejected">Rejected</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="scrollable-card-body">
-                    <div class="table-responsive">
-                        <table class="table table-custom" id="tasksTable">
-                            <thead>
-                                <tr>
-                                    <th>Image File</th>
-                                    <th>Assigned To</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for task in tasks %}
-                                <tr class="task-row" data-filename="{{ task.image.filename }}" data-status="{{ task.status }}">
-                                    <td class="text-white fw-medium" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                        {{ task.image.filename }}
-                                    </td>
-                                    <td>
-                                        {% if role == "owner" or request.user.role == "admin" %}
-                                            <form action="/annotations/assign/{{ task.id }}/" method="POST" class="d-inline-block m-0">
-                                                {% csrf_token %}
-                                                <select name="annotator_id" class="form-select form-select-custom form-select-sm" onchange="this.form.submit()" style="max-width: 180px; padding: 4px 8px; font-size: 0.85rem;">
-                                                    <option value="">-- Unassigned --</option>
-                                                    {% for member in members %}
-                                                        {% if member.role_in_project == "annotator" %}
-                                                            <option value="{{ member.user.id }}" {% if task.assigned_to == member.user %}selected{% endif %}>
-                                                                {{ member.user.first_name }} {{ member.user.last_name }}
-                                                            </option>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                </select>
-                                            </form>
-                                        {% else %}
-                                            <span class="text-muted">{{ task.assigned_to.email|default:"Unassigned" }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if task.status == 'approved' %}
-                                            <span class="badge bg-success text-uppercase">approved</span>
-                                        {% elif task.status == 'submitted' %}
-                                            <span class="badge bg-primary text-uppercase">submitted</span>
-                                        {% elif task.status == 'assigned' %}
-                                            <span class="badge bg-warning text-dark text-uppercase">assigned</span>
-                                        {% elif task.status == 'in_progress' %}
-                                            <span class="badge bg-info text-dark text-uppercase">in progress</span>
-                                        {% elif task.status == 'rejected' %}
-                                            <span class="badge bg-danger text-uppercase">rejected</span>
-                                        {% else %}
-                                            <span class="badge bg-secondary text-uppercase">unassigned</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="text-end">
-                                        {% if task.assigned_to == request.user and task.status != 'approved' %}
-                                            <a href="/annotations/task/{{ task.id }}/" class="btn btn-custom btn-sm py-1 px-3">
-                                                <i class="fas fa-edit me-1"></i> Label
-                                            </a>
-                                        {% elif task.status == 'submitted' and role == 'owner' or task.status == 'submitted' and role == 'reviewer' or task.status == 'submitted' and request.user.role == 'admin' %}
-                                            <a href="/annotations/review/{{ task.id }}/" class="btn btn-custom-outline text-info border-info btn-sm py-1 px-3">
-                                                <i class="fas fa-clipboard-check me-1"></i> Review
-                                            </a>
-                                        {% else %}
-                                            <span class="text-muted small">-</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% else %}
-                <p class="text-muted text-center my-4 py-3">No annotation tasks generated yet. Upload a dataset to generate tasks.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Right Column: Members & Task Assignment Tools -->
-        <div class="col-lg-4">
-            <!-- Project Members Card -->
-            <div class="card-custom">
-                <h3 class="card-title-custom"><i class="fas fa-users-cog text-primary me-2"></i>Project Members</h3>
-                
-                {% if role == "owner" or request.user.role == "admin" %}
-                <!-- Admin Add Member Form -->
-                <div class="mb-4 p-3 rounded" style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border);">
-                    <div class="fw-semibold mb-3 small text-muted text-uppercase">Assign Project Member</div>
-                    <form id="assignMemberForm">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="small text-muted mb-1" for="memberUser">Select User</label>
-                            <select id="memberUser" class="form-select form-select-custom w-100" required>
-                                <option value="" disabled selected>-- Select a user --</option>
-                                {% for user in potential_users %}
-                                    <option value="{{ user.id }}">{{ user.email }} ({{ user.first_name }} {{ user.last_name }})</option>
-                                {% empty %}
-                                    <option value="" disabled>No other registered users</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="small text-muted mb-1" for="memberRole">Role</label>
-                            <select id="memberRole" class="form-select form-select-custom w-100">
-                                <option value="annotator">Annotator</option>
-                                <option value="reviewer">Reviewer</option>
-                            </select>
-                        </div>
-                        <div id="assignMessageBox"></div>
-                        <button type="submit" class="btn btn-custom btn-sm w-100 mt-2"><i class="fas fa-user-plus me-1"></i> Assign Member</button>
-                    </form>
-                </div>
-                {% endif %}
-
-                <!-- Members List -->
-                <div class="table-responsive">
-                    <table class="table table-custom mb-0" id="membersTable">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Role</th>
-                                {% if role == "owner" or request.user.role == "admin" %}
-                                    <th class="text-end">Action</th>
-                                {% endif %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for member in members %}
-                            <tr id="member-row-{{ member.user.id }}">
-                                <td>
-                                    <div class="fw-semibold text-white">{{ member.user.first_name }} {{ member.user.last_name }}</div>
-                                    <div class="small text-muted" style="max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ member.user.email }}</div>
-                                </td>
-                                <td>
-                                    <span class="badge text-uppercase {% if member.role_in_project == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
-                                        {{ member.role_in_project }}
-                                    </span>
-                                </td>
-                                {% if role == "owner" or request.user.role == "admin" %}
-                                <td class="text-end">
-                                    <button class="btn btn-custom-danger btn-sm py-1 px-2" onclick="removeMember('{{ member.user.id }}')"><i class="fas fa-trash-alt"></i></button>
-                                </td>
-                                {% endif %}
-                            </tr>
-                            {% empty %}
-                            <tr id="noMembersRow">
-                                <td colspan="3" class="text-muted text-center py-3">No members assigned yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            {% if role == "owner" or request.user.role == "admin" %}
-            <!-- Task Assignment Tools Card -->
-            <div class="card-custom">
-                <h3 class="card-title-custom"><i class="fas fa-tasks text-warning me-2"></i>Task Assignment</h3>
-                
-                <!-- Tab/Section: Bulk Assign -->
-                <div class="p-3 rounded mb-3" style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border);">
-                    <div class="fw-semibold mb-3 small text-muted text-uppercase">Bulk Assign Tasks</div>
-                    <form action="/annotations/bulk-assign/{{ project.id }}/" method="POST">
-                        {% csrf_token %}
-                        <div class="mb-3">
-                            <label class="small text-muted mb-1" for="bulkAnnotator">Select Annotator</label>
-                            <select id="bulkAnnotator" name="annotator_id" class="form-select form-select-custom w-100" required>
-                                <option value="" disabled selected>-- Select an annotator --</option>
-                                {% for member in members %}
-                                    {% if member.role_in_project == "annotator" %}
-                                        <option value="{{ member.user.id }}">{{ member.user.email }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="small text-muted mb-1" for="bulkDataset">Dataset Filter</label>
-                            <select id="bulkDataset" name="dataset_id" class="form-select form-select-custom w-100">
-                                <option value="">All Datasets</option>
-                                {% for dataset in datasets %}
-                                    <option value="{{ dataset.id }}">{{ dataset.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label class="small text-muted mb-1" for="bulkNumTasks">Number of Images/Tasks</label>
-                            <input type="number" id="bulkNumTasks" name="num_tasks" class="form-control form-control-custom w-100" value="50" min="1" required>
-                        </div>
-                        <button type="submit" class="btn btn-custom btn-sm w-100 mt-2"><i class="fas fa-shipping-fast me-1"></i> Bulk Assign Tasks</button>
-                    </form>
-                </div>
-
-                <!-- Tab/Section: Auto Assign -->
-                <div class="p-3 rounded" style="background-color: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border);">
-                    <div class="fw-semibold mb-2 small text-muted text-uppercase">Auto-Distribute Tasks</div>
-                    <p class="small text-muted mb-3">Distribute all currently unassigned tasks evenly among all project annotators.</p>
-                    <form action="/annotations/auto-assign/{{ project.id }}/" method="POST">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-custom-outline btn-sm w-100 text-success border-success" style="background-color: rgba(16, 185, 129, 0.05);">
-                            <i class="fas fa-magic me-1"></i> Auto-Assign Tasks
-                        </button>
-                    </form>
-                </div>
-            </div>
-            {% endif %}
+    <div class="col-md-3 col-sm-6">
+        <div class="stat-card">
+            <div class="stat-icon stat-icon-yellow"><i class="fas fa-spinner"></i></div>
+            <div><div class="stat-number">{{ stats.submitted }}</div><div class="stat-label">Pending Review</div></div>
         </div>
     </div>
 </div>
 
+<!-- Progress bar -->
+{% if stats.total_tasks > 0 %}
+<div class="card-custom py-3 px-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-1">
+        <span class="small text-muted fw-bold">Overall Project Progress</span>
+        <span class="small text-white fw-bold">{% widthratio stats.approved stats.total_tasks 100 %}% ({{ stats.approved }}/{{ stats.total_tasks }} approved)</span>
+    </div>
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" style="width:{% widthratio stats.approved stats.total_tasks 100 %}%"></div>
+    </div>
+    <div class="d-flex gap-3 flex-wrap mt-2 pt-1">
+        <span class="small text-muted"><span class="badge bg-secondary me-1">{{ stats.unassigned }}</span> Unassigned</span>
+        <span class="small text-muted"><span class="badge bg-warning text-dark me-1">{{ stats.assigned }}</span> Assigned</span>
+        <span class="small text-muted"><span class="badge bg-info text-dark me-1">{{ stats.in_progress }}</span> In Progress</span>
+        <span class="small text-muted"><span class="badge bg-primary me-1">{{ stats.submitted }}</span> Submitted</span>
+        <span class="small text-muted"><span class="badge bg-success me-1">{{ stats.approved }}</span> Approved</span>
+        <span class="small text-muted"><span class="badge bg-danger me-1">{{ stats.rejected }}</span> Rejected</span>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    <!-- Left column -->
+    <div class="col-lg-8">
+
+        <!-- Project Details + Label Editor -->
+        <div class="card-custom">
+            <h3 class="card-title-custom"><i class="fas fa-info-circle text-primary me-2"></i>Project Details</h3>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Owner</div>
+                    <div class="fw-semibold">{{ project.created_by.email }}</div>
+                </div>
+                <div class="col-md-6">
+                    <div class="text-muted small mb-1">Created At</div>
+                    <div class="fw-semibold">{{ project.created_at|date:"F d, Y" }}</div>
+                </div>
+            </div>
+
+            <!-- Labels section -->
+            <div class="mt-4">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="text-muted small fw-semibold text-uppercase" style="letter-spacing:0.5px;">Annotation Labels</div>
+                    {% if role == "owner" or request.user.role == "admin" %}
+                    <button class="btn btn-custom-outline btn-sm py-1 px-3" id="toggleLabelEditorBtn" style="font-size:0.78rem;">
+                        <i class="fas fa-pencil-alt me-1"></i> Edit Labels
+                    </button>
+                    {% endif %}
+                </div>
+
+                <!-- Live label display -->
+                <div class="d-flex flex-wrap" id="labelsDisplay">
+                    {% for label in project.label_set %}
+                        <span class="badge-label">{{ label }}</span>
+                    {% empty %}
+                        <span class="text-muted small" id="noLabelsPlaceholder">No labels defined yet.</span>
+                    {% endfor %}
+                </div>
+
+                {% if role == "owner" or request.user.role == "admin" %}
+                <!-- ── Label editor panel ── -->
+                <div class="label-editor-box" id="labelEditorBox">
+                    <div class="small text-muted mb-2 fw-semibold text-uppercase" style="font-size:0.68rem; letter-spacing:0.5px;">
+                        <i class="fas fa-tags me-1"></i> Click × to remove label.
+                    </div>
+
+                    <!-- Editable tag chips -->
+                    <div id="labelTagContainer" class="d-flex flex-wrap mb-3">
+                        {% for label in project.label_set %}
+                        <span class="label-tag" data-label="{{ label }}">
+                            {{ label }}
+                            <button class="remove-label" type="button" title="Remove label">×</button>
+                        </span>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Add new label row -->
+                    <div class="label-add-row">
+                        <input type="text" id="newLabelInput" class="form-control form-control-custom"
+                               placeholder="e.g. car, bus, train "
+                               style="font-size:0.875rem; padding:9px 13px;">
+                        <button class="btn btn-custom btn-sm" id="addLabelBtn" type="button" style="white-space:nowrap; padding:9px 16px;">
+                            <i class="fas fa-plus me-1"></i> Add
+                        </button>
+                    </div>
+
+                    <!-- Action row -->
+                    <div class="d-flex gap-2 mt-3">
+                        <button class="btn btn-custom btn-sm" id="saveLabelBtn" type="button" style="padding:8px 18px;">
+                            <i class="fas fa-save me-1"></i> Save Labels
+                        </button>
+                        <button class="btn btn-custom-outline btn-sm" id="cancelLabelBtn" type="button" style="padding:8px 14px;">
+                            Cancel
+                        </button>
+                    </div>
+                    <div id="labelSaveMsg" class="mt-2"></div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Datasets Card -->
+        <div class="card-custom" id="datasets">
+            <div class="card-title-custom">
+                <span><i class="fas fa-database text-success me-2"></i>Media Datasets</span>
+            </div>
+            {% if datasets %}
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead><tr><th>Dataset Name</th><th>Total Images</th><th>Status</th><th>Created At</th></tr></thead>
+                    <tbody>
+                        {% for dataset in datasets %}
+                        <tr>
+                            <td class="fw-semibold text-white">{{ dataset.name }}</td>
+                            <td>{{ dataset.total_images }}</td>
+                            <td>
+                                {% if dataset.status == 'ready' %}
+                                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Ready</span>
+                                {% elif dataset.status == 'processing' %}
+                                    <span class="badge bg-warning text-dark pulse-processing"><i class="fas fa-spinner fa-spin me-1"></i> Processing</span>
+                                {% else %}
+                                    <span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i> Error</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-muted small">{{ dataset.created_at|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center my-4 py-3">
+                <p class="text-muted mb-3">No datasets uploaded yet.</p>
+                {% if role == "owner" or request.user.role == "admin" %}
+                <button type="button" class="btn btn-custom btn-sm" data-bs-toggle="modal" data-bs-target="#uploadDatasetModal">
+                    <i class="fas fa-upload me-1"></i> Upload Your First Dataset
+                </button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Annotation Tasks Card -->
+        <div class="card-custom" id="tasks">
+            <h3 class="card-title-custom">
+                <span><i class="fas fa-tasks text-warning me-2"></i>Annotation Tasks</span>
+                <span class="badge bg-secondary fs-6">{{ tasks|length }} total</span>
+            </h3>
+
+            {% if tasks %}
+            <div class="toolbar-wrapper">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-7 col-sm-12">
+                        <div class="input-group">
+                            <span class="input-group-text" style="background:rgba(255,255,255,0.02); border-color:var(--input-border); color:var(--text-muted);">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" id="taskSearchInput" class="form-control form-control-custom" placeholder="Search by image filename...">
+                        </div>
+                    </div>
+                    <div class="col-md-5 col-sm-12">
+                        <div class="d-flex align-items-center gap-2">
+                            <label for="taskStatusFilter" class="small text-muted text-nowrap m-0">Status:</label>
+                            <select id="taskStatusFilter" class="form-select form-select-custom w-100">
+                                <option value="all">All Tasks</option>
+                                <option value="unassigned">Unassigned</option>
+                                <option value="assigned">Assigned</option>
+                                <option value="in_progress">In Progress</option>
+                                <option value="submitted">Submitted</option>
+                                <option value="approved">Approved</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scrollable-card-body">
+                <div class="table-responsive">
+                    <table class="table table-custom" id="tasksTable">
+                        <thead>
+                            <tr><th>Image File</th><th>Assigned To</th><th>Status</th><th class="text-end">Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for task in tasks %}
+                            <tr class="task-row" data-filename="{{ task.image.filename }}" data-status="{{ task.status }}">
+                                <td class="text-white fw-medium" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                                    {{ task.image.filename }}
+                                </td>
+                                <td>
+                                    {% if role == "owner" or request.user.role == "admin" %}
+                                    <form action="/annotations/assign/{{ task.id }}/" method="POST" class="d-inline-block m-0">
+                                        {% csrf_token %}
+                                        <select name="annotator_id" class="form-select form-select-custom form-select-sm" onchange="this.form.submit()" style="max-width:180px;padding:4px 8px;font-size:0.85rem;">
+                                            <option value="">-- Unassigned --</option>
+                                            {% for member in members %}
+                                                {% if member.role_in_project == "annotator" %}
+                                                <option value="{{ member.user.id }}" {% if task.assigned_to == member.user %}selected{% endif %}>
+                                                    {{ member.user.first_name }} {{ member.user.last_name }}
+                                                </option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </form>
+                                    {% else %}
+                                    <span class="text-muted">{{ task.assigned_to.email|default:"Unassigned" }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if task.status == 'approved' %}<span class="badge bg-success text-uppercase">approved</span>
+                                    {% elif task.status == 'submitted' %}<span class="badge bg-primary text-uppercase">submitted</span>
+                                    {% elif task.status == 'assigned' %}<span class="badge bg-warning text-dark text-uppercase">assigned</span>
+                                    {% elif task.status == 'in_progress' %}<span class="badge bg-info text-dark text-uppercase">in progress</span>
+                                    {% elif task.status == 'rejected' %}<span class="badge bg-danger text-uppercase">rejected</span>
+                                    {% else %}<span class="badge bg-secondary text-uppercase">unassigned</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if task.assigned_to == request.user and task.status != 'approved' %}
+                                        <a href="/annotations/task/{{ task.id }}/" class="btn btn-custom btn-sm py-1 px-3"><i class="fas fa-edit me-1"></i> Label</a>
+                                    {% elif task.status == 'submitted' and role == 'owner' or task.status == 'submitted' and role == 'reviewer' or task.status == 'submitted' and request.user.role == 'admin' %}
+                                        <a href="/annotations/review/{{ task.id }}/" class="btn btn-custom-outline text-info border-info btn-sm py-1 px-3"><i class="fas fa-clipboard-check me-1"></i> Review</a>
+                                    {% else %}
+                                        <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted text-center my-4 py-3">No annotation tasks yet. Upload a dataset to generate tasks.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right column -->
+    <div class="col-lg-4">
+
+        <!-- Members Card -->
+        <div class="card-custom" id="members">
+            <h3 class="card-title-custom"><i class="fas fa-users-cog text-primary me-2"></i>Project Members</h3>
+
+            {% if role == "owner" or request.user.role == "admin" %}
+            <div class="mb-4 p-3 rounded" style="background:rgba(255,255,255,0.02); border:1px solid var(--card-border);">
+                <div class="fw-semibold mb-3 small text-muted text-uppercase">Assign Project Member</div>
+                <form id="assignMemberForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Select User</label>
+                        <select id="memberUser" class="form-select form-select-custom w-100" required>
+                            <option value="" disabled selected>-- Select a user --</option>
+                            {% for user in potential_users %}
+                            <option value="{{ user.id }}">{{ user.email }} ({{ user.first_name }} {{ user.last_name }})</option>
+                            {% empty %}
+                            <option value="" disabled>No other registered users</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Role</label>
+                        <select id="memberRole" class="form-select form-select-custom w-100">
+                            <option value="annotator">Annotator</option>
+                            <option value="reviewer">Reviewer</option>
+                        </select>
+                    </div>
+                    <div id="assignMessageBox"></div>
+                    <button type="submit" class="btn btn-custom btn-sm w-100 mt-1"><i class="fas fa-user-plus me-1"></i> Assign Member</button>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="table-responsive">
+                <table class="table table-custom mb-0" id="membersTable">
+                    <thead>
+                        <tr>
+                            <th>User</th><th>Role</th>
+                            {% if role == "owner" or request.user.role == "admin" %}<th class="text-end">Action</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in members %}
+                        <tr id="member-row-{{ member.user.id }}">
+                            <td>
+                                <div class="fw-semibold text-white">{{ member.user.first_name }} {{ member.user.last_name }}</div>
+                                <div class="small text-muted" style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ member.user.email }}</div>
+                            </td>
+                            <td>
+                                <span class="badge text-uppercase {% if member.role_in_project == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">{{ member.role_in_project }}</span>
+                            </td>
+                            {% if role == "owner" or request.user.role == "admin" %}
+                            <td class="text-end">
+                                <button class="btn btn-custom-danger btn-sm py-1 px-2" onclick="removeMember('{{ member.user.id }}')"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr id="noMembersRow">
+                            <td colspan="3" class="text-muted text-center py-3">No members assigned yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if role == "owner" or request.user.role == "admin" %}
+        <!-- Task Assignment Card -->
+        <div class="card-custom">
+            <h3 class="card-title-custom"><i class="fas fa-tasks text-warning me-2"></i>Task Assignment</h3>
+
+            <div class="p-3 rounded mb-3" style="background:rgba(255,255,255,0.02); border:1px solid var(--card-border);">
+                <div class="fw-semibold mb-3 small text-muted text-uppercase">Bulk Assign Tasks</div>
+                <form action="/annotations/bulk-assign/{{ project.id }}/" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Select Annotator</label>
+                        <select id="bulkAnnotator" name="annotator_id" class="form-select form-select-custom w-100" required>
+                            <option value="" disabled selected>-- Select an annotator --</option>
+                            {% for member in members %}{% if member.role_in_project == "annotator" %}
+                            <option value="{{ member.user.id }}">{{ member.user.email }}</option>
+                            {% endif %}{% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Dataset Filter</label>
+                        <select name="dataset_id" class="form-select form-select-custom w-100">
+                            <option value="">All Datasets</option>
+                            {% for dataset in datasets %}<option value="{{ dataset.id }}">{{ dataset.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small text-muted mb-1">Number of Images</label>
+                        <input type="number" name="num_tasks" class="form-control form-control-custom w-100" value="50" min="1" required>
+                    </div>
+                    <button type="submit" class="btn btn-custom btn-sm w-100 mt-1"><i class="fas fa-shipping-fast me-1"></i> Bulk Assign</button>
+                </form>
+            </div>
+
+            <div class="p-3 rounded" style="background:rgba(255,255,255,0.02); border:1px solid var(--card-border);">
+                <div class="fw-semibold mb-2 small text-muted text-uppercase">Auto-Distribute Tasks</div>
+                <p class="small text-muted mb-3">Distribute all unassigned tasks evenly across all annotators.</p>
+                <form action="/annotations/auto-assign/{{ project.id }}/" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-custom-outline btn-sm w-100 text-success border-success" style="background:rgba(16,185,129,0.05);">
+                        <i class="fas fa-magic me-1"></i> Auto-Assign Tasks
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 <!-- Upload Dataset Modal -->
-<div class="modal fade" id="uploadDatasetModal" tabindex="-1" aria-labelledby="uploadDatasetModalLabel" aria-hidden="true">
+<div class="modal fade" id="uploadDatasetModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content modal-content-custom">
             <div class="modal-header modal-header-custom">
-                <h5 class="modal-title text-white" id="uploadDatasetModalLabel"><i class="fas fa-cloud-upload-alt text-success me-2"></i>Upload Dataset</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title text-white"><i class="fas fa-cloud-upload-alt text-success me-2"></i>Upload Dataset</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="/datasets/upload/{{ project.id }}/" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="modal-body modal-body-custom">
                     <div class="mb-3">
-                        <label for="datasetName" class="form-label small text-muted">Dataset Name</label>
-                        <input type="text" class="form-control form-control-custom" id="datasetName" name="name" placeholder="e.g. Traffic Lights (Batch 1)" required>
+                        <label class="form-label small text-muted">Dataset Name</label>
+                        <input type="text" class="form-control form-control-custom" name="name" placeholder="e.g. Traffic Lights (Batch 1)" required>
                     </div>
                     <div class="mb-3">
-                        <label for="datasetZip" class="form-label small text-muted">ZIP Archive</label>
-                        <input type="file" class="form-control form-control-custom" id="datasetZip" name="zip_file" accept=".zip" required>
-                        <div class="form-text text-muted mt-2 small">Upload a ZIP archive containing images (.jpg, .jpeg, .png, .webp, .gif).</div>
+                        <label class="form-label small text-muted">ZIP Archive</label>
+                        <input type="file" class="form-control form-control-custom" name="zip_file" accept=".zip" required>
+                        <div class="form-text text-muted mt-2 small">Upload a ZIP of images (.jpg .jpeg .png .webp .gif).</div>
                     </div>
                 </div>
                 <div class="modal-footer modal-footer-custom">
                     <button type="button" class="btn btn-custom-outline btn-sm" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-custom btn-sm"><i class="fas fa-upload me-1"></i> Upload Dataset</button>
+                    <button type="submit" class="btn btn-custom btn-sm"><i class="fas fa-upload me-1"></i> Upload</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap 5 Bundle JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
 
+{# ═══════════════════════════════════════════
+   PAGE JAVASCRIPT
+   ═══════════════════════════════════════════ #}
+{% block extra_js %}
 <script>
 const projectId = "{{ project.id }}";
-const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
 
-// Client-side search and filtering for tasks
+// ── Logout (admin) ──
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        const r = await fetch('/api/logout/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken }
+        });
+        if (r.ok) window.location.href = '/login/';
+    });
+}
+
+// ── Task filter ──
 const searchInput = document.getElementById('taskSearchInput');
 const statusFilter = document.getElementById('taskStatusFilter');
 const taskRows = document.querySelectorAll('.task-row');
 
 function filterTasks() {
-    if (!searchInput || !statusFilter) return;
-    const searchTerm = searchInput.value.toLowerCase().trim();
-    const selectedStatus = statusFilter.value;
-    
+    const term = searchInput?.value.toLowerCase().trim() || '';
+    const status = statusFilter?.value || 'all';
     taskRows.forEach(row => {
-        const filename = row.getAttribute('data-filename').toLowerCase();
-        const status = row.getAttribute('data-status');
-        
-        const matchesSearch = filename.includes(searchTerm);
-        const matchesStatus = (selectedStatus === 'all' || status === selectedStatus);
-        
-        if (matchesSearch && matchesStatus) {
-            row.style.display = '';
-        } else {
-            row.style.display = 'none';
-        }
+        const fn = row.dataset.filename.toLowerCase();
+        const st = row.dataset.status;
+        row.style.display = (fn.includes(term) && (status === 'all' || st === status)) ? '' : 'none';
     });
 }
+searchInput?.addEventListener('input', filterTasks);
+statusFilter?.addEventListener('change', filterTasks);
 
-if (searchInput && statusFilter) {
-    searchInput.addEventListener('input', filterTasks);
-    statusFilter.addEventListener('change', filterTasks);
-}
+// ── Smooth scroll for sidebar anchors ──
+document.querySelectorAll('.lf-sidebar a[href*="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+        const hash = a.getAttribute('href').split('#')[1];
+        const el = document.getElementById(hash);
+        if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+});
 
 {% if role == "owner" or request.user.role == "admin" %}
-document.getElementById("assignMemberForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
-    
-    const userSelect = document.getElementById("memberUser");
-    const roleSelect = document.getElementById("memberRole");
-    const assignMessageBox = document.getElementById("assignMessageBox");
-    
-    const userId = userSelect.value;
-    const roleVal = roleSelect.value;
-    
-    if (!userId) {
-        return;
-    }
-    
-    assignMessageBox.innerHTML = '';
-    
-    try {
-        const response = await fetch(`/api/${projectId}/members/`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken
-            },
-            body: JSON.stringify({
-                user: userId,
-                role_in_project: roleVal
-            })
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            assignMessageBox.innerHTML = `
-                <div class="alert alert-success p-2 small mt-2">
-                    <i class="fas fa-check-circle me-1"></i> Member assigned successfully!
-                </div>
-            `;
-            
-            // Remove no members row if it exists
-            const noMembersRow = document.getElementById("noMembersRow");
-            if (noMembersRow) {
-                noMembersRow.remove();
-            }
-            
-            // Check if member already exists in DOM table
-            const existingRow = document.getElementById(`member-row-${result.user}`);
-            const roleBadgeClass = result.role_in_project === 'reviewer' ? 'bg-info text-dark' : 'bg-secondary';
-            
-            if (existingRow) {
-                existingRow.children[1].innerHTML = `<span class="badge text-uppercase ${roleBadgeClass}">${result.role_in_project}</span>`;
-            } else {
-                const tableBody = document.querySelector("#membersTable tbody");
-                const newRow = document.createElement("tr");
-                newRow.id = `member-row-${result.user}`;
-                newRow.innerHTML = `
-                    <td>
-                        <div class="fw-semibold text-white">${result.user_name}</div>
-                        <div class="small text-muted">${result.user_email}</div>
-                    </td>
-                    <td>
-                        <span class="badge text-uppercase ${roleBadgeClass}">${result.role_in_project}</span>
-                    </td>
-                    <td class="text-end">
-                        <button class="btn btn-custom-danger btn-sm py-1 px-2" onclick="removeMember('${result.user}')"><i class="fas fa-trash-alt"></i></button>
-                    </td>
-                `;
-                tableBody.appendChild(newRow);
-            }
-            
-            // Remove option from dropdown list
-            const optionToRemove = userSelect.querySelector(`option[value="${userId}"]`);
-            if (optionToRemove) {
-                optionToRemove.remove();
-            }
-            userSelect.value = "";
-            
-            // Reload page to reflect new member dropdowns in the task assignments
-            setTimeout(() => { window.location.reload(); }, 1000);
-            
-        } else {
-            assignMessageBox.innerHTML = `
-                <div class="alert alert-danger p-2 small mt-2">
-                    <i class="fas fa-exclamation-circle me-1"></i> ${result.detail || "Error adding member."}
-                </div>
-            `;
+// ════════════════════════════════════════════
+// LABEL EDITOR
+// ════════════════════════════════════════════
+const toggleBtn   = document.getElementById('toggleLabelEditorBtn');
+const editorBox   = document.getElementById('labelEditorBox');
+const tagContainer = document.getElementById('labelTagContainer');
+const newInput    = document.getElementById('newLabelInput');
+const addBtn      = document.getElementById('addLabelBtn');
+const saveBtn     = document.getElementById('saveLabelBtn');
+const cancelBtn   = document.getElementById('cancelLabelBtn');
+const saveMsg     = document.getElementById('labelSaveMsg');
+const displayArea = document.getElementById('labelsDisplay');
+
+// Toggle editor visibility
+toggleBtn?.addEventListener('click', () => {
+    const isOpen = editorBox.classList.contains('open');
+    editorBox.classList.toggle('open', !isOpen);
+    toggleBtn.innerHTML = isOpen
+        ? '<i class="fas fa-pencil-alt me-1"></i> Edit Labels'
+        : '<i class="fas fa-times me-1"></i> Close Editor';
+});
+
+cancelBtn?.addEventListener('click', () => {
+    editorBox.classList.remove('open');
+    toggleBtn.innerHTML = '<i class="fas fa-pencil-alt me-1"></i> Edit Labels';
+    saveMsg.innerHTML = '';
+});
+
+// Build a tag element
+function makeTag(label) {
+    const span = document.createElement('span');
+    span.className = 'label-tag';
+    span.dataset.label = label;
+    const btn = document.createElement('button');
+    btn.className = 'remove-label';
+    btn.type = 'button';
+    btn.title = 'Remove';
+    btn.textContent = '×';
+    btn.addEventListener('click', () => span.remove());
+    span.appendChild(document.createTextNode(label + ' '));
+    span.appendChild(btn);
+    return span;
+}
+
+// Add one or more labels (comma-separated input)
+function addLabels() {
+    const raw = newInput.value.trim();
+    if (!raw) return;
+    const incoming = raw.split(',').map(l => l.trim()).filter(l => l.length > 0);
+    const existing = new Set(
+        Array.from(tagContainer.querySelectorAll('.label-tag')).map(t => t.dataset.label.toLowerCase())
+    );
+    incoming.forEach(label => {
+        if (!existing.has(label.toLowerCase())) {
+            tagContainer.appendChild(makeTag(label));
+            existing.add(label.toLowerCase());
         }
-    } catch (err) {
-        assignMessageBox.innerHTML = `
-            <div class="alert alert-danger p-2 small mt-2">
-                <i class="fas fa-exclamation-triangle me-1"></i> API connection error.
-            </div>
-        `;
+    });
+    newInput.value = '';
+    newInput.focus();
+}
+
+addBtn?.addEventListener('click', addLabels);
+newInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addLabels(); } });
+
+// Wire up existing × buttons
+tagContainer?.querySelectorAll('.remove-label').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.label-tag').remove());
+});
+
+// Save via PATCH
+saveBtn?.addEventListener('click', async () => {
+    const labels = Array.from(tagContainer.querySelectorAll('.label-tag'))
+                        .map(t => t.dataset.label)
+                        .filter(l => l);
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Saving…';
+    saveMsg.innerHTML = '';
+
+    try {
+        const res = await fetch(`/api/${projectId}/`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ label_set: labels })
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+            // Refresh the live display
+            displayArea.innerHTML = '';
+            if (labels.length === 0) {
+                displayArea.innerHTML = '<span class="text-muted small" id="noLabelsPlaceholder">No labels defined yet.</span>';
+            } else {
+                labels.forEach(l => {
+                    const s = document.createElement('span');
+                    s.className = 'badge-label';
+                    s.textContent = l;
+                    displayArea.appendChild(s);
+                });
+            }
+            saveMsg.innerHTML = `<div class="alert alert-success p-2 small mt-2"><i class="fas fa-check-circle me-1"></i> Labels saved!</div>`;
+            setTimeout(() => {
+                editorBox.classList.remove('open');
+                toggleBtn.innerHTML = '<i class="fas fa-pencil-alt me-1"></i> Edit Labels';
+                saveMsg.innerHTML = '';
+            }, 1600);
+        } else {
+            saveMsg.innerHTML = `<div class="alert alert-danger p-2 small mt-2"><i class="fas fa-exclamation-circle me-1"></i> ${data.detail || 'Error saving labels.'}</div>`;
+        }
+    } catch {
+        saveMsg.innerHTML = `<div class="alert alert-danger p-2 small mt-2"><i class="fas fa-exclamation-triangle me-1"></i> API connection error.</div>`;
+    }
+
+    saveBtn.disabled = false;
+    saveBtn.innerHTML = '<i class="fas fa-save me-1"></i> Save Labels';
+});
+
+// ════════════════════════════════════════════
+// MEMBER MANAGEMENT
+// ════════════════════════════════════════════
+document.getElementById('assignMemberForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const userId = document.getElementById('memberUser').value;
+    const roleVal = document.getElementById('memberRole').value;
+    const msgBox = document.getElementById('assignMessageBox');
+    if (!userId) return;
+    msgBox.innerHTML = '';
+    try {
+        const res = await fetch(`/api/${projectId}/members/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ user: userId, role_in_project: roleVal })
+        });
+        const data = await res.json();
+        if (res.ok) {
+            msgBox.innerHTML = `<div class="alert alert-success p-2 small mt-2"><i class="fas fa-check-circle me-1"></i> Member assigned!</div>`;
+            document.getElementById('noMembersRow')?.remove();
+            const roleCls = data.role_in_project === 'reviewer' ? 'bg-info text-dark' : 'bg-secondary';
+            const existing = document.getElementById(`member-row-${data.user}`);
+            if (existing) {
+                existing.cells[1].innerHTML = `<span class="badge text-uppercase ${roleCls}">${data.role_in_project}</span>`;
+            } else {
+                const tbody = document.querySelector('#membersTable tbody');
+                const row = document.createElement('tr');
+                row.id = `member-row-${data.user}`;
+                row.innerHTML = `
+                    <td><div class="fw-semibold text-white">${data.user_name}</div><div class="small text-muted">${data.user_email}</div></td>
+                    <td><span class="badge text-uppercase ${roleCls}">${data.role_in_project}</span></td>
+                    <td class="text-end"><button class="btn btn-custom-danger btn-sm py-1 px-2" onclick="removeMember('${data.user}')"><i class="fas fa-trash-alt"></i></button></td>
+                `;
+                tbody.appendChild(row);
+            }
+            document.querySelector(`#memberUser option[value="${userId}"]`)?.remove();
+            document.getElementById('memberUser').value = '';
+            setTimeout(() => window.location.reload(), 900);
+        } else {
+            msgBox.innerHTML = `<div class="alert alert-danger p-2 small mt-2"><i class="fas fa-exclamation-circle me-1"></i> ${data.detail || 'Error.'}</div>`;
+        }
+    } catch {
+        msgBox.innerHTML = `<div class="alert alert-danger p-2 small mt-2">API connection error.</div>`;
     }
 });
 
 async function removeMember(userId) {
-    if (!confirm("Are you sure you want to remove this member from the project?")) {
-        return;
-    }
-    
+    if (!confirm('Remove this member from the project?')) return;
     try {
-        const response = await fetch(`/api/${projectId}/members/`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": csrfToken
-            },
-            body: JSON.stringify({
-                user: userId
-            })
+        const res = await fetch(`/api/${projectId}/members/`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+            body: JSON.stringify({ user: userId })
         });
-        
-        const result = await response.json();
-        
-        if (response.ok) {
-            const rowToRemove = document.getElementById(`member-row-${userId}`);
-            if (rowToRemove) {
-                const userName = rowToRemove.querySelector('td .fw-semibold').innerText;
-                const userEmail = rowToRemove.querySelector('td .text-muted').innerText;
-                
-                rowToRemove.remove();
-                
-                // Add option back to dropdown
-                const userSelect = document.getElementById("memberUser");
-                if (userSelect) {
-                    const newOption = document.createElement("option");
-                    newOption.value = userId;
-                    newOption.text = `${userEmail} (${userName})`;
-                    userSelect.appendChild(newOption);
+        const data = await res.json();
+        if (res.ok) {
+            const row = document.getElementById(`member-row-${userId}`);
+            if (row) {
+                const email = row.querySelector('.text-muted')?.innerText || '';
+                const name  = row.querySelector('.fw-semibold')?.innerText || '';
+                row.remove();
+                const sel = document.getElementById('memberUser');
+                if (sel) {
+                    const opt = document.createElement('option');
+                    opt.value = userId;
+                    opt.text = `${email} (${name})`;
+                    sel.appendChild(opt);
                 }
             }
-            
-            const tableBody = document.querySelector("#membersTable tbody");
-            if (tableBody.children.length === 0) {
-                const emptyRow = document.createElement("tr");
-                emptyRow.id = "noMembersRow";
-                emptyRow.innerHTML = `<td colspan="3" class="text-muted text-center py-3">No members assigned yet.</td>`;
-                tableBody.appendChild(emptyRow);
+            const tbody = document.querySelector('#membersTable tbody');
+            if (tbody && tbody.children.length === 0) {
+                tbody.innerHTML = '<tr id="noMembersRow"><td colspan="3" class="text-muted text-center py-3">No members assigned yet.</td></tr>';
             }
-            
-            // Reload page to reflect removed member dropdowns in the task assignments
-            setTimeout(() => { window.location.reload(); }, 1000);
+            setTimeout(() => window.location.reload(), 900);
         } else {
-            alert(result.detail || "Could not remove member.");
+            alert(data.detail || 'Could not remove member.');
         }
-    } catch (err) {
-        alert("API connection error.");
-    }
+    } catch { alert('API connection error.'); }
 }
 {% endif %}
 </script>
-
-</body>
-</html>
+{% endblock %}

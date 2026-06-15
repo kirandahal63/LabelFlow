@@ -301,8 +301,12 @@
                 </div>
             `;
                     setTimeout(() => {
-                        window.location.href = "/";
-                    }, 1000);
+                        if (result.role === 'admin') {
+                            window.location.href = "/admin-panel/";
+                        } else {
+                            window.location.href = "/";
+                        }
+                    }, 800);
                 } else {
                     let errorMsg = "";
                     if (typeof result === "object") {

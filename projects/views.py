@@ -28,6 +28,10 @@ class ProjectForm(forms.ModelForm):
 @login_required
 def dashboard_view(request):
     user = request.user
+
+    # Admins should always use the admin panel
+    if user.role == 'admin':
+        return redirect('admin_dashboard')
     
     # 1. Projects created by this user
     created_projects = Project.objects.filter(created_by=user).order_by('-created_at')

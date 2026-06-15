@@ -517,22 +517,29 @@
 
         /* Logout button */
         .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.18s;
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
             background: rgba(239,68,68,0.08);
             color: #dc2626;
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+            
+           
         }
 
         .btn-logout:hover {
             background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.2);
             border-color: #dc2626;
         }
     </style>
@@ -586,8 +593,16 @@
             </a>
         </li>
     </ul>
+    
 
     <div class="sidebar-footer">
+        <ul class="sidebar-nav">
+        <li>
+            <button class="btn-logout" id="logoutBtn">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </li>
+        </ul>
         <div class="user-info-sidebar">
             <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
             <div class="user-info-text">
@@ -610,9 +625,7 @@
             <a href="/create/" class="btn-primary-custom btn-sm">
                 <i class="fas fa-plus"></i> New Project
             </a>
-            <button class="btn-logout" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+            
         </div>
     </div>
 
@@ -964,3 +977,5 @@ document.getElementById('logoutBtn').addEventListener('click', async function() 
 </script>
 </body>
 </html>
+
+

@@ -14,8 +14,8 @@
     
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
+            --bg-color: #f5f6fa;
+            --card-bg: white;
             --card-border: rgba(255, 255, 255, 0.05);
             --text-color: #e0e0e0;
             --text-muted: #888888;
@@ -42,7 +42,7 @@
 
         .navbar-brand-custom {
             font-weight: 700;
-            color: #fff !important;
+            color: #000000 !important;
             font-size: 1.4rem;
         }
 
@@ -62,15 +62,15 @@
 
         .form-title {
             font-weight: 700;
-            color: #fff;
+            color: #000000;
             margin-bottom: 30px;
             text-align: center;
         }
 
         .form-control-custom, .form-select-custom {
             background-color: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: #fff !important;
+            border: 1px solid rgb(0 0 0 / 10%);
+            color: #343a40 !important;
             padding: 12px 16px;
             border-radius: 8px;
             transition: all 0.2s;
@@ -90,7 +90,7 @@
         .form-label-custom {
             font-size: 0.9rem;
             font-weight: 500;
-            color: var(--text-color);
+            color: #000000;
             margin-bottom: 8px;
         }
 
@@ -113,7 +113,7 @@
         .btn-custom-outline {
             background-color: transparent;
             color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgb(0 0 0 / 10%);
             font-weight: 500;
             border-radius: 8px;
             padding: 12px 24px;
@@ -188,7 +188,7 @@
             </div>
             
             <div class="mb-4">
-                <label class="form-label-custom" for="label_set">Labels (Comma-separated)</label>
+                <label class="form-label-custom" for="label_set">Labels </label>
                 <input type="text" id="label_set" class="form-control form-control-custom" placeholder="e.g., car, person, traffic light, pedestrian" required>
                 <div class="form-text text-muted mt-2">Enter labels separated by commas. These will be used for image classification or bounding boxes.</div>
             </div>
