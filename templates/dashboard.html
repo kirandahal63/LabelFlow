@@ -14,16 +14,16 @@
     
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --card-border: rgba(255, 255, 255, 0.05);
-            --text-color: #e0e0e0;
-            --text-muted: #888888;
-            --primary-blue: #3b71ca;
-            --primary-blue-hover: #305da8;
-            --nav-bg: #1a1a1a;
-            --success-green: #2ecc71;
-            --warning-yellow: #f1c40f;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.08);
+            --text-color: #1a1a2e;
+            --text-muted: #6c757d;
+            --primary-blue: #4f46e5;
+            --primary-blue-hover: #4338ca;
+            --nav-bg: #0f1015;
+            --success-green: #10b981;
+            --warning-yellow: #f59e0b;
         }
 
         body {
@@ -37,8 +37,8 @@
         /* Navbar Styling */
         .navbar-custom {
             background-color: var(--nav-bg);
-            border-bottom: 1px solid var(--card-border);
-            padding: 15px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding: 14px 30px;
         }
 
         .navbar-brand-custom {
@@ -49,13 +49,13 @@
         }
 
         .nav-link-custom {
-            color: var(--text-color) !important;
+            color: rgba(255,255,255,0.75) !important;
             font-weight: 500;
             transition: color 0.2s;
         }
 
         .nav-link-custom:hover {
-            color: var(--primary-blue) !important;
+            color: #fff !important;
         }
 
         /* Container & Cards */
@@ -68,29 +68,29 @@
         .dashboard-title {
             font-weight: 700;
             margin-bottom: 30px;
-            color: #fff;
+            color: #0f1015;
+            font-size: 1.75rem;
         }
 
         .card-custom {
             background-color: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 24px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 28px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.2s, transform 0.2s;
         }
 
         .card-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
         }
 
         .card-title-custom {
             font-weight: 600;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             margin-bottom: 20px;
-            color: #fff;
+            color: #0f1015;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -98,94 +98,166 @@
 
         /* Button Styling */
         .btn-custom {
-            background-color: var(--primary-blue);
+            background: linear-gradient(135deg, var(--primary-blue), #5850ec);
             color: #fff;
             font-weight: 600;
             border-radius: 8px;
-            padding: 10px 20px;
+            padding: 9px 20px;
             border: none;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .btn-custom:hover {
-            background-color: var(--primary-blue-hover);
+            background: linear-gradient(135deg, #4338ca, #4f46e5);
             color: #fff;
+            transform: translateY(-1px);
         }
 
         .btn-custom-outline {
             background-color: transparent;
-            color: var(--text-color);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             font-weight: 500;
             border-radius: 8px;
             padding: 8px 16px;
             transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
         }
 
         .btn-custom-outline:hover {
-            background-color: rgba(255, 255, 255, 0.05);
-            border-color: #fff;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255,255,255,0.5);
             color: #fff;
         }
 
         /* Badges & Tables */
         .status-badge {
-            font-size: 0.75rem;
-            padding: 4px 8px;
+            font-size: 0.72rem;
+            padding: 4px 9px;
             border-radius: 6px;
             font-weight: 600;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .status-active {
-            background-color: rgba(46, 204, 113, 0.15);
-            color: var(--success-green);
+            background-color: rgba(16, 185, 129, 0.12);
+            color: #059669;
+            border: 1px solid rgba(16,185,129,0.2);
         }
 
         .status-draft {
-            background-color: rgba(241, 196, 15, 0.15);
-            color: var(--warning-yellow);
+            background-color: rgba(245, 158, 11, 0.12);
+            color: #d97706;
+            border: 1px solid rgba(245,158,11,0.2);
         }
 
         .table-custom {
             color: var(--text-color);
+            margin: 0;
         }
 
         .table-custom th {
             color: var(--text-muted);
             font-weight: 600;
             border-bottom: 2px solid var(--card-border);
-            padding: 12px;
+            padding: 12px 14px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .table-custom td {
-            padding: 16px 12px;
+            padding: 12px 14px;
             border-bottom: 1px solid var(--card-border);
             vertical-align: middle;
+            font-size: 0.93rem;
         }
 
-        .table-custom tr:hover {
-            background-color: rgba(255, 255, 255, 0.02);
+        .table-custom tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-custom tr:hover td {
+            background-color: rgba(79, 70, 229, 0.03);
         }
 
         .project-link {
-            color: #fff;
+            color: var(--primary-blue);
             text-decoration: none;
             font-weight: 600;
             transition: color 0.2s;
         }
 
         .project-link:hover {
-            color: var(--primary-blue);
+            color: var(--primary-blue-hover);
+            text-decoration: underline;
         }
 
         .badge-label {
-            background-color: rgba(255, 255, 255, 0.08);
-            color: #ccc;
+            background-color: rgba(79, 70, 229, 0.08);
+            color: var(--primary-blue);
+            border: 1px solid rgba(79, 70, 229, 0.2);
             margin-right: 4px;
-            font-size: 0.75rem;
-            padding: 3px 6px;
-            border-radius: 4px;
+            margin-bottom: 2px;
+            font-size: 0.72rem;
+            padding: 3px 7px;
+            border-radius: 5px;
+            display: inline-block;
+            font-weight: 500;
+        }
+
+        /* Pagination */
+        .pagination-custom .page-link {
+            color: var(--primary-blue);
+            border-color: var(--card-border);
+            border-radius: 6px;
+            margin: 0 2px;
+            font-size: 0.875rem;
+            padding: 6px 12px;
+        }
+        .pagination-custom .page-item.active .page-link {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: #fff;
+        }
+        .pagination-custom .page-link:hover {
+            background-color: rgba(79,70,229,0.08);
+            color: var(--primary-blue-hover);
+        }
+        .pagination-custom .page-item.disabled .page-link {
+            color: var(--text-muted);
+        }
+
+        .admin-panel-banner {
+            background: linear-gradient(135deg, #0f1015, #1a1a2e);
+            border-radius: 14px;
+            padding: 20px 28px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 4px 20px rgba(79,70,229,0.15);
+            border: 1px solid rgba(79,70,229,0.2);
+        }
+        .admin-panel-banner .banner-text {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .admin-panel-banner .banner-text small {
+            color: rgba(255,255,255,0.55);
+            display: block;
+            font-weight: 400;
+            font-size: 0.83rem;
+            margin-top: 2px;
         }
     </style>
 </head>
@@ -193,27 +265,41 @@
 
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
-        <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+        <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2" style="color: #818cf8;"></i>LabelFlow</a>
         
         <div class="d-flex align-items-center gap-3">
-            <span class="text-muted"><i class="fas fa-user me-1"></i> {{ request.user.email }} ({{ request.user.role }})</span>
+            <span style="color: rgba(255,255,255,0.55); font-size: 0.875rem;"><i class="fas fa-user me-1"></i> {{ request.user.email }} &middot; <span style="color: #818cf8;">{{ request.user.role }}</span></span>
             {% if request.user.role == "admin" %}
-                <a href="/create/" class="btn btn-custom btn-sm"><i class="fas fa-plus me-1"></i> Create Project</a>
+                <a href="/create/" class="btn btn-custom btn-sm"><i class="fas fa-plus"></i> New Project</a>
             {% endif %}
-            <button id="logoutBtn" class="btn btn-custom-outline btn-sm"><i class="fas fa-sign-out-alt me-1"></i> Logout</button>
+            <button id="logoutBtn" class="btn btn-custom-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
     </div>
 </nav>
 
 <div class="dashboard-container">
-    <h2 class="dashboard-title">Dashboard</h2>
+    <h2 class="dashboard-title"><i class="fas fa-th-large me-2" style="color: var(--primary-blue);"></i>Dashboard</h2>
+
+    {% if request.user.role == "admin" %}
+    <!-- Admin shortcut banner -->
+    <div class="admin-panel-banner">
+        <div>
+            <i class="fas fa-shield-alt me-2" style="color: #818cf8; font-size: 1.3rem;"></i>
+            <span class="banner-text">
+                Admin Control Panel
+                <small>Manage all projects, review annotator progress and view detailed analytics</small>
+            </span>
+        </div>
+        <a href="/admin-panel/" class="btn btn-custom"><i class="fas fa-arrow-right"></i> Open Admin Panel</a>
+    </div>
+    {% endif %}
 
     {% if request.user.role == "admin" %}
     <!-- Admin view: Projects Created By Admin -->
     <div class="card-custom">
         <div class="card-title-custom">
-            <span><i class="fas fa-folder-open me-2 text-primary"></i>Manage Projects</span>
-            <span class="fs-6 text-muted">{{ created_projects|length }} projects total</span>
+            <span><i class="fas fa-folder-open me-2 text-primary"></i>My Projects</span>
+            <span class="text-muted fs-6 fw-normal">{{ created_projects_count }} total</span>
         </div>
         
         {% if created_projects %}
@@ -249,7 +335,7 @@
                         </td>
                         <td class="text-muted small">{{ project.created_at|date:"M d, Y" }}</td>
                         <td>
-                            <a href="/{{ project.id }}/" class="btn btn-custom-outline btn-sm">Manage</a>
+                            <a href="/{{ project.id }}/" class="btn btn-sm" style="background: rgba(79,70,229,0.1); color: var(--primary-blue); border: 1px solid rgba(79,70,229,0.2); border-radius: 6px; font-size: 0.82rem; font-weight: 500;">Manage</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -257,7 +343,7 @@
             </table>
         </div>
         {% else %}
-        <p class="text-muted text-center my-4">No projects created yet. Click "Create Project" to get started.</p>
+        <p class="text-muted text-center my-4">No projects created yet. Click "New Project" to get started.</p>
         {% endif %}
     </div>
     {% endif %}
@@ -266,7 +352,7 @@
     <div class="card-custom">
         <div class="card-title-custom">
             <span><i class="fas fa-users-cog me-2 text-success"></i>Assigned Projects</span>
-            <span class="fs-6 text-muted">{{ member_projects|length }} projects</span>
+            <span class="text-muted fs-6 fw-normal">{{ member_projects_count }} projects</span>
         </div>
 
         {% if member_projects %}
@@ -298,7 +384,7 @@
                             {% endfor %}
                         </td>
                         <td>
-                            <a href="/{{ project.id }}/" class="btn btn-custom-outline btn-sm">View</a>
+                            <a href="/{{ project.id }}/" class="btn btn-sm" style="background: rgba(79,70,229,0.08); color: var(--primary-blue); border: 1px solid rgba(79,70,229,0.15); border-radius: 6px; font-size: 0.82rem; font-weight: 500;">View</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -314,7 +400,7 @@
     <div class="card-custom">
         <div class="card-title-custom">
             <span><i class="fas fa-tasks me-2 text-warning"></i>My Annotation Tasks</span>
-            <span class="fs-6 text-muted">{{ assigned_tasks|length }} active tasks</span>
+            <span class="text-muted fs-6 fw-normal">{{ assigned_tasks_total }} active tasks</span>
         </div>
 
         {% if assigned_tasks %}
@@ -324,7 +410,7 @@
                     <tr>
                         <th>Project</th>
                         <th>Image File</th>
-                        <th>Task Status</th>
+                        <th>Status</th>
                         <th>Assigned Date</th>
                         <th>Actions</th>
                     </tr>
@@ -333,9 +419,9 @@
                     {% for task in assigned_tasks %}
                     <tr>
                         <td><a href="/{{ task.project.id }}/" class="project-link">{{ task.project.name }}</a></td>
-                        <td>{{ task.image.filename }}</td>
+                        <td class="text-muted small">{{ task.image.filename }}</td>
                         <td>
-                            <span class="badge bg-secondary text-uppercase">{{ task.status }}</span>
+                            <span class="badge bg-secondary text-uppercase" style="font-size: 0.7rem;">{{ task.status }}</span>
                         </td>
                         <td class="text-muted small">{{ task.created_at|date:"M d, Y" }}</td>
                         <td>
@@ -346,6 +432,46 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- Pagination -->
+        {% if assigned_tasks.has_other_pages %}
+        <nav class="mt-3" aria-label="Tasks pagination">
+            <ul class="pagination pagination-custom mb-0 justify-content-center">
+                {% if assigned_tasks.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?task_page={{ assigned_tasks.previous_page_number }}">
+                            <i class="fas fa-chevron-left me-1"></i> Previous
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left me-1"></i> Previous</span></li>
+                {% endif %}
+
+                {% for num in assigned_tasks.paginator.page_range %}
+                    {% if assigned_tasks.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > assigned_tasks.number|add:'-3' and num < assigned_tasks.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?task_page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if assigned_tasks.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?task_page={{ assigned_tasks.next_page_number }}">
+                            Next <i class="fas fa-chevron-right ms-1"></i>
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next <i class="fas fa-chevron-right ms-1"></i></span></li>
+                {% endif %}
+            </ul>
+            <p class="text-center text-muted small mt-2">
+                Page {{ assigned_tasks.number }} of {{ assigned_tasks.paginator.num_pages }}
+                &nbsp;&middot;&nbsp; {{ assigned_tasks_total }} total tasks
+            </p>
+        </nav>
+        {% endif %}
+
         {% else %}
         <p class="text-muted text-center my-4">No active annotation tasks assigned.</p>
         {% endif %}
@@ -355,7 +481,7 @@
     <div class="card-custom">
         <div class="card-title-custom">
             <span><i class="fas fa-clipboard-check me-2 text-info"></i>Pending Reviews</span>
-            <span class="fs-6 text-muted">{{ pending_reviews|length }} tasks pending</span>
+            <span class="text-muted fs-6 fw-normal">{{ pending_reviews_count }} tasks pending</span>
         </div>
 
         {% if pending_reviews %}
@@ -374,11 +500,11 @@
                     {% for task in pending_reviews %}
                     <tr>
                         <td><a href="/{{ task.project.id }}/" class="project-link">{{ task.project.name }}</a></td>
-                        <td>{{ task.image.filename }}</td>
-                        <td>{{ task.annotation.annotated_by.email }}</td>
-                        <td class="text-muted small">{{ task.annotation.created_at|date:"M d, Y" }}</td>
+                        <td class="text-muted small">{{ task.image.filename }}</td>
+                        <td>{{ task.assigned_to.email|default:"N/A" }}</td>
+                        <td class="text-muted small">{{ task.created_at|date:"M d, Y" }}</td>
                         <td>
-                            <a href="/annotations/review/{{ task.id }}/" class="btn btn-custom btn-sm">Review</a>
+                            <a href="/annotations/review/{{ task.id }}/" class="btn btn-sm" style="background: rgba(6,182,212,0.1); color: #06b6d4; border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; font-size: 0.82rem; font-weight: 500;"><i class="fas fa-clipboard-check me-1"></i>Review</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -391,6 +517,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.getElementById("logoutBtn").addEventListener("click", async function() {
     try {

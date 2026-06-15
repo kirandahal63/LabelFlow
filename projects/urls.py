@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     dashboard_view,
     project_create_view,
-    project_detail_view
+    project_detail_view,
+    admin_dashboard_view,
 )
 from .api_views import (
     ProjectListCreateAPIView,
@@ -26,6 +27,11 @@ urlpatterns = [
         "<uuid:project_id>/",
         project_detail_view,
         name="project_detail"
+    ),
+    path(
+        "admin-panel/",
+        admin_dashboard_view,
+        name="admin_dashboard"
     ),
 
     # REST APIs
