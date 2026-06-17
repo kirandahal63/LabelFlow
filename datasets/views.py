@@ -46,6 +46,7 @@ def upload_dataset_view(request, project_id):
             total_images_count = 0
             
             with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+                task_index = AnnotationTask.objects.filter(project=project).count()
                 for member in zip_ref.namelist():
                     # Security check: Skip directories and check for Zip Slip
                     filename = os.path.basename(member)
@@ -106,13 +107,21 @@ def upload_dataset_view(request, project_id):
                         status='pending'
                     )
                     
-                    # Create Annotation Task
+                    # Batch assignment: group tasks in batches using project initials and configurable batch size
+                    initials = ''.join([w[0] for w in project.name.split()[:2]]).upper() if project.name else str(project.id)[:2].upper()
+                    batch_size = getattr(settings, 'BATCH_SIZE', 25)
+                    batch_num = (task_index // batch_size) + 1
+                    batch_code = f"{initials}-{batch_num:03d}"
+
                     AnnotationTask.objects.create(
                         image=image_record,
                         project=project,
-                        status='unassigned'
+                        status='unassigned',
+                        batch=batch_code
                     )
-                    
+
+                    task_index += 1
+
                     total_images_count += 1
             
             # Update dataset status

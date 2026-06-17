@@ -579,26 +579,6 @@
                 </a>
             </div>
 
-            <!-- Submit Dataset for Review -->
-            {% if datasets %}
-            <div class="sidebar-section">
-                <div class="section-label">Submit Dataset for Review</div>
-                <p class="small mb-3" style="color: var(--muted); line-height: 1.5;">
-                    When you're done annotating a dataset, submit it in batch so reviewers can approve all at once.
-                </p>
-                {% for dataset in datasets %}
-                <div class="dataset-submit-item">
-                    <div class="dataset-name"><i class="fas fa-database me-2" style="opacity:0.5;"></i>{{ dataset.name }}</div>
-                    <form action="/annotations/submit-dataset/{{ dataset.id }}/" method="POST" style="margin:0;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-submit-ds">
-                            <i class="fas fa-paper-plane me-1"></i> Submit
-                        </button>
-                    </form>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
 
         </div>
     </div>

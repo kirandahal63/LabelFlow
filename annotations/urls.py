@@ -6,6 +6,7 @@ from .views import (
     label_task_view,
     review_task_view,
     submit_dataset_review_view,
+    submit_batch_review_view,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('task/<uuid:task_id>/', label_task_view, name='label_task'),
     path('review/<uuid:task_id>/', review_task_view, name='review_task'),
     path('submit-dataset/<uuid:dataset_id>/', submit_dataset_review_view, name='submit_dataset_review'),
+    path('submit-batch/<str:batch_code>/', submit_batch_review_view, name='submit_batch_review'),
 ]

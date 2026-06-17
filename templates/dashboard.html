@@ -355,7 +355,7 @@
             <span class="text-muted fs-6 fw-normal">{{ member_projects_count }} projects</span>
         </div>
 
-        {% if member_projects %}
+        {% if member_project_entries %}
         <div class="table-responsive">
             <table class="table table-custom">
                 <thead>
@@ -363,28 +363,32 @@
                         <th>Project Name</th>
                         <th>Status</th>
                         <th>Labels</th>
+                        <th>Your Role</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for project in member_projects %}
+                    {% for entry in member_project_entries %}
                     <tr>
                         <td>
-                            <a href="/{{ project.id }}/" class="project-link">{{ project.name }}</a>
-                            <div class="text-muted small mt-1">{{ project.description|default:"No description."|truncatechars:80 }}</div>
+                            <a href="/{{ entry.project.id }}/" class="project-link">{{ entry.project.name }}</a>
+                            <div class="text-muted small mt-1">{{ entry.project.description|default:"No description."|truncatechars:80 }}</div>
                         </td>
                         <td>
-                            <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
-                                {{ project.status }}
+                            <span class="status-badge {% if entry.project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
+                                {{ entry.project.status }}
                             </span>
                         </td>
                         <td>
-                            {% for label in project.label_set %}
+                            {% for label in entry.project.label_set %}
                                 <span class="badge-label">{{ label }}</span>
                             {% endfor %}
                         </td>
                         <td>
-                            <a href="/{{ project.id }}/" class="btn btn-sm" style="background: rgba(79,70,229,0.08); color: var(--primary-blue); border: 1px solid rgba(79,70,229,0.15); border-radius: 6px; font-size: 0.82rem; font-weight: 500;">View</a>
+                            <span class="badge text-uppercase {% if entry.role_in_project == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">{{ entry.role_in_project }}</span>
+                        </td>
+                        <td>
+                            <a href="/{{ entry.project.id }}/" class="btn btn-sm" style="background: rgba(79,70,229,0.08); color: var(--primary-blue); border: 1px solid rgba(79,70,229,0.15); border-radius: 6px; font-size: 0.82rem; font-weight: 500;">View</a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -477,44 +481,6 @@
         {% endif %}
     </div>
 
-    <!-- Review tasks: Tasks pending review by Reviewer -->
-    <div class="card-custom">
-        <div class="card-title-custom">
-            <span><i class="fas fa-clipboard-check me-2 text-info"></i>Pending Reviews</span>
-            <span class="text-muted fs-6 fw-normal">{{ pending_reviews_count }} tasks pending</span>
-        </div>
-
-        {% if pending_reviews %}
-        <div class="table-responsive">
-            <table class="table table-custom">
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Image File</th>
-                        <th>Annotated By</th>
-                        <th>Submitted Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in pending_reviews %}
-                    <tr>
-                        <td><a href="/{{ task.project.id }}/" class="project-link">{{ task.project.name }}</a></td>
-                        <td class="text-muted small">{{ task.image.filename }}</td>
-                        <td>{{ task.assigned_to.email|default:"N/A" }}</td>
-                        <td class="text-muted small">{{ task.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <a href="/annotations/review/{{ task.id }}/" class="btn btn-sm" style="background: rgba(6,182,212,0.1); color: #06b6d4; border: 1px solid rgba(6,182,212,0.2); border-radius: 6px; font-size: 0.82rem; font-weight: 500;"><i class="fas fa-clipboard-check me-1"></i>Review</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="text-muted text-center my-4">No pending reviews found.</p>
-        {% endif %}
-    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

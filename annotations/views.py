@@ -262,8 +262,40 @@ def review_task_view(request, task_id):
             task.save()
             task.image.save()
 
-        messages.success(request, f"Task '{task.image.filename}' has been {decision}.")
         return redirect('dashboard')
+
+
+@login_required
+def submit_batch_review_view(request, batch_code):
+    """Submit all tasks in a batch for the current user if every task has an annotation."""
+    tasks = AnnotationTask.objects.filter(batch=batch_code, assigned_to=request.user).select_related('image', 'project')
+    if not tasks.exists():
+        messages.warning(request, "No tasks found for this batch or not assigned to you.")
+        return redirect('dashboard')
+
+    if request.method == 'POST':
+        missing = []
+        submitted_count = 0
+        with transaction.atomic():
+            for task in tasks:
+                annotation = Annotation.objects.filter(task=task).first()
+                if not annotation:
+                    missing.append(task.image.filename)
+                else:
+                    annotation.status = 'submitted'
+                    annotation.save()
+                    task.status = 'submitted'
+                    task.image.status = 'annotated'
+                    task.save()
+                    task.image.save()
+                    submitted_count += 1
+
+        if missing:
+            messages.warning(request, f"Cannot submit batch. {len(missing)} tasks missing annotations.")
+        else:
+            messages.success(request, f"✅ Submitted {submitted_count} tasks from batch '{batch_code}' for review!")
+
+        return redirect('project_detail', project_id=tasks.first().project.id if tasks.exists() else 'dashboard')
 
     context = {
         'task': task,

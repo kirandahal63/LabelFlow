@@ -36,8 +36,8 @@ def dashboard_view(request):
     # 1. Projects created by this user
     created_projects = Project.objects.filter(created_by=user).order_by('-created_at')
     
-    # 2. Projects this user is a member of
-    member_projects = Project.objects.filter(projectmember__user=user).order_by('-created_at')
+    # 2. Projects this user is a member of (provide entries so templates can show role)
+    member_project_entries = ProjectMember.objects.filter(user=user).select_related('project').order_by('-joined_at')
     
     # 3. Tasks assigned to this user (Annotator perspective) — paginated 25/page
     all_assigned_tasks = AnnotationTask.objects.filter(
@@ -48,26 +48,13 @@ def dashboard_view(request):
     page_number = request.GET.get('task_page', 1)
     assigned_tasks_page = paginator.get_page(page_number)
     
-    # 4. Tasks pending review (Reviewer perspective)
-    reviewer_project_ids = ProjectMember.objects.filter(
-        user=user, 
-        role_in_project='reviewer'
-    ).values_list('project_id', flat=True)
-    
-    pending_reviews = AnnotationTask.objects.filter(
-        project_id__in=reviewer_project_ids,
-        status='submitted'
-    ).select_related('project', 'image', 'assigned_to').order_by('-created_at')
-
     context = {
         'created_projects': created_projects,
         'created_projects_count': created_projects.count(),
-        'member_projects': member_projects,
-        'member_projects_count': member_projects.count(),
+        'member_project_entries': member_project_entries,
+        'member_projects_count': member_project_entries.count(),
         'assigned_tasks': assigned_tasks_page,
         'assigned_tasks_total': all_assigned_tasks.count(),
-        'pending_reviews': pending_reviews,
-        'pending_reviews_count': pending_reviews.count(),
     }
     return render(request, 'dashboard.html', context)
 
@@ -194,7 +181,18 @@ def project_detail_view(request, project_id):
     
     # Fetch tasks
     tasks = AnnotationTask.objects.filter(project=project).select_related('image', 'assigned_to').order_by('-created_at')
-    
+
+    # Batch info for submission UI
+    from django.conf import settings as django_settings
+    batch_size = getattr(django_settings, 'BATCH_SIZE', 25)
+    batch_codes = AnnotationTask.objects.filter(project=project).exclude(batch__isnull=True).values_list('batch', flat=True).distinct()
+    batches = []
+    for code in batch_codes:
+        total = AnnotationTask.objects.filter(project=project, batch=code).count()
+        user_total = AnnotationTask.objects.filter(project=project, batch=code, assigned_to=user).count()
+        user_completed = AnnotationTask.objects.filter(project=project, batch=code, assigned_to=user, status__in=['submitted','approved']).count()
+        batches.append({'code': code, 'total': total, 'user_total': user_total, 'user_completed': user_completed, 'required_total': batch_size})
+
     # Get lists of possible annotators to assign tasks to
     annotators = members.filter(role_in_project='annotator')
     
@@ -224,6 +222,7 @@ def project_detail_view(request, project_id):
         'annotators': annotators,
         'potential_users': potential_users,
         'stats': stats,
+        'batches': batches,
     }
     return render(request, 'projects/detail.html', context)
 

@@ -19,6 +19,7 @@ class AnnotationTask(models.Model):
     project = models.ForeignKey("projects.Project", on_delete=models.CASCADE)
     assigned_to = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
     status = models.CharField(max_length=20, choices=STATUS, default="unassigned")
+    batch = models.CharField(max_length=30, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 
