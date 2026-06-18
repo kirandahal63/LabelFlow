@@ -107,17 +107,13 @@ def upload_dataset_view(request, project_id):
                         status='pending'
                     )
                     
-                    # Batch assignment: group tasks in batches using project initials and configurable batch size
-                    initials = ''.join([w[0] for w in project.name.split()[:2]]).upper() if project.name else str(project.id)[:2].upper()
-                    batch_size = getattr(settings, 'BATCH_SIZE', 25)
-                    batch_num = (task_index // batch_size) + 1
-                    batch_code = f"{initials}-{batch_num:03d}"
-
+                    # Tasks start unassigned with no batch code.
+                    # Admin will assign batches of 25 (CLS-SF-001 style) later.
                     AnnotationTask.objects.create(
                         image=image_record,
                         project=project,
                         status='unassigned',
-                        batch=batch_code
+                        batch=None,
                     )
 
                     task_index += 1

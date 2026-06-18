@@ -1,0 +1,142 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch {{ batch_code }} Review — LabelFlow</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#f0f2f8; --primary:#4f46e5; --success:#10b981; --danger:#ef4444; --info:#3b82f6; --border:rgba(0,0,0,0.07); }
+        body { background:var(--bg); font-family:'Inter',sans-serif; color:#1a1a2e; }
+        .navbar-lf { background:#0f1015; padding:14px 30px; border-bottom:1px solid rgba(255,255,255,0.05); }
+        .brand { font-weight:800; font-size:1.3rem; color:#fff; text-decoration:none; }
+        .brand i { background:linear-gradient(135deg,#4f46e5,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .btn-nav-back { background:transparent; color:rgba(255,255,255,0.75); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:7px 15px; font-size:0.85rem; text-decoration:none; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s; }
+        .btn-nav-back:hover { background:rgba(255,255,255,0.08); color:#fff; }
+        .wrap { max-width:1000px; margin:36px auto; padding:0 24px; }
+        .page-hdr { background:#1d1d21; border-radius:16px; padding:26px 28px; margin-bottom:28px; }
+        .batch-label { display:inline-block; font-size:0.78rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; background:rgba(79,70,229,0.15); color:#818cf8; border:1px solid rgba(79,70,229,0.25); border-radius:8px; padding:4px 12px; margin-bottom:10px; }
+        .page-title { font-weight:800; font-size:1.75rem; color:#fff; margin-bottom:4px; }
+        .page-sub { color:rgba(255,255,255,0.5); font-size:0.9rem; }
+        .stat-row { display:flex; gap:20px; flex-wrap:wrap; margin-top:20px; }
+        .stat-pill { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 18px; display:flex; align-items:center; gap:10px; }
+        .stat-pill .num { font-size:1.3rem; font-weight:800; color:#fff; }
+        .stat-pill .lbl { font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:rgba(255,255,255,0.4); }
+        .progress-bar-h { height:6px; background:rgba(255,255,255,0.06); border-radius:4px; overflow:hidden; margin-top:16px; }
+        .progress-bar-fill { height:100%; background:linear-gradient(90deg,#3b82f6,#10b981); border-radius:4px; }
+
+        .card-lf { background:#fff; border:1px solid var(--border); border-radius:16px; box-shadow:0 2px 12px rgba(0,0,0,0.05); overflow:hidden; margin-bottom:24px; }
+        .card-header-lf { padding:18px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+        .card-header-lf h2 { font-size:1.05rem; font-weight:700; margin:0; }
+        .table-lf { margin:0; font-size:0.88rem; }
+        .table-lf th { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#6c757d; border-bottom:2px solid var(--border); padding:11px 18px; }
+        .table-lf td { padding:12px 18px; border-bottom:1px solid var(--border); vertical-align:middle; }
+        .table-lf tr:last-child td { border-bottom:none; }
+        .table-lf tr:hover td { background:rgba(79,70,229,0.02); }
+
+        .btn-review { background:linear-gradient(135deg,#3b82f6,#60a5fa); color:#fff; border:none; border-radius:8px; padding:6px 14px; font-size:0.82rem; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:5px; transition:all 0.2s; }
+        .btn-review:hover { color:#fff; transform:translateY(-1px); box-shadow:0 3px 10px rgba(59,130,246,0.3); }
+        .btn-start-all { background:linear-gradient(135deg,#4f46e5,#5850ec); color:#fff; border:none; border-radius:10px; padding:10px 22px; font-size:0.9rem; font-weight:700; text-decoration:none; display:inline-flex; align-items:center; gap:8px; transition:all 0.2s; }
+        .btn-start-all:hover { color:#fff; transform:translateY(-1px); box-shadow:0 4px 14px rgba(79,70,229,0.35); }
+    </style>
+</head>
+<body>
+<nav class="navbar-lf d-flex align-items-center justify-content-between">
+    <a href="/" class="brand"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+    <div class="d-flex gap-2">
+        <a href="/{{ project.id }}/" class="btn-nav-back"><i class="fas fa-arrow-left"></i>Back to Project</a>
+    </div>
+</nav>
+
+<div class="wrap">
+
+    <!-- Header -->
+    <div class="page-hdr">
+        <span class="batch-label"><i class="fas fa-hashtag me-1"></i>{{ batch_code }}</span>
+        <div class="page-title">Batch Review</div>
+        <div class="page-sub">{{ project.name }} &middot; {{ total }} images in this batch</div>
+
+        <div class="stat-row">
+            <div class="stat-pill">
+                <div><div class="num">{{ total }}</div><div class="lbl">Total</div></div>
+            </div>
+            <div class="stat-pill" style="border-color:rgba(59,130,246,0.2);">
+                <div><div class="num" style="color:#60a5fa;">{{ submitted }}</div><div class="lbl">Pending</div></div>
+            </div>
+            <div class="stat-pill" style="border-color:rgba(16,185,129,0.2);">
+                <div><div class="num" style="color:#34d399;">{{ approved }}</div><div class="lbl">Approved</div></div>
+            </div>
+            <div class="stat-pill" style="border-color:rgba(239,68,68,0.2);">
+                <div><div class="num" style="color:#f87171;">{{ rejected }}</div><div class="lbl">Rejected</div></div>
+            </div>
+        </div>
+
+        {% with reviewed=approved|add:rejected %}
+        <div class="progress-bar-h">
+            <div class="progress-bar-fill" style="width:{% if total > 0 %}{% widthratio reviewed total 100 %}{% else %}0{% endif %}%;"></div>
+        </div>
+        {% endwith %}
+    </div>
+
+    <!-- Start Review CTA -->
+    {% if first_task %}
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div class="text-muted small">{{ submitted }} image{{ submitted|pluralize }} waiting for review</div>
+        <a href="/annotations/review/{{ first_task.id }}/" class="btn-start-all">
+            <i class="fas fa-play"></i> Start Reviewing Batch
+        </a>
+    </div>
+    {% else %}
+    <div class="alert alert-success rounded-3 mb-4">
+        <i class="fas fa-check-circle me-2"></i>All tasks in this batch have been reviewed!
+    </div>
+    {% endif %}
+
+    <!-- Task List -->
+    <div class="card-lf">
+        <div class="card-header-lf">
+            <h2><i class="fas fa-list-ul me-2 text-primary"></i>All Tasks in {{ batch_code }}</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-lf">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Image File</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td class="text-muted" style="width:40px;">{{ forloop.counter }}</td>
+                        <td class="fw-medium" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ task.image.filename }}</td>
+                        <td>
+                            {% if task.status == 'approved' %}<span class="badge bg-success">Approved</span>
+                            {% elif task.status == 'rejected' %}<span class="badge bg-danger">Rejected</span>
+                            {% elif task.status == 'submitted' %}<span class="badge bg-primary">Pending Review</span>
+                            {% else %}<span class="badge bg-secondary">{{ task.status|capfirst }}</span>{% endif %}
+                        </td>
+                        <td class="text-end">
+                            {% if task.status == 'submitted' %}
+                            <a href="/annotations/review/{{ task.id }}/" class="btn-review">
+                                <i class="fas fa-clipboard-check"></i> Review
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">—</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

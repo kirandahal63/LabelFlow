@@ -477,7 +477,9 @@
         </a>
         <div class="topbar-divider"></div>
         <div class="topbar-info">
-            <strong>{{ project.name }}</strong> &rsaquo; {{ task.image.filename }}
+            <strong>{{ project.name }}</strong>
+            {% if batch_code %} &rsaquo; <span style="color:#818cf8;">{{ batch_code }}</span>{% endif %}
+            &rsaquo; {{ task.image.filename }}
         </div>
         <div class="topbar-right">
             {% if annotation %}
@@ -496,9 +498,9 @@
     </div>
 
     <!-- Progress strip -->
-    {% if total_assigned > 0 %}
+    {% if total_in_batch > 0 %}
     <div class="progress-strip">
-        <div class="progress-fill" style="width: {% widthratio completed_count total_assigned 100 %}%"></div>
+        <div class="progress-fill" style="width: {% widthratio annotated_in_batch total_in_batch 100 %}%"></div>
     </div>
     {% endif %}
 
@@ -538,14 +540,14 @@
 
             <!-- Progress -->
             <div class="sidebar-section">
-                <div class="section-label">Your Progress</div>
+                <div class="section-label">Batch Progress{% if batch_code %} — {{ batch_code }}{% endif %}</div>
                 <div class="progress-counter">
-                    <span>Tasks completed</span>
-                    <span><strong>{{ completed_count }}</strong> / {{ total_assigned }}</span>
+                    <span>Annotated in batch</span>
+                    <span><strong>{{ annotated_in_batch }}</strong> / {{ total_in_batch }}</span>
                 </div>
                 <div class="progress-bar-mini">
-                    {% if total_assigned > 0 %}
-                    <div class="progress-bar-mini-fill" style="width: {% widthratio completed_count total_assigned 100 %}%"></div>
+                    {% if total_in_batch > 0 %}
+                    <div class="progress-bar-mini-fill" style="width: {% widthratio annotated_in_batch total_in_batch 100 %}%"></div>
                     {% endif %}
                 </div>
             </div>

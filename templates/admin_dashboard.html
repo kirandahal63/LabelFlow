@@ -98,8 +98,7 @@
             margin: 0;
         }
 
-        .sidebar-nav li a,
-        .sidebar-nav li button {
+        .sidebar-nav li a, .sidebar-nav li button {
             display: flex;
             align-items: center;
             gap: 11px;
@@ -117,8 +116,7 @@
             text-align: left;
         }
 
-        .sidebar-nav li a:hover,
-        .sidebar-nav li button:hover {
+        .sidebar-nav li a:hover, .sidebar-nav li button:hover {
             background: var(--sidebar-hover);
             color: #fff;
         }
@@ -333,6 +331,35 @@
             background: rgba(79,70,229,0.02);
         }
 
+        .sidebar-navl {
+            list-style: none;
+            padding: 6px 12px;
+            margin: 0;
+        }
+
+        .sidebar-navl li a, .sidebar-navl li button {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.18s;
+            width: 100%;
+            border: none;
+            background: none;
+            cursor: pointer;
+            text-align: left;
+            background: rgba(239, 68, 68, 0.08);
+            color: #dc2626;
+        }
+
+        .sidebar-navl li a:hover, .sidebar-navl li button:hover {
+            background: var(--sidebar-hover);
+            color: #dc2626;
+        }
         /* Badges */
         .status-badge {
             font-size: 0.7rem;
@@ -595,7 +622,7 @@
     
 
     <div class="sidebar-footer">
-        <ul class="sidebar-nav">
+        <ul class="sidebar-navl">
         <li>
             <button class="btn-logout" id="logoutBtn">
                 <i class="fas fa-sign-out-alt"></i> Logout

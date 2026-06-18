@@ -1,20 +1,25 @@
 from django.urls import path
 from .views import (
-    assign_task_view,
-    auto_assign_view,
-    bulk_assign_view,
+    batch_assign_view,
     label_task_view,
     review_task_view,
-    submit_dataset_review_view,
     submit_batch_review_view,
+    batch_review_list_view,
 )
 
 urlpatterns = [
-    path('assign/<uuid:task_id>/', assign_task_view, name='assign_task'),
-    path('auto-assign/<uuid:project_id>/', auto_assign_view, name='auto_assign'),
-    path('bulk-assign/<uuid:project_id>/', bulk_assign_view, name='bulk_assign'),
+    # Admin assigns a batch of 25 to a specific annotator
+    path('batch-assign/<uuid:project_id>/', batch_assign_view, name='batch_assign'),
+
+    # Annotator labels a single image
     path('task/<uuid:task_id>/', label_task_view, name='label_task'),
-    path('review/<uuid:task_id>/', review_task_view, name='review_task'),
-    path('submit-dataset/<uuid:dataset_id>/', submit_dataset_review_view, name='submit_dataset_review'),
+
+    # Annotator submits entire batch for review
     path('submit-batch/<str:batch_code>/', submit_batch_review_view, name='submit_batch_review'),
+
+    # Reviewer: overview list for a batch
+    path('batch/<str:batch_code>/review/', batch_review_list_view, name='batch_review_list'),
+
+    # Reviewer: review a single task (navigates silently within batch)
+    path('review/<uuid:task_id>/', review_task_view, name='review_task'),
 ]

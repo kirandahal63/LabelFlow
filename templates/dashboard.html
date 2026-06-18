@@ -5,390 +5,255 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - LabelFlow</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg-color: #f8f9fa;
+            --bg: #f0f2f8;
             --card-bg: #ffffff;
-            --card-border: rgba(0, 0, 0, 0.08);
-            --text-color: #1a1a2e;
-            --text-muted: #6c757d;
-            --primary-blue: #4f46e5;
-            --primary-blue-hover: #4338ca;
             --nav-bg: #0f1015;
-            --success-green: #10b981;
-            --warning-yellow: #f59e0b;
+            --primary: #4f46e5;
+            --primary-light: rgba(79,70,229,0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --text: #1a1a2e;
+            --muted: #6c757d;
+            --border: rgba(0,0,0,0.07);
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
+            background: var(--bg);
             font-family: 'Inter', sans-serif;
+            color: var(--text);
             min-height: 100vh;
-            margin: 0;
         }
 
-        /* Navbar Styling */
-        .navbar-custom {
-            background-color: var(--nav-bg);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
+        /* ── Navbar ── */
+        .navbar-lf {
+            background: var(--nav-bg);
             padding: 14px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-
-        .navbar-brand-custom {
-            font-weight: 700;
-            color: #fff !important;
-            font-size: 1.4rem;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-link-custom {
-            color: rgba(255,255,255,0.75) !important;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        .nav-link-custom:hover {
-            color: #fff !important;
-        }
-
-        /* Container & Cards */
-        .dashboard-container {
-            padding: 40px 30px;
-            max-width: 1300px;
-            margin: 0 auto;
-        }
-
-        .dashboard-title {
-            font-weight: 700;
-            margin-bottom: 30px;
-            color: #0f1015;
-            font-size: 1.75rem;
-        }
-
-        .card-custom {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 24px;
-            margin-bottom: 28px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-            transition: box-shadow 0.2s, transform 0.2s;
-        }
-
-        .card-custom:hover {
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-title-custom {
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-            color: #0f1015;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        /* Button Styling */
-        .btn-custom {
-            background: linear-gradient(135deg, var(--primary-blue), #5850ec);
-            color: #fff;
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 9px 20px;
-            border: none;
+        .brand { font-weight: 800; font-size: 1.3rem; color: #fff; text-decoration: none; }
+        .brand i { background: linear-gradient(135deg,#4f46e5,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .user-chip { font-size: 0.82rem; color: rgba(255,255,255,0.55); }
+        .user-chip strong { color: #818cf8; }
+        .btn-nav-outline {
+            background: transparent; color: rgba(255,255,255,0.75);
+            border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
+            padding: 7px 15px; font-size: 0.85rem; font-weight: 500;
+            text-decoration: none; display:inline-flex; align-items:center; gap:6px;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        }
+        .btn-nav-outline:hover { background: rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.4); }
+
+        /* ── Layout ── */
+        .dashboard-wrap { max-width: 1200px; margin: 0 auto; padding: 36px 24px; }
+        .page-title { font-weight: 800; font-size: 1.6rem; color: var(--text); margin-bottom: 6px; }
+        .page-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 32px; }
+
+        /* ── Section header ── */
+        .section-hdr {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 18px;
+        }
+        .section-hdr .icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.9rem;
+        }
+        .section-hdr h2 { font-size: 1.05rem; font-weight: 700; margin: 0; }
+        .section-hdr .count { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+
+        /* ── Projects table card ── */
+        .card-lf {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+        .card-lf .card-body { padding: 24px; }
+        .table-lf { margin: 0; font-size: 0.9rem; color: var(--text); }
+        .table-lf th { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); border-bottom: 2px solid var(--border); padding: 11px 16px; }
+        .table-lf td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .table-lf tr:last-child td { border-bottom: none; }
+        .table-lf tr:hover td { background: rgba(79,70,229,0.02); }
+
+        .proj-link { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .proj-link:hover { text-decoration: underline; }
+
+        /* ── Role badges ── */
+        .role-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.5px; padding: 4px 10px; border-radius: 6px;
+        }
+        .role-annotator { background: rgba(79,70,229,0.1); color: var(--primary); border: 1px solid rgba(79,70,229,0.2); }
+        .role-reviewer  { background: rgba(59,130,246,0.1); color: var(--info); border: 1px solid rgba(59,130,246,0.2); }
+
+        /* ── Batch cards ── */
+        .batch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-bottom: 32px; }
+
+        .batch-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: box-shadow 0.2s, transform 0.15s;
+        }
+        .batch-card:hover { box-shadow: 0 6px 24px rgba(79,70,229,0.1); transform: translateY(-1px); }
+
+        .batch-code {
+            font-size: 0.72rem; font-weight: 700; letter-spacing: 1px;
+            text-transform: uppercase; color: var(--primary);
+            background: var(--primary-light); border: 1px solid rgba(79,70,229,0.15);
+            padding: 3px 9px; border-radius: 6px; display: inline-block; margin-bottom: 10px;
+        }
+        .batch-project-name { font-weight: 700; font-size: 1rem; margin-bottom: 4px; color: var(--text); }
+        .batch-project-role { font-size: 0.78rem; color: var(--muted); margin-bottom: 14px; }
+
+        /* progress bar */
+        .batch-progress-bar {
+            height: 6px; background: rgba(0,0,0,0.07); border-radius: 4px;
+            overflow: hidden; margin-bottom: 8px;
+        }
+        .batch-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            border-radius: 4px; transition: width 0.4s;
+        }
+        .batch-progress-label {
+            display: flex; justify-content: space-between;
+            font-size: 0.78rem; color: var(--muted); margin-bottom: 16px;
         }
 
-        .btn-custom:hover {
-            background: linear-gradient(135deg, #4338ca, #4f46e5);
-            color: #fff;
-            transform: translateY(-1px);
+        /* action buttons inside batch card */
+        .btn-annotate {
+            background: linear-gradient(135deg, var(--primary), #5850ec);
+            color: #fff; border: none; border-radius: 10px;
+            padding: 9px 18px; font-size: 0.88rem; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+            transition: all 0.2s; margin-right: 8px;
         }
+        .btn-annotate:hover { background: linear-gradient(135deg,#4338ca,#4f46e5); color:#fff; transform:translateY(-1px); box-shadow:0 4px 14px rgba(79,70,229,0.35); }
 
-        .btn-custom-outline {
-            background-color: transparent;
-            color: rgba(255,255,255,0.8);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            font-weight: 500;
-            border-radius: 8px;
-            padding: 8px 16px;
+        .btn-submit-batch {
+            background: linear-gradient(135deg, var(--success), #34d399);
+            color: #fff; border: none; border-radius: 10px;
+            padding: 9px 18px; font-size: 0.88rem; font-weight: 600;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
             transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
         }
+        .btn-submit-batch:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,0.35); }
+        .btn-submit-batch:disabled { opacity: 0.45; cursor: not-allowed; }
 
-        .btn-custom-outline:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255,255,255,0.5);
-            color: #fff;
+        .btn-review-start {
+            background: linear-gradient(135deg, var(--info), #60a5fa);
+            color: #fff; border: none; border-radius: 10px;
+            padding: 9px 18px; font-size: 0.88rem; font-weight: 600;
+            text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+            transition: all 0.2s;
         }
+        .btn-review-start:hover { background: linear-gradient(135deg,#2563eb,#3b82f6); color:#fff; transform:translateY(-1px); }
 
-        /* Badges & Tables */
-        .status-badge {
-            font-size: 0.72rem;
-            padding: 4px 9px;
-            border-radius: 6px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        /* submitted chip on card */
+        .chip-submitted { background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.2); border-radius:7px; font-size:0.72rem; font-weight:700; padding:3px 9px; }
+        .chip-in-progress { background:rgba(245,158,11,0.1); color:#d97706; border:1px solid rgba(245,158,11,0.2); border-radius:7px; font-size:0.72rem; font-weight:700; padding:3px 9px; }
 
-        .status-active {
-            background-color: rgba(16, 185, 129, 0.12);
-            color: #059669;
-            border: 1px solid rgba(16,185,129,0.2);
-        }
+        /* ── Status badge for project table ── */
+        .status-badge { font-size: 0.7rem; padding: 4px 9px; border-radius: 6px; font-weight: 700; text-transform: uppercase; }
+        .st-active { background:rgba(16,185,129,0.1); color:#059669; border:1px solid rgba(16,185,129,0.2); }
+        .st-draft  { background:rgba(245,158,11,0.1); color:#d97706; border:1px solid rgba(245,158,11,0.2); }
 
-        .status-draft {
-            background-color: rgba(245, 158, 11, 0.12);
-            color: #d97706;
-            border: 1px solid rgba(245,158,11,0.2);
-        }
+        /* Empty states */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+        .empty-state i { font-size: 2.5rem; opacity: 0.25; margin-bottom: 12px; display:block; }
+        .empty-state p { font-size: 0.9rem; margin: 0; }
 
-        .table-custom {
-            color: var(--text-color);
-            margin: 0;
-        }
-
-        .table-custom th {
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 2px solid var(--card-border);
-            padding: 12px 14px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .table-custom td {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--card-border);
-            vertical-align: middle;
-            font-size: 0.93rem;
-        }
-
-        .table-custom tr:last-child td {
-            border-bottom: none;
-        }
-
-        .table-custom tr:hover td {
-            background-color: rgba(79, 70, 229, 0.03);
-        }
-
-        .project-link {
-            color: var(--primary-blue);
-            text-decoration: none;
-            font-weight: 600;
-            transition: color 0.2s;
-        }
-
-        .project-link:hover {
-            color: var(--primary-blue-hover);
-            text-decoration: underline;
-        }
-
-        .badge-label {
-            background-color: rgba(79, 70, 229, 0.08);
-            color: var(--primary-blue);
-            border: 1px solid rgba(79, 70, 229, 0.2);
-            margin-right: 4px;
-            margin-bottom: 2px;
-            font-size: 0.72rem;
-            padding: 3px 7px;
-            border-radius: 5px;
-            display: inline-block;
-            font-weight: 500;
-        }
-
-        /* Pagination */
-        .pagination-custom .page-link {
-            color: var(--primary-blue);
-            border-color: var(--card-border);
-            border-radius: 6px;
-            margin: 0 2px;
-            font-size: 0.875rem;
-            padding: 6px 12px;
-        }
-        .pagination-custom .page-item.active .page-link {
-            background-color: var(--primary-blue);
-            border-color: var(--primary-blue);
-            color: #fff;
-        }
-        .pagination-custom .page-link:hover {
-            background-color: rgba(79,70,229,0.08);
-            color: var(--primary-blue-hover);
-        }
-        .pagination-custom .page-item.disabled .page-link {
-            color: var(--text-muted);
-        }
-
-        .admin-panel-banner {
-            background: linear-gradient(135deg, #0f1015, #1a1a2e);
-            border-radius: 14px;
-            padding: 20px 28px;
-            margin-bottom: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            box-shadow: 0 4px 20px rgba(79,70,229,0.15);
-            border: 1px solid rgba(79,70,229,0.2);
-        }
-        .admin-panel-banner .banner-text {
-            color: #fff;
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        .admin-panel-banner .banner-text small {
-            color: rgba(255,255,255,0.55);
-            display: block;
-            font-weight: 400;
-            font-size: 0.83rem;
-            margin-top: 2px;
-        }
+        /* Divider between sections */
+        .section-divider { border: none; border-top: 2px solid var(--border); margin: 6px 0 28px; }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom">
-    <div class="container-fluid">
-        <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2" style="color: #818cf8;"></i>LabelFlow</a>
-        
-        <div class="d-flex align-items-center gap-3">
-            <span style="color: rgba(255,255,255,0.55); font-size: 0.875rem;"><i class="fas fa-user me-1"></i> {{ request.user.email }} &middot; <span style="color: #818cf8;">{{ request.user.role }}</span></span>
-            {% if request.user.role == "admin" %}
-                <a href="/create/" class="btn btn-custom btn-sm"><i class="fas fa-plus"></i> New Project</a>
-            {% endif %}
-            <button id="logoutBtn" class="btn btn-custom-outline btn-sm"><i class="fas fa-sign-out-alt"></i> Logout</button>
-        </div>
+<!-- Navbar -->
+<nav class="navbar-lf d-flex align-items-center justify-content-between">
+    <a href="/" class="brand"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+    <div class="d-flex align-items-center gap-3">
+        <span class="user-chip">
+            <i class="fas fa-user me-1"></i>
+            {{ request.user.first_name }} {{ request.user.last_name }}
+            &middot; <strong>{{ request.user.role }}</strong>
+        </span>
+        <button id="logoutBtn" class="btn-nav-outline"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
 </nav>
 
-<div class="dashboard-container">
-    <h2 class="dashboard-title"><i class="fas fa-th-large me-2" style="color: var(--primary-blue);"></i>Dashboard</h2>
+<div class="dashboard-wrap">
+    <h1 class="page-title"><i class="fas fa-th-large me-2" style="color:var(--primary);"></i>My Dashboard</h1>
+    <p class="page-sub">Welcome back, {{ request.user.first_name }}. Here's your project and batch overview.</p>
 
-    {% if request.user.role == "admin" %}
-    <!-- Admin shortcut banner -->
-    <div class="admin-panel-banner">
+    <!-- Django messages -->
+    {% if messages %}
+    <div class="mb-3">
+        {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show rounded-3" role="alert">
+            {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ═══ ASSIGNED PROJECTS ═══ -->
+    <div class="section-hdr">
+        <div class="icon" style="background:rgba(79,70,229,0.1); color:var(--primary);"><i class="fas fa-folder-open"></i></div>
         <div>
-            <i class="fas fa-shield-alt me-2" style="color: #818cf8; font-size: 1.3rem;"></i>
-            <span class="banner-text">
-                Admin Control Panel
-                <small>Manage all projects, review annotator progress and view detailed analytics</small>
-            </span>
+            <h2>Assigned Projects</h2>
+            <span class="count">{{ member_projects_count }} project{{ member_projects_count|pluralize }}</span>
         </div>
-        <a href="/admin-panel/" class="btn btn-custom"><i class="fas fa-arrow-right"></i> Open Admin Panel</a>
     </div>
-    {% endif %}
 
-    {% if request.user.role == "admin" %}
-    <!-- Admin view: Projects Created By Admin -->
-    <div class="card-custom">
-        <div class="card-title-custom">
-            <span><i class="fas fa-folder-open me-2 text-primary"></i>My Projects</span>
-            <span class="text-muted fs-6 fw-normal">{{ created_projects_count }} total</span>
-        </div>
-        
-        {% if created_projects %}
-        <div class="table-responsive">
-            <table class="table table-custom">
-                <thead>
-                    <tr>
-                        <th>Project Name</th>
-                        <th>Status</th>
-                        <th>Labels</th>
-                        <th>Created At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for project in created_projects %}
-                    <tr>
-                        <td>
-                            <a href="/{{ project.id }}/" class="project-link">{{ project.name }}</a>
-                            <div class="text-muted small mt-1">{{ project.description|default:"No description provided."|truncatechars:80 }}</div>
-                        </td>
-                        <td>
-                            <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
-                                {{ project.status }}
-                            </span>
-                        </td>
-                        <td>
-                            {% for label in project.label_set %}
-                                <span class="badge-label">{{ label }}</span>
-                            {% empty %}
-                                <span class="text-muted small">None</span>
-                            {% endfor %}
-                        </td>
-                        <td class="text-muted small">{{ project.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <a href="/{{ project.id }}/" class="btn btn-sm" style="background: rgba(79,70,229,0.1); color: var(--primary-blue); border: 1px solid rgba(79,70,229,0.2); border-radius: 6px; font-size: 0.82rem; font-weight: 500;">Manage</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <p class="text-muted text-center my-4">No projects created yet. Click "New Project" to get started.</p>
-        {% endif %}
-    </div>
-    {% endif %}
-
-    <!-- Member view: Projects Assigned To Me -->
-    <div class="card-custom">
-        <div class="card-title-custom">
-            <span><i class="fas fa-users-cog me-2 text-success"></i>Assigned Projects</span>
-            <span class="text-muted fs-6 fw-normal">{{ member_projects_count }} projects</span>
-        </div>
-
+    <div class="card-lf">
         {% if member_project_entries %}
         <div class="table-responsive">
-            <table class="table table-custom">
+            <table class="table table-lf">
                 <thead>
                     <tr>
-                        <th>Project Name</th>
+                        <th>Project</th>
                         <th>Status</th>
-                        <th>Labels</th>
                         <th>Your Role</th>
-                        <th>Actions</th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for entry in member_project_entries %}
                     <tr>
                         <td>
-                            <a href="/{{ entry.project.id }}/" class="project-link">{{ entry.project.name }}</a>
-                            <div class="text-muted small mt-1">{{ entry.project.description|default:"No description."|truncatechars:80 }}</div>
+                            <a href="/{{ entry.project.id }}/" class="proj-link">{{ entry.project.name }}</a>
+                            <div class="text-muted small mt-1">{{ entry.project.description|default:"No description."|truncatechars:70 }}</div>
                         </td>
                         <td>
-                            <span class="status-badge {% if entry.project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
+                            <span class="status-badge {% if entry.project.status == 'active' %}st-active{% else %}st-draft{% endif %}">
                                 {{ entry.project.status }}
                             </span>
                         </td>
                         <td>
-                            {% for label in entry.project.label_set %}
-                                <span class="badge-label">{{ label }}</span>
-                            {% endfor %}
+                            <span class="role-badge {% if entry.role_in_project == 'reviewer' %}role-reviewer{% else %}role-annotator{% endif %}">
+                                <i class="fas {% if entry.role_in_project == 'reviewer' %}fa-search{% else %}fa-tag{% endif %}"></i>
+                                {{ entry.role_in_project|capfirst }}
+                            </span>
                         </td>
-                        <td>
-                            <span class="badge text-uppercase {% if entry.role_in_project == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">{{ entry.role_in_project }}</span>
-                        </td>
-                        <td>
-                            <a href="/{{ entry.project.id }}/" class="btn btn-sm" style="background: rgba(79,70,229,0.08); color: var(--primary-blue); border: 1px solid rgba(79,70,229,0.15); border-radius: 6px; font-size: 0.82rem; font-weight: 500;">View</a>
+                        <td class="text-end">
+                            <a href="/{{ entry.project.id }}/" class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid rgba(79,70,229,0.2);border-radius:8px;font-weight:600;font-size:0.82rem;">
+                                View Project
+                            </a>
                         </td>
                     </tr>
                     {% endfor %}
@@ -396,90 +261,139 @@
             </table>
         </div>
         {% else %}
-        <p class="text-muted text-center my-4">No assigned projects.</p>
+        <div class="card-body">
+            <div class="empty-state">
+                <i class="fas fa-folder"></i>
+                <p>No projects assigned yet. Wait for an admin to add you to a project.</p>
+            </div>
+        </div>
         {% endif %}
     </div>
 
-    <!-- User tasks: Tasks Assigned To Annotator/Reviewer -->
-    <div class="card-custom">
-        <div class="card-title-custom">
-            <span><i class="fas fa-tasks me-2 text-warning"></i>My Annotation Tasks</span>
-            <span class="text-muted fs-6 fw-normal">{{ assigned_tasks_total }} active tasks</span>
+    <!-- ═══ MY ANNOTATION BATCHES (Annotator) ═══ -->
+    {% if my_batches %}
+    <hr class="section-divider">
+    <div class="section-hdr">
+        <div class="icon" style="background:rgba(245,158,11,0.1); color:var(--warning);"><i class="fas fa-layer-group"></i></div>
+        <div>
+            <h2>My Annotation Batches</h2>
+            <span class="count">{{ my_batches|length }} batch{{ my_batches|length|pluralize:"es" }} assigned</span>
         </div>
-
-        {% if assigned_tasks %}
-        <div class="table-responsive">
-            <table class="table table-custom">
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Image File</th>
-                        <th>Status</th>
-                        <th>Assigned Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for task in assigned_tasks %}
-                    <tr>
-                        <td><a href="/{{ task.project.id }}/" class="project-link">{{ task.project.name }}</a></td>
-                        <td class="text-muted small">{{ task.image.filename }}</td>
-                        <td>
-                            <span class="badge bg-secondary text-uppercase" style="font-size: 0.7rem;">{{ task.status }}</span>
-                        </td>
-                        <td class="text-muted small">{{ task.created_at|date:"M d, Y" }}</td>
-                        <td>
-                            <a href="/annotations/task/{{ task.id }}/" class="btn btn-custom btn-sm">Annotate</a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-        <!-- Pagination -->
-        {% if assigned_tasks.has_other_pages %}
-        <nav class="mt-3" aria-label="Tasks pagination">
-            <ul class="pagination pagination-custom mb-0 justify-content-center">
-                {% if assigned_tasks.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?task_page={{ assigned_tasks.previous_page_number }}">
-                            <i class="fas fa-chevron-left me-1"></i> Previous
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link"><i class="fas fa-chevron-left me-1"></i> Previous</span></li>
-                {% endif %}
-
-                {% for num in assigned_tasks.paginator.page_range %}
-                    {% if assigned_tasks.number == num %}
-                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% elif num > assigned_tasks.number|add:'-3' and num < assigned_tasks.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?task_page={{ num }}">{{ num }}</a></li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if assigned_tasks.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?task_page={{ assigned_tasks.next_page_number }}">
-                            Next <i class="fas fa-chevron-right ms-1"></i>
-                        </a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled"><span class="page-link">Next <i class="fas fa-chevron-right ms-1"></i></span></li>
-                {% endif %}
-            </ul>
-            <p class="text-center text-muted small mt-2">
-                Page {{ assigned_tasks.number }} of {{ assigned_tasks.paginator.num_pages }}
-                &nbsp;&middot;&nbsp; {{ assigned_tasks_total }} total tasks
-            </p>
-        </nav>
-        {% endif %}
-
-        {% else %}
-        <p class="text-muted text-center my-4">No active annotation tasks assigned.</p>
-        {% endif %}
     </div>
+
+    <div class="batch-grid">
+        {% for b in my_batches %}
+        <div class="batch-card">
+            <span class="batch-code">{{ b.code }}</span>
+            <div class="batch-project-name">{{ b.project.name }}</div>
+            <div class="batch-project-role"><i class="fas fa-tag me-1"></i>Annotator</div>
+
+            <!-- Progress bar -->
+            <div class="batch-progress-bar">
+                <div class="batch-progress-fill" style="width:{% if b.total > 0 %}{% widthratio b.annotated b.total 100 %}{% else %}0{% endif %}%;"></div>
+            </div>
+            <div class="batch-progress-label">
+                <span>{{ b.annotated }} / {{ b.total }} annotated</span>
+                {% if b.is_fully_submitted %}
+                    <span class="chip-submitted"><i class="fas fa-check me-1"></i>Submitted</span>
+                {% elif b.all_annotated %}
+                    <span class="chip-submitted" style="background:rgba(79,70,229,0.1);color:var(--primary);border-color:rgba(79,70,229,0.2);">Ready to Submit</span>
+                {% else %}
+                    <span class="chip-in-progress">In Progress</span>
+                {% endif %}
+            </div>
+
+            <!-- Action buttons -->
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                {% if not b.is_fully_submitted and b.first_task %}
+                <a href="/annotations/task/{{ b.first_task.id }}/" class="btn-annotate">
+                    <i class="fas fa-pen-nib"></i>
+                    {% if b.annotated == 0 %}Start Annotating{% else %}Continue{% endif %}
+                </a>
+                {% endif %}
+
+                {% if not b.is_fully_submitted %}
+                <form method="POST" action="/annotations/submit-batch/{{ b.code }}/" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-submit-batch"
+                        {% if not b.all_annotated %}disabled title="Annotate all {{ b.total }} images first"{% endif %}>
+                        <i class="fas fa-paper-plane"></i> Submit
+                    </button>
+                </form>
+                {% endif %}
+
+                {% if b.is_fully_submitted %}
+                <a href="/{{ b.project.id }}/" class="btn btn-sm" style="color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;padding:7px 14px;">
+                    <i class="fas fa-folder-open me-1"></i>View Project
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ═══ REVIEWER BATCHES ═══ -->
+    {% if reviewer_batches %}
+    <hr class="section-divider">
+    <div class="section-hdr">
+        <div class="icon" style="background:rgba(59,130,246,0.1); color:var(--info);"><i class="fas fa-clipboard-check"></i></div>
+        <div>
+            <h2>Batches Pending Review</h2>
+            <span class="count">{{ reviewer_batches|length }} batch{{ reviewer_batches|length|pluralize:"es" }} awaiting review</span>
+        </div>
+    </div>
+
+    <div class="batch-grid">
+        {% for b in reviewer_batches %}
+        <div class="batch-card" style="border-color:rgba(59,130,246,0.15);">
+            <span class="batch-code" style="color:var(--info);background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.2);">
+                <i class="fas fa-hashtag me-1"></i>{{ b.code }}
+            </span>
+            <div class="batch-project-name">{{ b.project.name }}</div>
+            <div class="batch-project-role">
+                <i class="fas fa-user me-1"></i>Annotated by {{ b.assigned_to.first_name }} {{ b.assigned_to.last_name }}
+            </div>
+
+            <!-- Progress bar (review progress) -->
+            {% with reviewed=b.approved|add:b.rejected %}
+            <div class="batch-progress-bar">
+                <div class="batch-progress-fill" style="background:linear-gradient(90deg,var(--info),#60a5fa); width:{% if b.total > 0 %}{% widthratio reviewed b.total 100 %}{% else %}0{% endif %}%;"></div>
+            </div>
+            <div class="batch-progress-label">
+                <span>{{ reviewed }} / {{ b.total }} reviewed</span>
+                <span class="chip-in-progress" style="background:rgba(59,130,246,0.1);color:var(--info);border-color:rgba(59,130,246,0.2);">
+                    {{ b.submitted }} pending
+                </span>
+            </div>
+            {% endwith %}
+
+            <div class="d-flex gap-2 flex-wrap">
+                {% if b.first_task %}
+                <a href="/annotations/review/{{ b.first_task.id }}/" class="btn-review-start">
+                    <i class="fas fa-search"></i> Start Review
+                </a>
+                {% endif %}
+                <a href="/{{ b.project.id }}/" class="btn btn-sm" style="color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;padding:7px 14px;">
+                    <i class="fas fa-folder-open me-1"></i>Project
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not my_batches and not reviewer_batches %}
+    <hr class="section-divider">
+    <div class="card-lf">
+        <div class="card-body">
+            <div class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No batches assigned yet. Once an admin assigns you a batch, it will appear here.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
 </div>
 
@@ -487,19 +401,12 @@
 <script>
 document.getElementById("logoutBtn").addEventListener("click", async function() {
     try {
-        const response = await fetch("/api/logout/", {
+        const r = await fetch("/api/logout/", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
-            }
+            headers: { "Content-Type": "application/json", "X-CSRFToken": "{{ csrf_token }}" }
         });
-        if (response.ok) {
-            window.location.href = "/login/";
-        }
-    } catch (e) {
-        console.error("Logout failed:", e);
-    }
+        if (r.ok) window.location.href = "/login/";
+    } catch(e) { console.error("Logout failed:", e); }
 });
 </script>
 

@@ -9,86 +9,113 @@ from projects.models import Project, ProjectMember
 from .models import AnnotationTask, Annotation, Review
 from accounts.models import User
 
+BATCH_SIZE = 25
+
+
+def get_project_initials(project_name):
+    """Return uppercase initials from all words in project name (max 5 chars)."""
+    words = [w for w in project_name.split() if w]
+    return ''.join([w[0] for w in words]).upper()[:5]
+
+
+# ─────────────────────────────────────────────────────────────
+# BATCH ASSIGN (Admin → assigns CLS-SF-001 batches to annotator)
+# ─────────────────────────────────────────────────────────────
 
 @login_required
-def assign_task_view(request, task_id):
-    task = get_object_or_404(AnnotationTask, id=task_id)
-    project = task.project
-
+def batch_assign_view(request, project_id):
+    """
+    Admin assigns unassigned tasks to a specific annotator in groups of 25.
+    Batch codes are generated as CLS-{INITIALS}-{NNN}, e.g. CLS-SF-001.
+    """
+    project = get_object_or_404(Project, id=project_id)
     if project.created_by != request.user and request.user.role != "admin":
         messages.error(request, "Only the project owner can assign tasks.")
         return redirect('project_detail', project_id=project.id)
 
     if request.method == 'POST':
         annotator_id = request.POST.get('annotator_id')
+        dataset_id = request.POST.get('dataset_id', '')
+        num_batches_str = request.POST.get('num_batches', '1')
 
-        with transaction.atomic():
-            if annotator_id:
-                annotator = get_object_or_404(User, id=annotator_id)
-                if not ProjectMember.objects.filter(project=project, user=annotator, role_in_project='annotator').exists():
-                    messages.error(request, "Selected user is not an annotator in this project.")
-                    return redirect('project_detail', project_id=project.id)
+        try:
+            num_batches = max(1, int(num_batches_str))
+        except ValueError:
+            num_batches = 1
 
-                task.assigned_to = annotator
-                task.status = 'assigned'
-                task.image.status = 'assigned'
-            else:
-                task.assigned_to = None
-                task.status = 'unassigned'
-                task.image.status = 'pending'
-
-            task.save()
-            task.image.save()
-            messages.success(request, f"Updated assignment for task: {task.image.filename}")
-
-    return redirect('project_detail', project_id=project.id)
-
-
-@login_required
-def auto_assign_view(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    if project.created_by != request.user and request.user.role != "admin":
-        messages.error(request, "Only the project owner can auto-assign tasks.")
-        return redirect('project_detail', project_id=project.id)
-
-    if request.method == 'POST':
-        annotator_members = ProjectMember.objects.filter(project=project, role_in_project='annotator').select_related('user')
-        annotators = [m.user for m in annotator_members]
-
-        if not annotators:
-            messages.error(request, "There are no annotators in this project to assign tasks to.")
+        if not annotator_id:
+            messages.error(request, "Please select an annotator.")
             return redirect('project_detail', project_id=project.id)
 
-        unassigned_tasks = AnnotationTask.objects.filter(project=project, status='unassigned').select_related('image')
-
-        if not unassigned_tasks.exists():
-            messages.warning(request, "There are no unassigned tasks in this project.")
+        annotator = get_object_or_404(User, id=annotator_id)
+        if not ProjectMember.objects.filter(
+            project=project, user=annotator, role_in_project='annotator'
+        ).exists():
+            messages.error(request, "Selected user is not an annotator in this project.")
             return redirect('project_detail', project_id=project.id)
+
+        tasks_qs = AnnotationTask.objects.filter(
+            project=project, status='unassigned'
+        ).order_by('created_at')
+        if dataset_id:
+            tasks_qs = tasks_qs.filter(image__dataset_id=dataset_id)
+
+        tasks_to_assign = list(tasks_qs[: BATCH_SIZE * num_batches])
+
+        if not tasks_to_assign:
+            messages.warning(request, "No unassigned tasks found for the selected criteria.")
+            return redirect('project_detail', project_id=project.id)
+
+        initials = get_project_initials(project.name)
+
+        # Count how many distinct batch codes already exist in this project
+        existing_batch_count = (
+            AnnotationTask.objects.filter(project=project)
+            .exclude(batch__isnull=True)
+            .exclude(batch='')
+            .values('batch')
+            .distinct()
+            .count()
+        )
 
         with transaction.atomic():
             assigned_count = 0
-            for idx, task in enumerate(unassigned_tasks):
-                assigned_user = annotators[idx % len(annotators)]
-                task.assigned_to = assigned_user
-                task.status = 'assigned'
-                task.image.status = 'assigned'
-                task.save()
-                task.image.save()
-                assigned_count += 1
+            batch_offset = 0
+            for chunk_start in range(0, len(tasks_to_assign), BATCH_SIZE):
+                chunk = tasks_to_assign[chunk_start : chunk_start + BATCH_SIZE]
+                batch_num = existing_batch_count + batch_offset + 1
+                batch_code = f"CLS-{initials}-{batch_num:03d}"
+                batch_offset += 1
 
-        messages.success(request, f"Auto-assigned {assigned_count} tasks evenly among {len(annotators)} annotators.")
+                for task in chunk:
+                    task.assigned_to = annotator
+                    task.status = 'assigned'
+                    task.batch = batch_code
+                    task.image.status = 'assigned'
+                    task.save()
+                    task.image.save()
+                    assigned_count += 1
+
+        messages.success(
+            request,
+            f"✅ Created {batch_offset} batch(es) — {assigned_count} tasks assigned to "
+            f"{annotator.first_name} {annotator.last_name}.",
+        )
 
     return redirect('project_detail', project_id=project.id)
 
+
+# ─────────────────────────────────────────────────────────────
+# LABEL / ANNOTATE TASK
+# ─────────────────────────────────────────────────────────────
 
 @login_required
 def label_task_view(request, task_id):
     task = get_object_or_404(AnnotationTask, id=task_id)
     project = task.project
 
-    # Authorize annotator or owner
-    is_owner = (project.created_by == request.user)
-    is_assigned = (task.assigned_to == request.user)
+    is_owner = project.created_by == request.user
+    is_assigned = task.assigned_to == request.user
 
     if not is_owner and not is_assigned:
         messages.error(request, "You are not authorized to access this labeling workspace.")
@@ -101,7 +128,6 @@ def label_task_view(request, task_id):
             body = json.loads(request.body)
             labels = body.get('labels', [])
             notes = body.get('notes', '')
-            action = body.get('action', 'save')  # 'save' (draft) only now
 
             with transaction.atomic():
                 if not annotation:
@@ -109,7 +135,7 @@ def label_task_view(request, task_id):
                         task=task,
                         annotated_by=request.user,
                         labels=labels,
-                        notes=notes
+                        notes=notes,
                     )
                 else:
                     annotation.labels = labels
@@ -124,105 +150,136 @@ def label_task_view(request, task_id):
                 task.save()
                 task.image.save()
 
-            # Find the next unfinished task for this annotator in the same project
-            next_task = AnnotationTask.objects.filter(
-                project=project,
-                assigned_to=request.user,
-                status__in=['assigned', 'in_progress']
-            ).exclude(id=task.id).order_by('created_at').first()
+            # Navigate to next unannotated task within the same batch first
+            next_task = None
+            if task.batch:
+                next_task = (
+                    AnnotationTask.objects.filter(
+                        batch=task.batch,
+                        assigned_to=request.user,
+                        status='assigned',
+                    )
+                    .exclude(id=task.id)
+                    .order_by('created_at')
+                    .first()
+                )
+
+            # Fall back to any other assigned task across other batches in this project
+            if not next_task:
+                next_task = (
+                    AnnotationTask.objects.filter(
+                        project=project,
+                        assigned_to=request.user,
+                        status__in=['assigned', 'in_progress'],
+                    )
+                    .exclude(id=task.id)
+                    .order_by('created_at')
+                    .first()
+                )
 
             next_url = f"/annotations/task/{next_task.id}/" if next_task else None
 
             return JsonResponse({
                 'status': 'success',
-                'message': "Annotation saved!",
+                'message': 'Annotation saved!',
                 'next_task_url': next_url,
             })
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
-    # GET: Count progress metrics
-    total_assigned = AnnotationTask.objects.filter(project=project, assigned_to=request.user).count()
-    completed_count = AnnotationTask.objects.filter(
-        project=project, assigned_to=request.user,
-        status__in=['submitted', 'approved']
-    ).count()
-
-    # Datasets for batch-submit
-    datasets_in_project = Dataset.objects.filter(
-        project=project,
-        image__annotationtask__assigned_to=request.user
-    ).distinct()
+    # GET — compute batch-scoped progress
+    if task.batch:
+        total_in_batch = AnnotationTask.objects.filter(
+            batch=task.batch, assigned_to=request.user
+        ).count()
+        annotated_in_batch = Annotation.objects.filter(
+            task__batch=task.batch, task__assigned_to=request.user
+        ).count()
+    else:
+        total_in_batch = AnnotationTask.objects.filter(
+            project=project, assigned_to=request.user
+        ).count()
+        annotated_in_batch = Annotation.objects.filter(
+            task__project=project, annotated_by=request.user
+        ).count()
 
     context = {
         'task': task,
         'annotation': annotation,
         'label_set_json': json.dumps(project.label_set),
         'existing_labels_json': json.dumps(annotation.labels if annotation else []),
-        'total_assigned': total_assigned,
-        'completed_count': completed_count,
-        'datasets': datasets_in_project,
+        'total_in_batch': total_in_batch,
+        'annotated_in_batch': annotated_in_batch,
         'project': project,
+        'batch_code': task.batch,
     }
     return render(request, 'annotations/label.html', context)
 
 
+# ─────────────────────────────────────────────────────────────
+# SUBMIT BATCH FOR REVIEW (Annotator)
+# ─────────────────────────────────────────────────────────────
+
 @login_required
-def submit_dataset_review_view(request, dataset_id):
-    """Batch-submit all of the current annotator's tasks in a dataset for review."""
-    dataset = get_object_or_404(Dataset, id=dataset_id)
-    project = dataset.project
+def submit_batch_review_view(request, batch_code):
+    """Submit entire batch for review — only allowed when ALL 25 tasks have annotations."""
+    tasks = AnnotationTask.objects.filter(
+        batch=batch_code, assigned_to=request.user
+    ).select_related('image', 'project')
 
-    is_owner = (project.created_by == request.user)
-    is_annotator = ProjectMember.objects.filter(
-        project=project, user=request.user, role_in_project='annotator'
-    ).exists()
-
-    if not is_owner and not is_annotator:
-        messages.error(request, "You are not authorized to submit tasks for this dataset.")
+    if not tasks.exists():
+        messages.warning(request, "No tasks found for this batch or not assigned to you.")
         return redirect('dashboard')
 
-    if request.method == 'POST':
-        tasks_to_submit = AnnotationTask.objects.filter(
-            project=project,
-            assigned_to=request.user,
-            image__dataset=dataset,
-            status__in=['in_progress', 'assigned']
-        ).select_related('image')
+    project = tasks.first().project
 
+    if request.method == 'POST':
+        missing = []
         submitted_count = 0
-        skipped_count = 0
+
         with transaction.atomic():
-            for task in tasks_to_submit:
-                annotation = Annotation.objects.filter(task=task).first()
-                if annotation:
-                    annotation.status = 'submitted'
-                    annotation.save()
+            for task in tasks:
+                ann = Annotation.objects.filter(task=task).first()
+                if not ann:
+                    missing.append(task.image.filename)
+                else:
+                    ann.status = 'submitted'
+                    ann.save()
                     task.status = 'submitted'
                     task.image.status = 'annotated'
                     task.save()
                     task.image.save()
                     submitted_count += 1
-                else:
-                    skipped_count += 1
 
-        if submitted_count > 0:
-            messages.success(request, f"✅ Submitted {submitted_count} tasks from '{dataset.name}' for review!")
-        if skipped_count > 0:
-            messages.warning(request, f"⚠️ {skipped_count} tasks were skipped (no saved annotation).")
-        if submitted_count == 0 and skipped_count == 0:
-            messages.info(request, "No tasks found to submit in this dataset.")
+        if missing:
+            messages.warning(
+                request,
+                f"⚠️ Cannot submit batch '{batch_code}'. "
+                f"{len(missing)} image(s) still need annotation. "
+                "Please annotate all images before submitting.",
+            )
+        else:
+            messages.success(
+                request,
+                f"✅ Batch '{batch_code}' submitted for review! ({submitted_count} tasks)",
+            )
 
-    return redirect('dashboard')
+    return redirect('project_detail', project_id=project.id)
 
+
+# ─────────────────────────────────────────────────────────────
+# REVIEW SINGLE TASK (Reviewer — navigates within batch silently)
+# ─────────────────────────────────────────────────────────────
 
 @login_required
 def review_task_view(request, task_id):
     task = get_object_or_404(AnnotationTask, id=task_id)
     project = task.project
 
-    is_owner = (project.created_by == request.user)
-    is_reviewer = ProjectMember.objects.filter(project=project, user=request.user, role_in_project='reviewer').exists()
+    is_owner = project.created_by == request.user
+    is_reviewer = ProjectMember.objects.filter(
+        project=project, user=request.user, role_in_project='reviewer'
+    ).exists()
     is_admin = request.user.role == "admin"
 
     if not is_owner and not is_reviewer and not is_admin:
@@ -242,7 +299,11 @@ def review_task_view(request, task_id):
         with transaction.atomic():
             review, created = Review.objects.get_or_create(
                 annotation=annotation,
-                defaults={'reviewed_by': request.user, 'decision': decision, 'comment': comment}
+                defaults={
+                    'reviewed_by': request.user,
+                    'decision': decision,
+                    'comment': comment,
+                },
             )
             if not created:
                 review.reviewed_by = request.user
@@ -252,105 +313,90 @@ def review_task_view(request, task_id):
 
             annotation.status = decision
             task.status = decision
-
-            if decision == 'approved':
-                task.image.status = 'approved'
-            else:
-                task.image.status = 'rejected'
-
+            task.image.status = 'approved' if decision == 'approved' else 'rejected'
             annotation.save()
             task.save()
             task.image.save()
 
-        return redirect('dashboard')
+        # Silently move to next submitted task in same batch — no per-image notification
+        if task.batch:
+            next_task = (
+                AnnotationTask.objects.filter(batch=task.batch, status='submitted')
+                .exclude(id=task.id)
+                .order_by('created_at')
+                .first()
+            )
+            if next_task:
+                return redirect('review_task', task_id=next_task.id)
 
+            # Entire batch reviewed — single summary message
+            reviewed_count = AnnotationTask.objects.filter(
+                batch=task.batch, status__in=['approved', 'rejected']
+            ).count()
+            messages.success(
+                request,
+                f"✅ Batch '{task.batch}' review complete — {reviewed_count} task(s) reviewed.",
+            )
 
-@login_required
-def submit_batch_review_view(request, batch_code):
-    """Submit all tasks in a batch for the current user if every task has an annotation."""
-    tasks = AnnotationTask.objects.filter(batch=batch_code, assigned_to=request.user).select_related('image', 'project')
-    if not tasks.exists():
-        messages.warning(request, "No tasks found for this batch or not assigned to you.")
-        return redirect('dashboard')
+        return redirect('project_detail', project_id=project.id)
 
-    if request.method == 'POST':
-        missing = []
-        submitted_count = 0
-        with transaction.atomic():
-            for task in tasks:
-                annotation = Annotation.objects.filter(task=task).first()
-                if not annotation:
-                    missing.append(task.image.filename)
-                else:
-                    annotation.status = 'submitted'
-                    annotation.save()
-                    task.status = 'submitted'
-                    task.image.status = 'annotated'
-                    task.save()
-                    task.image.save()
-                    submitted_count += 1
-
-        if missing:
-            messages.warning(request, f"Cannot submit batch. {len(missing)} tasks missing annotations.")
-        else:
-            messages.success(request, f"✅ Submitted {submitted_count} tasks from batch '{batch_code}' for review!")
-
-        return redirect('project_detail', project_id=tasks.first().project.id if tasks.exists() else 'dashboard')
+    # GET — build batch progress for review sidebar
+    batch_total = 0
+    batch_reviewed = 0
+    if task.batch:
+        batch_total = AnnotationTask.objects.filter(batch=task.batch).count()
+        batch_reviewed = AnnotationTask.objects.filter(
+            batch=task.batch, status__in=['approved', 'rejected']
+        ).count()
 
     context = {
         'task': task,
         'annotation': annotation,
         'existing_labels_json': json.dumps(annotation.labels),
+        'project': project,
+        'batch_total': batch_total,
+        'batch_reviewed': batch_reviewed,
     }
     return render(request, 'annotations/review.html', context)
 
 
+# ─────────────────────────────────────────────────────────────
+# BATCH REVIEW LIST (Reviewer — overview of a batch)
+# ─────────────────────────────────────────────────────────────
+
 @login_required
-def bulk_assign_view(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    if project.created_by != request.user and request.user.role != "admin":
-        messages.error(request, "Only the project owner can assign tasks.")
-        return redirect('project_detail', project_id=project.id)
+def batch_review_list_view(request, batch_code):
+    """Reviewer overview page for a batch — lists all tasks and starts review."""
+    tasks = (
+        AnnotationTask.objects.filter(batch=batch_code)
+        .select_related('image', 'project', 'assigned_to')
+        .order_by('created_at')
+    )
+    if not tasks.exists():
+        messages.warning(request, "Batch not found.")
+        return redirect('dashboard')
 
-    if request.method == 'POST':
-        annotator_id = request.POST.get('annotator_id')
-        num_tasks_str = request.POST.get('num_tasks', '0')
-        dataset_id = request.POST.get('dataset_id')
+    project = tasks.first().project
+    is_owner = project.created_by == request.user
+    is_reviewer = ProjectMember.objects.filter(
+        project=project, user=request.user, role_in_project='reviewer'
+    ).exists()
+    is_admin = request.user.role == "admin"
 
-        try:
-            num_tasks = int(num_tasks_str)
-        except ValueError:
-            num_tasks = 0
+    if not is_owner and not is_reviewer and not is_admin:
+        messages.error(request, "You are not authorized to review this batch.")
+        return redirect('dashboard')
 
-        if not annotator_id or num_tasks <= 0:
-            messages.error(request, "Invalid annotator selection or number of images.")
-            return redirect('project_detail', project_id=project.id)
+    first_task = tasks.filter(status='submitted').order_by('created_at').first()
 
-        annotator = get_object_or_404(User, id=annotator_id)
-
-        if not ProjectMember.objects.filter(project=project, user=annotator, role_in_project='annotator').exists():
-            messages.error(request, "User is not an annotator in this project.")
-            return redirect('project_detail', project_id=project.id)
-
-        tasks = AnnotationTask.objects.filter(project=project, status='unassigned')
-        if dataset_id:
-            tasks = tasks.filter(image__dataset_id=dataset_id)
-
-        tasks = list(tasks[:num_tasks])
-
-        assigned_count = 0
-        with transaction.atomic():
-            for task in tasks:
-                task.assigned_to = annotator
-                task.status = 'assigned'
-                task.image.status = 'assigned'
-                task.save()
-                task.image.save()
-                assigned_count += 1
-
-        if assigned_count > 0:
-            messages.success(request, f"Successfully assigned {assigned_count} tasks to {annotator.email}.")
-        else:
-            messages.warning(request, "No unassigned tasks matching your criteria were found.")
-
-    return redirect('project_detail', project_id=project.id)
+    context = {
+        'batch_code': batch_code,
+        'tasks': tasks,
+        'project': project,
+        'first_task': first_task,
+        'total': tasks.count(),
+        'submitted': tasks.filter(status='submitted').count(),
+        'approved': tasks.filter(status='approved').count(),
+        'rejected': tasks.filter(status='rejected').count(),
+    }
+    return render(request, 'annotations/batch_review.html', context)
