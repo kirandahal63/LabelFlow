@@ -1,3 +1,5 @@
+from urllib import request
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
@@ -246,6 +248,43 @@ def project_create_view(request):
 # ─────────────────────────────────────────────────────────────
 
 @login_required
+
+def update_project_status(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    user = request.user
+
+    is_creator = project.created_by == user
+    membership = ProjectMember.objects.filter(project=project, user=user).first()
+
+    # 1. FIX: Only return if authorized check fails
+    if not is_creator and not membership:
+        messages.error(request, "You are not authorized to view this project.")
+        return redirect('dashboard')
+
+    # 2. Proceed with authorized logic
+    role = "owner" if is_creator else (membership.role_in_project if membership else None)
+    is_admin_user = (user.role == 'admin')
+
+    if role == 'owner' or is_admin_user:
+        if request.method == 'POST':
+            new_status = request.POST.get('status')
+            valid_statuses = ['draft', 'active', 'in_review', 'completed', 'archived']
+            
+            if new_status in valid_statuses:
+                project.status = new_status
+                project.save()
+                messages.success(request, f"Project status updated to {new_status.replace('_', ' ').title()}.")
+            else:
+                messages.error(request, "Invalid status selected.")
+        
+        # 3. Always return to the project detail page
+        return redirect('project_detail', project_id=project_id)
+
+    # Fallback if user somehow reaches here without owner/admin rights
+    return redirect('dashboard')
+
+
+@login_required
 def project_detail_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
     user = request.user
@@ -290,7 +329,7 @@ def project_detail_view(request, project_id):
             'approved': tasks.filter(status='approved').count(),
             'rejected': tasks.filter(status='rejected').count(),
         }
-
+        
         # Build batch assignment table for admin
         batch_codes = (
             AnnotationTask.objects.filter(project=project)
@@ -333,6 +372,8 @@ def project_detail_view(request, project_id):
             'unassigned_count': tasks.filter(status='unassigned').count(),
         })
 
+        
+
     # ── ANNOTATOR: show only their batches in this project ──
     elif role == 'annotator':
         annotator_batch_codes = (
@@ -363,6 +404,17 @@ def project_detail_view(request, project_id):
                 'first_task': first_task,
             })
 
+        def batch_priority(b):
+            if b['is_fully_submitted']:
+                return 3  # Last
+            if b['all_annotated']:
+                return 1  # First (Ready to Submit)
+            return 2      # Middle (In Progress)
+
+        # Sort the list in place
+        my_project_batches.sort(key=batch_priority)
+
+        tasks_qs = AnnotationTask.objects.filter(project=project, assigned_to=user)
         tasks_qs = AnnotationTask.objects.filter(project=project, assigned_to=user)
         stats = {
             'total_tasks': tasks_qs.count(),
@@ -370,7 +422,7 @@ def project_detail_view(request, project_id):
             'in_progress': tasks_qs.filter(status='in_progress').count(),
             'submitted': tasks_qs.filter(status__in=['submitted', 'approved']).count(),
         }
-        context.update({
+        context.update({    
             'my_project_batches': my_project_batches,
             'stats': stats,
         })

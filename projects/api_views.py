@@ -38,6 +38,7 @@ class ProjectDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
     lookup_url_kwarg = 'project_id'
 
 
+
 class ProjectMemberAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -99,3 +100,5 @@ class ProjectMemberAPIView(APIView):
         member = get_object_or_404(ProjectMember, project=project, user_id=user_id)
         member.delete()
         return Response({"success": True, "message": "Member removed successfully."})
+    
+    

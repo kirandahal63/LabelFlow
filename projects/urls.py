@@ -1,9 +1,12 @@
 from django.urls import path
+
+from datasets import views
 from .views import (
     dashboard_view,
     project_create_view,
     project_detail_view,
     admin_dashboard_view,
+    update_project_status
 )
 from .api_views import (
     ProjectListCreateAPIView,
@@ -13,6 +16,8 @@ from .api_views import (
 
 urlpatterns = [
     # HTML views
+    path('project/update-status/<uuid:project_id>/', update_project_status, name='update_project_status'),
+    
     path(
         "",
         dashboard_view,
@@ -50,4 +55,5 @@ urlpatterns = [
         ProjectMemberAPIView.as_view(),
         name="project-api-members"
     ),
+    
 ]

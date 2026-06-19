@@ -203,9 +203,8 @@
             <div class="lf-messages">
                 {% for message in messages %}
                 <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
-                    <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'warning' %}fa-exclamation-triangle{% else %}fa-check-circle{% endif %} me-2"></i>
                     {{ message }}
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+                    <button type="button" class="btn-close btn-close-black" data-bs-dismiss="alert"></button>
                 </div>
                 {% endfor %}
             </div>

@@ -72,7 +72,7 @@
         <span style="color:rgba(255,255,255,0.85); font-weight:500;">{{ project.name|truncatechars:36 }}</span>
     </div>
 {% else %}
-    <a class="navbar-brand navbar-brand-custom" href="/"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+    <a class="navbar-brand navbar-brand-custom" href="/">LabelFlow</a>
 {% endif %}
 {% endblock %}
 
@@ -208,7 +208,25 @@
     <div class="flex-grow-1">
         <div class="d-flex align-items-center gap-3 flex-wrap mb-1">
             <h1 class="project-title m-0">{{ project.name }}</h1>
-            <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">{{ project.status }}</span>
+            
+            {% if request.user.role == 'admin' %}
+                <form action="{% url 'update_project_status' project.id %}" method="POST" class="d-inline-block">
+                    {% csrf_token %}
+                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" 
+                            style="width: auto; background-color: #191834; border: 1px solid rgba(255,255,255,0.2); color: #a5b4fc; border-radius: 8px;">
+                        <option value="draft" {% if project.status == 'draft' %}selected{% endif %}>Draft</option>
+                        <option value="active" {% if project.status == 'active' %}selected{% endif %}>Active</option>
+                        <option value="in_review" {% if project.status == 'in_review' %}selected{% endif %}>In Review</option>
+                        <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="archived" {% if project.status == 'archived' %}selected{% endif %}>Archived</option>
+                    </select>
+                </form>
+            {% else %}
+                <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
+                    {{ project.status }}
+                </span>
+            {% endif %}
+
             {% if role != 'owner' and request.user.role != 'admin' %}
             <span class="badge text-uppercase fs-6 {% if role == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
                 <i class="fas {% if role == 'reviewer' %}fa-search{% else %}fa-tag{% endif %} me-1"></i>
@@ -216,19 +234,10 @@
             </span>
             {% endif %}
         </div>
+        
         <p class="mb-0 fs-6 mt-2" style="color:rgba(255,255,255,0.65);">{{ project.description|default:"No description provided." }}</p>
     </div>
 </div>
-
-{% if messages %}
-<div class="lf-messages mb-3">
-    {% for msg in messages %}
-    <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show" role="alert">
-        {{ msg }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
 
 {% if role == 'owner' or request.user.role == 'admin' %}
 

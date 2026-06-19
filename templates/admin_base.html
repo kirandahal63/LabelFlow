@@ -30,6 +30,12 @@
             </a>
         </li>
         <li>
+            <a href="/create/">
+                <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
+                New Project
+            </a>
+        </li>
+        <li>
             <a href="/admin-panel/?tab=profile" class="{% block nav_profile_class %}{% endblock %}">
                 <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
                 My Profile
@@ -39,12 +45,7 @@
 
     <div class="section-label">Quick Links</div>
     <ul class="sidebar-nav">
-        <li>
-            <a href="/create/">
-                <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
-                New Project
-            </a>
-        </li>
+        
         <li>
             <a href="/login/">
                 <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
@@ -65,24 +66,6 @@
 </aside>
 {% endblock %}
 
-{% block navbar_class %}navbar-custom navbar-admin{% endblock %}
-
-{% block navbar_brand %}
-<div class="admin-breadcrumb">
-    {% block breadcrumb %}
-    <a href="/admin-panel/" class="bc-link">Admin Panel</a>
-    {% endblock %}
-</div>
-{% endblock %}
-
-{% block navbar_actions %}
-<span class="text-muted small" style="color: rgba(255,255,255,0.5) !important;">
-    <i class="fas fa-user-circle me-1"></i>{{ request.user.email }}
-</span>
-<button class="btn btn-logout-sm" id="logoutBtn">
-    <i class="fas fa-sign-out-alt me-1"></i> Logout
-</button>
-{% endblock %}
 
 {% block extra_css %}
 <style>
