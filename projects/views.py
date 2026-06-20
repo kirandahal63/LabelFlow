@@ -77,7 +77,8 @@ def dashboard_view(request):
         ).count() == total
         # First task to continue annotating
         first_task = (
-            batch_tasks.filter(status='assigned').order_by('created_at').first()
+            batch_tasks.filter(status='rejected').order_by('created_at').first()
+            or batch_tasks.filter(status='assigned').order_by('created_at').first()
             or batch_tasks.filter(status='in_progress').order_by('created_at').first()
             or batch_tasks.order_by('created_at').first()
         )
@@ -292,11 +293,20 @@ def project_detail_view(request, project_id):
     is_creator = project.created_by == user
     membership = ProjectMember.objects.filter(project=project, user=user).first()
 
-    if not is_creator and not membership:
+    if not is_creator and not membership and user.role != 'admin':
         messages.error(request, "You are not authorized to view this project.")
         return redirect('dashboard')
 
-    role = "owner" if is_creator else membership.role_in_project
+    if is_creator:
+        role = "owner"
+    elif membership:
+        role = membership.role_in_project
+    elif user.role == 'admin':
+        role = "admin"
+    else:
+        role = None
+
+    is_admin_user = (user.role == 'admin')
     is_admin_user = (user.role == 'admin')
 
     # Common data for all roles
@@ -391,7 +401,8 @@ def project_detail_view(request, project_id):
             all_annotated = annotated >= total
             is_fully_submitted = batch_tasks.filter(status__in=['submitted', 'approved']).count() == total
             first_task = (
-                batch_tasks.filter(status='assigned').order_by('created_at').first()
+                batch_tasks.filter(status='rejected').order_by('created_at').first()
+                or batch_tasks.filter(status='assigned').order_by('created_at').first()
                 or batch_tasks.filter(status='in_progress').order_by('created_at').first()
                 or batch_tasks.order_by('created_at').first()
             )
@@ -495,3 +506,48 @@ def add_member_view(request, project_id):
             )
 
     return redirect('project_detail', project_id=project.id)
+
+    return redirect('project_detail', project_id=project.id)
+
+# -------------------------------------------------------------
+# DOWNLOAD ANNOTATIONS
+# -------------------------------------------------------------
+
+@login_required
+def download_annotations_view(request, project_id):
+    project = get_object_or_404(Project, id=project_id)
+    user = request.user
+    is_owner = project.created_by == user
+    is_admin = user.role == 'admin'
+
+    if not is_owner and not is_admin:
+        messages.error(request, 'You are not authorized to download annotations.')
+        return redirect('dashboard')
+
+    tasks = AnnotationTask.objects.filter(project=project)
+    total_tasks = tasks.count()
+    approved_tasks = tasks.filter(status='approved').count()
+
+    if total_tasks == 0 or total_tasks != approved_tasks:
+        messages.error(request, 'You can only download annotations when 100% of tasks are approved.')
+        return redirect('project_detail', project_id=project.id)
+
+    annotations = Annotation.objects.filter(task__project=project, status='approved').select_related('task__image')
+    
+    data = []
+    for ann in annotations:
+        data.append({
+            'image_filename': ann.task.image.filename,
+            'image_url': ann.task.image.storage_url,
+            'labels': ann.labels,
+            'notes': ann.notes,
+            'annotated_by': ann.annotated_by.email if ann.annotated_by else None,
+            'batch': ann.task.batch
+        })
+        
+    import json
+    from django.http import HttpResponse
+    response = HttpResponse(json.dumps(data, indent=2), content_type='application/json')
+    response['Content-Disposition'] = f'attachment; filename=annotations_{project.id}.json'
+    return response
+

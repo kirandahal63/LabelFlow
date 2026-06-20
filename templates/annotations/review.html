@@ -59,9 +59,15 @@
         .batch-bar-mini { height: 4px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
         .batch-bar-mini-fill { height: 100%; background: linear-gradient(90deg,var(--info),var(--success)); border-radius: 3px; }
 
-        /* Label display */
-        .label-tag-list { display: flex; flex-wrap: wrap; gap: 7px; }
-        .label-chip { background: rgba(91,110,245,0.12); border: 1px solid rgba(91,110,245,0.25); color: #818cf8; font-size: 0.83rem; padding: 5px 11px; border-radius: 7px; font-weight: 500; }
+        /* Label selector from label.html */
+        .label-grid { display: flex; flex-direction: column; gap: 7px; }
+        .label-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 9px; padding: 11px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; user-select: none; }
+        .label-item:hover { border-color: rgba(91,110,245,0.35); background: rgba(91,110,245,0.05); }
+        .label-item.active { background: rgba(91,110,245,0.12); border-color: var(--primary); }
+        .label-name { font-size: 0.9rem; font-weight: 500; }
+        .check-box { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+        .label-item.active .check-box { background: var(--primary); border-color: var(--primary); }
+        .label-item.active .check-box::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #fff; font-size: 9px; }
 
         /* Notes */
         .notes-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 0.9rem; color: #ccc; min-height: 56px; }
@@ -76,6 +82,11 @@
         .btn-approve:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,0.35); }
         .btn-reject  { background: linear-gradient(135deg,var(--danger),#f87171); color:#fff; font-weight:700; padding:12px 20px; border-radius:10px; border:none; width:100%; margin-bottom:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; transition:all 0.2s; }
         .btn-reject:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(239,68,68,0.35); }
+
+        /* Alert box */
+        .alert-box { border-radius: 9px; padding: 11px 14px; font-size: 0.88rem; display: none; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .alert-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #34d399; }
+        .alert-error { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
 
         ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
     </style>
@@ -142,10 +153,15 @@
             </div>
         </div>
 
-        <!-- Submitted Labels -->
+        <!-- Submitted Labels (Now Editable) -->
         <div class="sidebar-section">
-            <div class="section-label">Submitted Labels</div>
-            <div class="label-tag-list" id="labelTagList"></div>
+            <div class="section-label">Review Labels</div>
+            <div class="label-grid" id="labelGrid">
+                <!-- dynamically rendered -->
+            </div>
+            {% if not project.label_set %}
+            <p class="small" style="color: var(--muted);">No labels defined for this project.</p>
+            {% endif %}
         </div>
 
         <!-- Annotator Notes -->
@@ -157,38 +173,111 @@
         <!-- Review Form -->
         <div class="sidebar-section" style="flex:1;">
             <div class="section-label">Your Decision</div>
-            <form method="POST" action="/annotations/review/{{ task.id }}/">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="section-label" for="comment">Feedback / Comment</label>
-                    <textarea id="comment" name="comment" class="form-control-custom"
-                        placeholder="Explain approval or rejection reason (optional)…"></textarea>
-                </div>
-                <button type="submit" name="decision" value="approved" class="btn-approve">
-                    <i class="fas fa-check"></i> Approve
-                </button>
-                <button type="submit" name="decision" value="rejected" class="btn-reject">
-                    <i class="fas fa-times"></i> Reject
-                </button>
-            </form>
+            <div id="alertBox" class="alert-box"></div>
+            <div class="mb-3">
+                <label class="section-label" for="comment">Feedback / Comment</label>
+                <textarea id="comment" name="comment" class="form-control-custom"
+                    placeholder="Explain approval or rejection reason (optional)…"></textarea>
+            </div>
+            <button id="btnApprove" class="btn-approve">
+                <i class="fas fa-check"></i> Approve
+            </button>
+            <button id="btnReject" class="btn-reject">
+                <i class="fas fa-times"></i> Reject
+            </button>
         </div>
 
     </div>
 </div>
 
 <script>
-const existingLabels = {{ existing_labels_json|safe }};
-const tagListContainer = document.getElementById("labelTagList");
-if (existingLabels && existingLabels.length > 0) {
-    existingLabels.forEach(label => {
-        const span = document.createElement("span");
-        span.className = "label-chip";
-        span.innerText = label;
-        tagListContainer.appendChild(span);
+    const labelSet = {{ label_set_json|safe }};
+    const existingLabels = {{ existing_labels_json|safe }};
+    const csrfToken = "{{ csrf_token }}";
+
+    // Build label selector
+    const labelGrid = document.getElementById('labelGrid');
+    const selectedLabels = new Set(existingLabels);
+
+    labelSet.forEach(label => {
+        const item = document.createElement('div');
+        item.className = 'label-item' + (selectedLabels.has(label) ? ' active' : '');
+        item.dataset.label = label;
+        item.innerHTML = `<span class="label-name">${label}</span><div class="check-box"></div>`;
+
+        item.addEventListener('click', () => {
+            if (selectedLabels.has(label)) {
+                selectedLabels.delete(label);
+                item.classList.remove('active');
+            } else {
+                selectedLabels.add(label);
+                item.classList.add('active');
+            }
+        });
+
+        labelGrid.appendChild(item);
     });
-} else {
-    tagListContainer.innerHTML = '<span style="color:var(--muted);font-size:0.85rem;">No labels submitted.</span>';
-}
+
+    const alertBox = document.getElementById('alertBox');
+    function showAlert(type, msg) {
+        alertBox.className = 'alert-box ' + (type === 'success' ? 'alert-success' : 'alert-error');
+        alertBox.style.display = 'flex';
+        alertBox.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}`;
+    }
+    function hideAlert() { alertBox.style.display = 'none'; }
+
+    async function submitReview(decision) {
+        const btnApprove = document.getElementById('btnApprove');
+        const btnReject = document.getElementById('btnReject');
+        const comment = document.getElementById('comment').value.trim();
+        
+        btnApprove.disabled = true;
+        btnReject.disabled = true;
+        hideAlert();
+
+        const btn = decision === 'approved' ? btnApprove : btnReject;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+
+        try {
+            const res = await fetch(window.location.pathname, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    labels: Array.from(selectedLabels),
+                    comment: comment,
+                    decision: decision
+                }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                if (data.next_task_url) {
+                    window.location.href = data.next_task_url;
+                } else {
+                    showAlert('success', 'Batch review complete!');
+                    btn.innerHTML = '<i class="fas fa-check"></i> Done';
+                }
+            } else {
+                showAlert('error', data.message || 'Failed to save review.');
+                btnApprove.disabled = false;
+                btnReject.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        } catch (err) {
+            showAlert('error', 'Network error. Please check your connection.');
+            btnApprove.disabled = false;
+            btnReject.disabled = false;
+            btn.innerHTML = originalText;
+        }
+    }
+
+    document.getElementById('btnApprove').addEventListener('click', () => submitReview('approved'));
+    document.getElementById('btnReject').addEventListener('click', () => submitReview('rejected'));
 </script>
 
 </body>

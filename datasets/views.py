@@ -136,3 +136,19 @@ def upload_dataset_view(request, project_id):
             messages.error(request, f"Error processing zip file: {str(e)}")
             
     return redirect('project_detail', project_id=project.id)
+
+@login_required
+def delete_dataset_view(request, dataset_id):
+    dataset = get_object_or_404(Dataset, id=dataset_id)
+    project = dataset.project
+    
+    if project.created_by != request.user and request.user.role != 'admin':
+        messages.error(request, "Only the project owner or admins can delete datasets.")
+        return redirect('project_detail', project_id=project.id)
+        
+    if request.method == 'POST':
+        dataset_name = dataset.name
+        dataset.delete()
+        messages.success(request, f"Dataset '{dataset_name}' has been deleted successfully.")
+        
+    return redirect('project_detail', project_id=project.id)

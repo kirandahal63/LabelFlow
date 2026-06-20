@@ -157,7 +157,7 @@ def label_task_view(request, task_id):
                     AnnotationTask.objects.filter(
                         batch=task.batch,
                         assigned_to=request.user,
-                        status='assigned',
+                        status__in=['assigned', 'rejected'],
                     )
                     .exclude(id=task.id)
                     .order_by('created_at')
@@ -165,12 +165,12 @@ def label_task_view(request, task_id):
                 )
 
             # Fall back to any other assigned task across other batches in this project
-            if not next_task:
+            if not next_task and not task.batch:
                 next_task = (
                     AnnotationTask.objects.filter(
                         project=project,
                         assigned_to=request.user,
-                        status__in=['assigned', 'in_progress'],
+                        status__in=['assigned', 'in_progress', 'rejected'],
                     )
                     .exclude(id=task.id)
                     .order_by('created_at')
@@ -243,13 +243,14 @@ def submit_batch_review_view(request, batch_code):
                 if not ann:
                     missing.append(task.image.filename)
                 else:
-                    ann.status = 'submitted'
-                    ann.save()
-                    task.status = 'submitted'
-                    task.image.status = 'annotated'
-                    task.save()
-                    task.image.save()
-                    submitted_count += 1
+                    if task.status not in ['approved', 'submitted']:
+                        ann.status = 'submitted'
+                        ann.save()
+                        task.status = 'submitted'
+                        task.image.status = 'annotated'
+                        task.save()
+                        task.image.save()
+                        submitted_count += 1
 
         if missing:
             messages.warning(
@@ -289,10 +290,24 @@ def review_task_view(request, task_id):
     annotation = get_object_or_404(Annotation, task=task)
 
     if request.method == 'POST':
-        decision = request.POST.get('decision')
-        comment = request.POST.get('comment', '')
+        is_json = request.content_type == 'application/json'
+        
+        if is_json:
+            try:
+                body = json.loads(request.body)
+                decision = body.get('decision')
+                comment = body.get('comment', '')
+                labels = body.get('labels', annotation.labels)
+            except Exception as e:
+                return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+        else:
+            decision = request.POST.get('decision')
+            comment = request.POST.get('comment', '')
+            labels = annotation.labels # Fallback
 
         if decision not in ['approved', 'rejected']:
+            if is_json:
+                return JsonResponse({'status': 'error', 'message': 'Invalid decision choice.'}, status=400)
             messages.error(request, "Invalid decision choice.")
             return redirect('review_task', task_id=task.id)
 
@@ -312,11 +327,14 @@ def review_task_view(request, task_id):
                 review.save()
 
             annotation.status = decision
+            annotation.labels = labels
             task.status = decision
             task.image.status = 'approved' if decision == 'approved' else 'rejected'
             annotation.save()
             task.save()
             task.image.save()
+
+        next_url = f"/{project.id}/"
 
         # Silently move to next submitted task in same batch — no per-image notification
         if task.batch:
@@ -327,18 +345,20 @@ def review_task_view(request, task_id):
                 .first()
             )
             if next_task:
-                return redirect('review_task', task_id=next_task.id)
+                next_url = f"/annotations/review/{next_task.id}/"
+            else:
+                # Entire batch reviewed — single summary message
+                reviewed_count = AnnotationTask.objects.filter(
+                    batch=task.batch, status__in=['approved', 'rejected']
+                ).count()
+                messages.success(
+                    request,
+                    f"✅ Batch '{task.batch}' review complete — {reviewed_count} task(s) reviewed.",
+                )
 
-            # Entire batch reviewed — single summary message
-            reviewed_count = AnnotationTask.objects.filter(
-                batch=task.batch, status__in=['approved', 'rejected']
-            ).count()
-            messages.success(
-                request,
-                f"✅ Batch '{task.batch}' review complete — {reviewed_count} task(s) reviewed.",
-            )
-
-        return redirect('project_detail', project_id=project.id)
+        if is_json:
+            return JsonResponse({'status': 'success', 'next_task_url': next_url})
+        return redirect(next_url)
 
     # GET — build batch progress for review sidebar
     batch_total = 0
@@ -353,6 +373,7 @@ def review_task_view(request, task_id):
         'task': task,
         'annotation': annotation,
         'existing_labels_json': json.dumps(annotation.labels),
+        'label_set_json': json.dumps(project.label_set),
         'project': project,
         'batch_total': batch_total,
         'batch_reviewed': batch_reviewed,
