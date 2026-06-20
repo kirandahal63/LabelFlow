@@ -1,375 +1,392 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - LabelFlow</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
 </head>
+
 <body>
 
-<!-- SIDEBAR  -->
-<aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <a href="/" class="sidebar-logo">
-            <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
-            LabelFlow
-        </a>
-        <div style="margin-top: 8px; font-size: 0.72rem; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.8px;">Admin Panel</div>
-    </div>
-
-    <div class="sidebar-section-label">Navigation</div>
-    <ul class="sidebar-nav">
-        <li>
-            <button class="active" id="nav-projects" onclick="showPanel('projects')">
-                <span class="nav-icon"><i class="fas fa-folder-open"></i></span>
-                Manage Projects
-            </button>
-        </li>
-        <li>
-            <button id="nav-review" onclick="showPanel('review')">
-                <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
-                Review &amp; Analytics
-            </button>
-        </li>
-        <li>
-            <a href="/create/">
-                <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
-                New Project
+    <!-- SIDEBAR  -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <a href="/" class="sidebar-logo">
+                <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
+                LabelFlow
             </a>
-        </li>
-        <li>
-            <button id="nav-profile" onclick="showPanel('profile')">
-                <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
-                My Profile
-            </button>
-        </li>
-    </ul>
-    
+            <div
+                style="margin-top: 8px; font-size: 0.72rem; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.8px;">
+                Admin Panel</div>
+        </div>
 
-    <div class="sidebar-footer">
-        <ul class="sidebar-navl">
-        <li>
-            <button class="btn-logout" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </li>
+        <div class="sidebar-section-label">Navigation</div>
+        <ul class="sidebar-nav">
+            <li>
+                <button class="active" id="nav-projects" onclick="showPanel('projects')">
+                    <span class="nav-icon"><i class="fas fa-folder-open"></i></span>
+                    Manage Projects
+                </button>
+            </li>
+            <li>
+                <button id="nav-review" onclick="showPanel('review')">
+                    <span class="nav-icon"><i class="fas fa-chart-bar"></i></span>
+                    Review &amp; Analytics
+                </button>
+            </li>
+            <li>
+                <a href="/create/">
+                    <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
+                    New Project
+                </a>
+            </li>
+            <li>
+                <button id="nav-profile" onclick="showPanel('profile')">
+                    <span class="nav-icon"><i class="fas fa-user-circle"></i></span>
+                    My Profile
+                </button>
+            </li>
         </ul>
-        <div class="user-info-sidebar">
-            <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
-            <div class="user-info-text">
-                <div class="user-info-name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
-                <div class="user-info-role">Administrator</div>
-            </div>
-        </div>
-    </div>
-</aside>
 
-<!-- ═══════════════ MAIN CONTENT ═══════════════ -->
-<div class="main-content">
 
-    <!-- Top bar -->
-    <div class="topbar">
-        <div class="topbar-title" id="topbar-title">
-            <i class="fas fa-folder-open me-2" style="color: var(--primary);"></i>Manage Projects
-        </div>
-        <div class="topbar-actions">
-            <a href="/create/" class="btn-primary-custom btn-sm">
-                <i class="fas fa-plus"></i> New Project
-            </a>
-            
-        </div>
-    </div>
-
-    <div class="page-content">
-
-        <!-- ────── PANEL: MANAGE PROJECTS ────── -->
-        <div class="panel active" id="panel-projects">
-
-            <!-- Summary stats -->
-            <div class="stat-row">
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(79,70,229,0.1); color: #4f46e5;">
-                        <i class="fas fa-folder"></i>
-                    </div>
-                    <div>
-                        <div class="stat-mini-value">{{ all_projects_count }}</div>
-                        <div class="stat-mini-label">Total Projects</div>
-                    </div>
-                </div>
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div>
-                        <div class="stat-mini-value">{{ total_unique_reviewers }}</div>
-                        <div class="stat-mini-label">Active Reviewers</div>
-                    </div>
-                </div>
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div>
-                        <div class="stat-mini-value">{{ all_users_count }}</div>
-                        <div class="stat-mini-label">Total Users</div>
-                    </div>
-                </div>
-                <div class="stat-mini">
-                    <div class="stat-mini-icon" style="background: rgba(6,182,212,0.1); color: #06b6d4;">
-                        <i class="fas fa-tasks"></i>
-                    </div>
-                    <div>
-                        <div class="stat-mini-value">{{ total_unique_annotators }}</div>
-                        <div class="stat-mini-label">Active Annotators</div>
-                    </div>
+        <div class="sidebar-footer">
+            <ul class="sidebar-navl">
+                <li>
+                    <button class="btn-logout" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </li>
+            </ul>
+            <div class="user-info-sidebar">
+                <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper                     }}</div>
+                <div class="user-info-text">
+                    <div class="user-info-name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                    <div class="user-info-role">Administrator</div>
                 </div>
             </div>
+        </div>
+    </aside>
 
-            <!-- Projects table -->
-            <div class="card-custom">
-                <div class="card-title-custom">
-                    <span><i class="fas fa-list me-2" style="color: var(--primary);"></i>All Projects</span>
-                    <a href="/create/" class="btn-outline-custom"><i class="fas fa-plus"></i> Create</a>
-                </div>
-                {% if all_projects %}
-                <div class="table-responsive table-scroll">
-                    <table class="table table-custom">
-                        <thead>
-                            <tr>
-                                <th>Project Name</th>
-                                <th>Status</th>
-                                <th>Labels</th>
-                                <th>Owner</th>
-                                <th>Created</th>
-                                <th class="text-end">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for project in all_projects %}
-                            <tr>
-                                <td>
-                                    <div class="fw-semibold">
-                                        <a href="/{{ project.id }}/" class="project-link">{{ project.name }}</a>
-                                    </div>
-                                    <div class="text-muted small mt-1">{{ project.description|default:"—"|truncatechars:60 }}</div>
-                                </td>
-                                <td>
-                                    <span class="status-badge {% if project.status == 'active' %}badge-active{% elif project.status == 'completed' %}badge-completed{% else %}badge-draft{% endif %}">
-                                        {{ project.status }}
-                                    </span>
-                                </td>
-                                <td style="max-width: 160px;">
-                                    {% for label in project.label_set|slice:":4" %}
-                                        <span class="badge-label">{{ label }}</span>
-                                    {% empty %}
-                                        <span class="text-muted small">None</span>
-                                    {% endfor %}
-                                    {% if project.label_set|length > 4 %}
-                                        <span class="text-muted small">+{{ project.label_set|length|add:"-4" }} more</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-muted small">{{ project.created_by.email }}</td>
-                                <td class="text-muted small">{{ project.created_at|date:"M d, Y" }}</td>
-                                <td class="text-end">
-                                    <a href="/{{ project.id }}/" class="btn-outline-custom" style="font-size: 0.78rem; padding: 5px 12px;">
-                                        <i class="fas fa-external-link-alt"></i> Open
-                                    </a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-center text-muted py-4">No projects yet. <a href="/create/">Create your first project</a>.</p>
-                {% endif %}
+    <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+    <div class="main-content">
+
+        <!-- Top bar -->
+        <div class="topbar">
+            <div class="topbar-title" id="topbar-title">
+                <i class="fas fa-folder-open me-2" style="color: var(--primary);"></i>Manage Projects
+            </div>
+            <div class="topbar-actions">
+                <a href="/create/" class="btn-primary-custom btn-sm">
+                    <i class="fas fa-plus"></i> New Project
+                </a>
+
             </div>
         </div>
 
-        <!-- ────── PANEL: REVIEW & ANALYTICS ────── -->
-        <div class="panel" id="panel-review" >
+        <div class="page-content">
 
-            <!-- Annotator Leaderboard -->
-            <div class="card-custom" style="margin-top: 0px;">
-                <div class="card-title-custom">
-                    <span>Annotator Leaderboard</span>
-                    <span class="text-muted fs-6 fw-normal">{{ annotator_stats|length }} annotators</span>
-                </div>
-                {% if annotator_stats %}
-                <div class="table-responsive">
-                    <table class="table table-custom">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>User</th>
-                                <th>Email</th>
-                                <th>Total</th>
-                                <th>Approved</th>
-                                <th>Submitted</th>
-                                <th>Rejected</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for stat in annotator_stats %}
-                            <tr>
-                                <td class="text-muted fw-semibold">{{ forloop.counter }}</td>
-                                <td class="fw-semibold">{{ stat.annotated_by__first_name }} {{ stat.annotated_by__last_name }}</td>
-                                <td class="text-muted small">{{ stat.annotated_by__email }}</td>
-                                <td>
-                                    <span class="fw-bold" style="color: var(--primary);">{{ stat.total_annotations }}</span>
-                                </td>
-                                <td>
-                                    <span style="color: #10b981; font-weight: 600;">{{ stat.approved_annotations }}</span>
-                                </td>
-                                <td>
-                                    <span style="color: #f59e0b; font-weight: 600;">{{ stat.submitted_annotations }}</span>
-                                </td>
-                                <td>
-                                    <span style="color: #ef4444; font-weight: 600;">{{ stat.rejected_annotations }}</span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-center text-muted py-4">No annotations have been submitted yet.</p>
-                {% endif %}
-            </div>
+            <!-- ────── PANEL: MANAGE PROJECTS ────── -->
+            <div class="panel active" id="panel-projects">
 
-            <!-- Per-Project Status -->
-            <div class="card-custom" >
-                <div class="card-title-custom">
-                    <span><i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>Project Status</span>
-                </div>
-
-                {% for pstat in project_review_stats %}
-                <div class="mb-4 pb-4" style="border-bottom: 1px solid var(--card-border);">
-                    <div class="d-flex align-items-start justify-content-between gap-3 mb-3 flex-wrap">
+                <!-- Summary stats -->
+                <div class="stat-row">
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon" style="background: rgba(79,70,229,0.1); color: #4f46e5;">
+                            <i class="fas fa-folder"></i>
+                        </div>
                         <div>
-                            <a href="/{{ pstat.project.id }}/" class="project-link fw-bold fs-6">{{ pstat.project.name }}</a>
-                            <div class="text-muted small mt-1">{{ pstat.project.description|default:"—"|truncatechars:80 }}</div>
-                        </div>
-                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
-                            <div class="progress-mini">
-                                <div class="progress-mini-fill" style="width: {{ pstat.progress_pct }}%;"></div>
-                            </div>
-                            <span class="fw-bold small" style="color: var(--primary);">{{ pstat.progress_pct }}%</span>
+                            <div class="stat-mini-value">{{ all_projects_count }}</div>
+                            <div class="stat-mini-label">Total Projects</div>
                         </div>
                     </div>
-
-                    <!-- Task counts row -->
-                    <div class="d-flex gap-3 flex-wrap mb-3">
-                        <span class="small"><span class="badge bg-secondary me-1">{{ pstat.unassigned }}</span>Unassigned</span>
-                        <span class="small"><span class="badge bg-warning text-dark me-1">{{ pstat.in_progress }}</span>In Progress</span>
-                        <span class="small"><span class="badge bg-primary me-1">{{ pstat.submitted }}</span>Submitted</span>
-                        <span class="small"><span class="badge bg-success me-1">{{ pstat.approved }}</span>Approved</span>
-                        <span class="small"><span class="badge bg-danger me-1">{{ pstat.rejected }}</span>Rejected</span>
-                        <span class="small text-muted">({{ pstat.total }} total)</span>
-                    </div>
-
-                    <!-- Annotator breakdown for this project -->
-                    {% if pstat.annotator_breakdown %}
-                    <div class="small text-muted mb-1 fw-semibold text-uppercase" style="font-size: 0.7rem; letter-spacing: 0.5px;">Annotator Breakdown</div>
-                    <div class="d-flex flex-wrap gap-1">
-                        {% for ab in pstat.annotator_breakdown %}
-                        <div class="annotator-mini-badge">
-                            <i class="fas fa-user" style="color: var(--primary); font-size: 0.7rem;"></i>
-                            {{ ab.user.first_name }} {{ ab.user.last_name }}
-                            <span class="count">{{ ab.annotations_done }}</span>
-                            <span style="color: var(--text-muted);">done</span>
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon" style="background: rgba(16,185,129,0.1); color: #10b981;">
+                            <i class="fas fa-check-circle"></i>
                         </div>
-                        {% endfor %}
+                        <div>
+                            <div class="stat-mini-value">{{ total_unique_reviewers }}</div>
+                            <div class="stat-mini-label">Active Reviewers</div>
+                        </div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="stat-mini-value">{{ all_users_count }}</div>
+                            <div class="stat-mini-label">Total Users</div>
+                        </div>
+                    </div>
+                    <div class="stat-mini">
+                        <div class="stat-mini-icon" style="background: rgba(6,182,212,0.1); color: #06b6d4;">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div>
+                            <div class="stat-mini-value">{{ total_unique_annotators }}</div>
+                            <div class="stat-mini-label">Active Annotators</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects table -->
+                <div class="card-custom">
+                    <div class="card-title-custom">
+                        <span><i class="fas fa-list me-2" style="color: var(--primary);"></i>All Projects</span>
+                        <a href="/create/" class="btn-outline-custom"><i class="fas fa-plus"></i> Create</a>
+                    </div>
+                    {% if all_projects %}
+                    <div class="table-responsive table-scroll">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Status</th>
+                                    <th>Labels</th>
+                                    <th>Owner</th>
+                                    <th>Created</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in all_projects %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">
+                                            <a href="/{{ project.id }}/" class="project-link">{{ project.name }}</a>
+                                        </div>
+                                        <div class="text-muted small mt-1">{{                                             project.description|default:"—"|truncatechars:60 }}</div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="status-badge {% if project.status == 'active' %}badge-active{% elif project.status == 'completed' %}badge-completed{% else %}badge-draft{% endif %}">
+                                            {{ project.status }}
+                                        </span>
+                                    </td>
+                                    <td style="max-width: 160px;">
+                                        {% for label in project.label_set|slice:":4" %}
+                                        <span class="badge-label">{{ label }}</span>
+                                        {% empty %}
+                                        <span class="text-muted small">None</span>
+                                        {% endfor %}
+                                        {% if project.label_set|length > 4 %}
+                                        <span class="text-muted small">+{{ project.label_set|length|add:"-4" }}
+                                            more</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-muted small">{{ project.created_by.email }}</td>
+                                    <td class="text-muted small">{{ project.created_at|date:"M d, Y" }}</td>
+                                    <td class="text-end">
+                                        <a href="/{{ project.id }}/" class="btn-outline-custom"
+                                            style="font-size: 0.78rem; padding: 5px 12px;">
+                                            <i class="fas fa-external-link-alt"></i> Open
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
                     {% else %}
-                    <div class="small text-muted">No annotators assigned to this project yet.</div>
+                    <p class="text-center text-muted py-4">No projects yet. <a href="/create/">Create your first
+                            project</a>.</p>
                     {% endif %}
                 </div>
-                {% empty %}
-                <p class="text-center text-muted py-4">No projects to review.</p>
-                {% endfor %}
             </div>
-        </div>
 
-        <!-- ────── PANEL: PROFILE ────── -->
-        <div class="panel" id="panel-profile">
-            <div class="row g-4">
-                <div class="col-lg-5 col-md-6">
-                    <div class="card-custom text-center">
-                        <div class="profile-avatar-lg">
-                            {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-                        </div>
-                        <h4 class="fw-bold mb-1">{{ request.user.first_name }} {{ request.user.last_name }}</h4>
-                        <p class="text-muted mb-3">{{ request.user.email }}</p>
-                        <span class="status-badge badge-active" style="font-size: 0.8rem; padding: 5px 14px;">
-                            <i class="fas fa-shield-alt me-1"></i> Administrator
-                        </span>
+            <!-- ────── PANEL: REVIEW & ANALYTICS ────── -->
+            <div class="panel" id="panel-review">
+
+                <!-- Annotator Leaderboard -->
+                <div class="card-custom" style="margin-top: 0px;">
+                    <div class="card-title-custom">
+                        <span>Annotator Leaderboard</span>
+                        <span class="text-muted fs-6 fw-normal">{{ annotator_stats|length }} annotators</span>
                     </div>
+                    {% if annotator_stats %}
+                    <div class="table-responsive">
+                        <table class="table table-custom">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Total</th>
+                                    <th>Approved</th>
+                                    <th>Submitted</th>
+                                    <th>Rejected</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in annotator_stats %}
+                                <tr>
+                                    <td class="text-muted fw-semibold">{{ forloop.counter }}</td>
+                                    <td class="fw-semibold">{{ stat.annotated_by__first_name }} {{                                         stat.annotated_by__last_name }}</td>
+                                    <td class="text-muted small">{{ stat.annotated_by__email }}</td>
+                                    <td>
+                                        <span class="fw-bold" style="color: var(--primary);">{{ stat.total_annotations                                             }}</span>
+                                    </td>
+                                    <td>
+                                        <span style="color: #10b981; font-weight: 600;">{{ stat.approved_annotations                                             }}</span>
+                                    </td>
+                                    <td>
+                                        <span style="color: #f59e0b; font-weight: 600;">{{ stat.submitted_annotations                                             }}</span>
+                                    </td>
+                                    <td>
+                                        <span style="color: #ef4444; font-weight: 600;">{{ stat.rejected_annotations                                             }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-center text-muted py-4">No annotations have been submitted yet.</p>
+                    {% endif %}
                 </div>
-                <div class="col-lg-7 col-md-6">
-                    <div class="card-custom">
-                        <div class="card-title-custom">
-                            <span><i class="fas fa-id-card me-2" style="color: var(--primary);"></i>Account Details</span>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">First Name</div>
-                            <div class="detail-value">{{ request.user.first_name }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Last Name</div>
-                            <div class="detail-value">{{ request.user.last_name }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Email</div>
-                            <div class="detail-value">{{ request.user.email }}</div>
-                        </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Role</div>
-                            <div class="detail-value">
-                                <span class="status-badge badge-active">Administrator</span>
+
+                <!-- Per-Project Status -->
+                <div class="card-custom">
+                    <div class="card-title-custom">
+                        <span><i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>Project Status</span>
+                    </div>
+
+                    {% for pstat in project_review_stats %}
+                    <div class="mb-4 pb-4" style="border-bottom: 1px solid var(--card-border);">
+                        <div class="d-flex align-items-start justify-content-between gap-3 mb-3 flex-wrap">
+                            <div>
+                                <a href="/{{ pstat.project.id }}/" class="project-link fw-bold fs-6">{{                                     pstat.project.name }}</a>
+                                <div class="text-muted small mt-1">{{                                     pstat.project.description|default:"—"|truncatechars:80 }}</div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                <div class="progress-mini">
+                                    <div class="progress-mini-fill" style="width: {{ pstat.progress_pct }}%;"></div>
+                                </div>
+                                <span class="fw-bold small" style="color: var(--primary);">{{ pstat.progress_pct                                     }}%</span>
                             </div>
                         </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Date Joined</div>
-                            <div class="detail-value">{{ request.user.date_joined|date:"F d, Y" }}</div>
+
+                        <!-- Task counts row -->
+                        <div class="d-flex gap-3 flex-wrap mb-3">
+                            <span class="small"><span class="badge bg-secondary me-1">{{ pstat.unassigned                                     }}</span>Unassigned</span>
+                            <span class="small"><span class="badge bg-warning text-dark me-1">{{ pstat.in_progress                                     }}</span>In Progress</span>
+                            <span class="small"><span class="badge bg-primary me-1">{{ pstat.submitted                                     }}</span>Submitted</span>
+                            <span class="small"><span class="badge bg-success me-1">{{ pstat.approved                                     }}</span>Approved</span>
+                            <span class="small"><span class="badge bg-danger me-1">{{ pstat.rejected                                     }}</span>Rejected</span>
+                            <span class="small text-muted">({{ pstat.total }} total)</span>
                         </div>
-                        <div class="detail-row">
-                            <div class="detail-label">Staff Status</div>
-                            <div class="detail-value">
-                                {% if request.user.is_staff %}
+
+                        <!-- Annotator breakdown for this project -->
+                        {% if pstat.annotator_breakdown %}
+                        <div class="small text-muted mb-1 fw-semibold text-uppercase"
+                            style="font-size: 0.7rem; letter-spacing: 0.5px;">Annotator Breakdown</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for ab in pstat.annotator_breakdown %}
+                            <div class="annotator-mini-badge">
+                                <i class="fas fa-user" style="color: var(--primary); font-size: 0.7rem;"></i>
+                                {{ ab.user.first_name }} {{ ab.user.last_name }}
+                                <span class="count">{{ ab.annotations_done }}</span>
+                                <span style="color: var(--text-muted);">done</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="small text-muted">No annotators assigned to this project yet.</div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-center text-muted py-4">No projects to review.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ────── PANEL: PROFILE ────── -->
+            <div class="panel" id="panel-profile">
+                <div class="row g-4">
+                    <div class="col-lg-5 col-md-6">
+                        <div class="card-custom text-center">
+                            <div class="profile-avatar-lg">
+                                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                            </div>
+                            <h4 class="fw-bold mb-1">{{ request.user.first_name }} {{ request.user.last_name }}</h4>
+                            <p class="text-muted mb-3">{{ request.user.email }}</p>
+                            <span class="status-badge badge-active" style="font-size: 0.8rem; padding: 5px 14px;">
+                                <i class="fas fa-shield-alt me-1"></i> Administrator
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 col-md-6">
+                        <div class="card-custom">
+                            <div class="card-title-custom">
+                                <span><i class="fas fa-id-card me-2" style="color: var(--primary);"></i>Account
+                                    Details</span>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">First Name</div>
+                                <div class="detail-value">{{ request.user.first_name }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Last Name</div>
+                                <div class="detail-value">{{ request.user.last_name }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value">{{ request.user.email }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Role</div>
+                                <div class="detail-value">
+                                    <span class="status-badge badge-active">Administrator</span>
+                                </div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Date Joined</div>
+                                <div class="detail-value">{{ request.user.date_joined|date:"F d, Y" }}</div>
+                            </div>
+                            <div class="detail-row">
+                                <div class="detail-label">Staff Status</div>
+                                <div class="detail-value">
+                                    {% if request.user.is_staff %}
                                     <span class="status-badge badge-active">Staff</span>
-                                {% else %}
+                                    {% else %}
                                     <span class="status-badge badge-draft">Non-Staff</span>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card-custom">
-                        <div class="card-title-custom">
-                            <span><i class="fas fa-chart-pie me-2" style="color: var(--warning);"></i>My Platform Stats</span>
-                        </div>
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <div class="stat-mini">
-                                    <div class="stat-mini-icon" style="background: rgba(79,70,229,0.1); color: #4f46e5;"><i class="fas fa-folder"></i></div>
-                                    <div>
-                                        <div class="stat-mini-value">{{ all_projects_count }}</div>
-                                        <div class="stat-mini-label">Projects Created</div>
-                                    </div>
+                                    {% endif %}
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="stat-mini">
-                                    <div class="stat-mini-icon" style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i class="fas fa-users"></i></div>
-                                    <div>
-                                        <div class="stat-mini-value">{{ all_users_count }}</div>
-                                        <div class="stat-mini-label">Users Managed</div>
+                        </div>
+
+                        <div class="card-custom">
+                            <div class="card-title-custom">
+                                <span><i class="fas fa-chart-pie me-2" style="color: var(--warning);"></i>My Platform
+                                    Stats</span>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-icon"
+                                            style="background: rgba(79,70,229,0.1); color: #4f46e5;"><i
+                                                class="fas fa-folder"></i></div>
+                                        <div>
+                                            <div class="stat-mini-value">{{ all_projects_count }}</div>
+                                            <div class="stat-mini-label">Projects Created</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="stat-mini">
+                                        <div class="stat-mini-icon"
+                                            style="background: rgba(245,158,11,0.1); color: #f59e0b;"><i
+                                                class="fas fa-users"></i></div>
+                                        <div>
+                                            <div class="stat-mini-value">{{ all_users_count }}</div>
+                                            <div class="stat-mini-label">Users Managed</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -377,61 +394,59 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-    </div><!-- /page-content -->
-</div><!-- /main-content -->
+        </div><!-- /page-content -->
+    </div><!-- /main-content -->
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-const PANELS = ['projects', 'review', 'profile'];
-const PANEL_TITLES = {
-    projects: '<i class="fas fa-folder-open me-2" style="color: var(--primary);"></i>Manage Projects',
-    review: '<i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>Review & Analytics',
-    profile: '<i class="fas fa-user-circle me-2" style="color: var(--primary);"></i>My Profile',
-};
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const PANELS = ['projects', 'review', 'profile'];
+        const PANEL_TITLES = {
+            projects: '<i class="fas fa-folder-open me-2" style="color: var(--primary);"></i>Manage Projects',
+            review: '<i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>Review & Analytics',
+            profile: '<i class="fas fa-user-circle me-2" style="color: var(--primary);"></i>My Profile',
+        };
 
-function showPanel(name) {
-    PANELS.forEach(p => {
-        document.getElementById('panel-' + p).classList.remove('active');
-        const btn = document.getElementById('nav-' + p);
-        if (btn) btn.classList.remove('active');
-    });
-    document.getElementById('panel-' + name).classList.add('active');
-    const btn = document.getElementById('nav-' + name);
-    if (btn) btn.classList.add('active');
-    document.getElementById('topbar-title').innerHTML = PANEL_TITLES[name];
+        function showPanel(name) {
+            PANELS.forEach(p => {
+                document.getElementById('panel-' + p).classList.remove('active');
+                const btn = document.getElementById('nav-' + p);
+                if (btn) btn.classList.remove('active');
+            });
+            document.getElementById('panel-' + name).classList.add('active');
+            const btn = document.getElementById('nav-' + name);
+            if (btn) btn.classList.add('active');
+            document.getElementById('topbar-title').innerHTML = PANEL_TITLES[name];
 
-    // Update URL param
-    const url = new URL(window.location);
-    url.searchParams.set('tab', name);
-    window.history.replaceState({}, '', url);
-}
+            // Update URL param
+            const url = new URL(window.location);
+            url.searchParams.set('tab', name);
+            window.history.replaceState({}, '', url);
+        }
 
-// Restore tab from URL
-const urlParams = new URLSearchParams(window.location.search);
-const tab = urlParams.get('tab');
-if (tab && PANELS.includes(tab)) {
-    showPanel(tab);
-}
+        // Restore tab from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tab = urlParams.get('tab');
+        if (tab && PANELS.includes(tab)) {
+            showPanel(tab);
+        }
 
-// Logout
-document.getElementById('logoutBtn').addEventListener('click', async function() {
-    try {
-        const response = await fetch('/api/logout/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', async function () {
+            try {
+                const response = await fetch('/api/logout/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                });
+                if (response.ok) window.location.href = '/login/';
+            } catch (e) {
+                console.error('Logout failed:', e);
             }
         });
-        if (response.ok) window.location.href = '/login/';
-    } catch (e) {
-        console.error('Logout failed:', e);
-    }
-});
-</script>
+    </script>
 </body>
+
 </html>
-
-

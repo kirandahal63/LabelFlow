@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Checkbox matching the check styling in image -->
-                <div class="form-check d-flex justify-content-center align-items-center mb-4 gap-2">
+                <div class="form-check d-flex mb-4 gap-2" >
                     <input class="form-check-input form-check-input-custom me-2" type="checkbox" id="rememberMe"
                         checked>
                     <label class="form-check-label-custom" for="rememberMe">
@@ -101,7 +101,7 @@
                 if (response.ok) {
                     messageBox.innerHTML = `
                 <div class="alert alert-success">
-                    <i class="fas fa-check-circle me-2"></i> ${result.message || "Login successful."}
+                    ${result.message || "Login successful."}
                 </div>
             `;
                     setTimeout(() => {
@@ -122,7 +122,7 @@
                     }
                     messageBox.innerHTML = `
                 <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-2"></i> ${errorMsg}
+                    <i class="fas fa-exclamation-circle me-2"></i>Invalid credentials. Please try again.
                 </div>
             `;
                 }

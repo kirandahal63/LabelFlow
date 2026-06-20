@@ -4,7 +4,6 @@
 {% block title %}{{ project.name }} - LabelFlow{% endblock %}
 {% block body_class %}{% if request.user.role == 'admin' %}lf-has-sidebar{% endif %}{% endblock %}
 
-
 {% block sidebar %}
 {% if request.user.role == 'admin' %}
 <aside class="lf-sidebar">
@@ -43,12 +42,12 @@
     </ul>
 
     <div class="sidebar-footer">
-        <ul class="sidebar-nav">
-        <li>
-            <button class="btn-logout" id="logoutBtn">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </li>
+        <ul class="sidebar-nav" >
+            <li>
+                <button class="btn-logout" id="logoutBtn" style="background: rgba(239,68,68,0.08);color: #dc2626;  ">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </li>
         </ul>
         <div class="user-chip">
             <div class="avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
@@ -72,7 +71,8 @@
         <span style="color:rgba(255,255,255,0.85); font-weight:500;">{{ project.name|truncatechars:36 }}</span>
     </div>
 {% else %}
-    <a class="navbar-brand navbar-brand-custom" href="/">LabelFlow</a>
+    <a href="/" class="brand"><i class="fas fa-layer-group me-2"></i>LabelFlow</a>
+    
 {% endif %}
 {% endblock %}
 
@@ -100,12 +100,14 @@
         --warning-yellow: #f59e0b;
         --info-blue: #3b82f6;
     }
+    .brand { font-weight: 800; font-size: 1.3rem; color: #fff; text-decoration: none; }
+    .brand i { background: linear-gradient(135deg,#4f46e5,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
 
     body { background-color: var(--bg-color); color: var(--text-color); background-image: radial-gradient(circle at 10% 20%, rgba(79,70,229,0.04) 0%, transparent 40%); background-attachment: fixed; }
-    .navbar-custom { background-color: var(--nav-bg); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 18px 30px; }
+    .navbar-custom { background-color: var(--nav-bg); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 14px 30px; }
     .navbar-brand-custom { font-weight: 800; color: #fff !important; font-size: 1.5rem; letter-spacing: -0.5px; }
     .navbar-brand-custom i { background: linear-gradient(135deg, #4f46e5, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .btn-custom-outline { background-color: transparent; color: white; border: 1px solid #ffffff; font-weight: 500; border-radius: 10px; padding: 9px 18px; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-custom-outline { background-color: transparent; color: white; border: 1px solid #ffffff; font-weight: 500; border-radius: 10px; padding: 6px 18px; transition: all 0.2s; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
     .btn-custom-outline:hover { background-color: rgba(255,255,255,0.05); color: #000; border-color: rgba(41,40,40,0.3); }
 
     .container-custom { max-width: 1320px; margin: 36px auto; padding: 0 25px; }
@@ -207,12 +209,12 @@
 <div class="header-panel d-flex justify-content-between align-items-start flex-wrap gap-3" id="overview">
     <div class="flex-grow-1">
         <div class="d-flex align-items-center gap-3 flex-wrap mb-1">
-            <h1 class="project-title m-0">{{ project.name }}</h1>
-            
-            {% if request.user.role == 'admin' %}
-                <form action="{% url 'update_project_status' project.id %}" method="POST" class="d-inline-block">
-                    {% csrf_token %}
-                    <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" 
+    <h1 class="project-title m-0">{{ project.name }}</h1>
+    
+    {% if request.user.role == 'admin' %}
+        <form action="{% url 'update_project_status' project.id %}" method="POST" class="d-inline-block">
+            {% csrf_token %}
+            <select name="status" class="form-select form-select-sm" onchange="this.form.submit()" 
                             style="width: auto; background-color: #191834; border: 1px solid rgba(255,255,255,0.2); color: #a5b4fc; border-radius: 8px;">
                         <option value="draft" {% if project.status == 'draft' %}selected{% endif %}>Draft</option>
                         <option value="active" {% if project.status == 'active' %}selected{% endif %}>Active</option>
@@ -220,20 +222,20 @@
                         <option value="completed" {% if project.status == 'completed' %}selected{% endif %}>Completed</option>
                         <option value="archived" {% if project.status == 'archived' %}selected{% endif %}>Archived</option>
                     </select>
-                </form>
-            {% else %}
-                <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
-                    {{ project.status }}
-                </span>
-            {% endif %}
+            </form>
+    {% else %}
+        <span class="status-badge {% if project.status == 'active' %}status-active{% else %}status-draft{% endif %}">
+            {{ project.status }}
+        </span>
+    {% endif %}
 
-            {% if role != 'owner' and request.user.role != 'admin' %}
-            <span class="badge text-uppercase fs-6 {% if role == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
-                <i class="fas {% if role == 'reviewer' %}fa-search{% else %}fa-tag{% endif %} me-1"></i>
-                Your role: {{ role|capfirst }}
-            </span>
-            {% endif %}
-        </div>
+    {% if role != 'owner' and request.user.role != 'admin' %}
+        <span class="badge text-uppercase fs-6 ms-auto {% if role == 'reviewer' %}bg-info text-dark{% else %}bg-secondary{% endif %}">
+            Your role: {{ role|capfirst }}
+        </span>
+    {% endif %}
+</div>
+
         
         <p class="mb-0 fs-6 mt-2" style="color:rgba(255,255,255,0.65);">{{ project.description|default:"No description provided." }}</p>
     </div>

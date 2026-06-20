@@ -106,7 +106,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
         if (response.ok) {
             messageBox.innerHTML = `
                 <div class="alert alert-success">
-                    <i class="fas fa-check-circle me-2"></i> ${result.message || "User registered successfully."}
+                    ${result.message || "User registered successfully."}
                 </div>
             `;
             setTimeout(() => {
@@ -123,7 +123,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
             }
             messageBox.innerHTML = `
                 <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-2"></i> ${errorMsg}
+                    <i class="fas fa-exclamation-circle me-2"></i> Passwords do not match. Please try again.
                 </div>
             `;
         }

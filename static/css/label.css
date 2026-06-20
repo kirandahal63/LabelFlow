@@ -4,7 +4,7 @@
             --card: #181b24;
             --border: rgba(255,255,255,0.07);
             --text: #f0f2f8;
-            --muted: #8990a8;
+            --muted: #888888;
             --primary: #5b6ef5;
             --primary-glow: rgba(91,110,245,0.25);
             --success: #10b981;
@@ -12,7 +12,7 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             --input-bg: rgba(255,255,255,0.04);
-            --input-border: rgba(255,255,255,0.09);
+            --input-border: rgb(0 0 0 / 58%);
         }
 
         * { box-sizing: border-box; }
@@ -111,7 +111,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: #090a0e;
+            background: #f0f2f8;
             border-right: 1px solid var(--border);
             position: relative;
             overflow: auto;
@@ -150,7 +150,7 @@
         .sidebar {
             width: 360px;
             flex-shrink: 0;
-            background: var(--panel);
+            background: white;
             display: flex;
             flex-direction: column;
             overflow-y: auto;
@@ -184,7 +184,7 @@
         .image-filename {
             font-size: 0.95rem;
             font-weight: 600;
-            color: #fff;
+            color: #000000;
             word-break: break-all;
         }
 
@@ -192,6 +192,7 @@
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
+            color: #8990a8;
         }
 
         .meta-pill {
@@ -208,6 +209,7 @@
             display: flex;
             flex-direction: column;
             gap: 7px;
+            color: black;
         }
 
         .label-item {
@@ -267,7 +269,7 @@
         /* ─── Notes ─── */
         .notes-textarea {
             background: var(--input-bg);
-            border: 1px solid var(--input-border);
+            border: 1px solid #a29e9eb0;
             color: var(--text) !important;
             border-radius: 9px;
             padding: 11px 14px;
@@ -322,7 +324,7 @@
         .btn-outline {
             background: transparent;
             color: var(--muted);
-            border: 1px solid var(--border);
+            border: 1px solid var(--input-border);
             border-radius: 10px;
             padding: 10px 18px;
             font-weight: 500;

@@ -3,19 +3,21 @@
 
 {% block body_class %}lf-has-sidebar{% endblock %}
 
+{% block top_navbar %}{% endblock %}
+
 {% block sidebar %}
-<aside class="lf-sidebar">
+<aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <a href="/admin-panel/" class="sidebar-logo">
+        <a href="/" class="sidebar-logo">
             <div class="logo-icon"><i class="fas fa-layer-group"></i></div>
             LabelFlow
         </a>
-        <div class="sidebar-sub-label">Admin Panel</div>
+        <div
+            style="margin-top: 8px; font-size: 0.72rem; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 0.8px;">
+            Admin Panel</div>
     </div>
 
-    {% block sidebar_context %}{% endblock %}
-
-    <div class="section-label">Admin</div>
+    <div class="sidebar-section-label">Navigation</div>
     <ul class="sidebar-nav">
         <li>
             <a href="/admin-panel/" class="{% block nav_projects_class %}{% endblock %}">
@@ -30,7 +32,7 @@
             </a>
         </li>
         <li>
-            <a href="/create/">
+            <a href="/create/" class="{% block nav_create_class %}active{% endblock %}">
                 <span class="nav-icon"><i class="fas fa-plus-circle"></i></span>
                 New Project
             </a>
@@ -43,23 +45,20 @@
         </li>
     </ul>
 
-    <div class="section-label">Quick Links</div>
-    <ul class="sidebar-nav">
-        
-        <li>
-            <a href="/login/">
-                <span class="nav-icon"><i class="fas fa-sign-out-alt"></i></span>
-                Logout
-            </a>
-        </li>
-    </ul>
-
     <div class="sidebar-footer">
-        <div class="user-chip">
-            <div class="avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}</div>
-            <div class="info">
-                <div class="name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
-                <div class="role">Administrator</div>
+        <ul class="sidebar-navl">
+            <li>
+                <button class="btn-logout" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </li>
+        </ul>
+        <div class="user-info-sidebar">
+            <div class="user-avatar">{{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-info-text">
+                <div class="user-info-name">{{ request.user.first_name }} {{ request.user.last_name }}</div>
+                <div class="user-info-role">Administrator</div>
             </div>
         </div>
     </div>
@@ -71,28 +70,41 @@
 <style>
     .navbar-admin {
         background-color: #0f1015;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         padding: 14px 28px;
     }
+
     .admin-breadcrumb {
         font-size: 0.875rem;
-        color: rgba(255,255,255,0.45);
+        color: rgba(255, 255, 255, 0.45);
         display: flex;
         align-items: center;
         gap: 8px;
     }
+
     .admin-breadcrumb .bc-link {
-        color: rgba(255,255,255,0.45);
+        color: rgba(255, 255, 255, 0.45);
         text-decoration: none;
         transition: color 0.15s;
     }
-    .admin-breadcrumb .bc-link:hover { color: #fff; }
-    .admin-breadcrumb .bc-sep { color: rgba(255,255,255,0.2); }
-    .admin-breadcrumb .bc-current { color: rgba(255,255,255,0.85); font-weight: 500; }
+
+    .admin-breadcrumb .bc-link:hover {
+        color: #fff;
+    }
+
+    .admin-breadcrumb .bc-sep {
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    .admin-breadcrumb .bc-current {
+        color: rgba(255, 255, 255, 0.85);
+        font-weight: 500;
+    }
+
     .btn-logout-sm {
-        background: rgba(239,68,68,0.08);
+        background: rgba(239, 68, 68, 0.08);
         color: #f87171;
-        border: 1px solid rgba(239,68,68,0.2);
+        border: 1px solid rgba(239, 68, 68, 0.2);
         border-radius: 8px;
         padding: 6px 14px;
         font-size: 0.83rem;
@@ -100,8 +112,9 @@
         cursor: pointer;
         transition: all 0.2s;
     }
+
     .btn-logout-sm:hover {
-        background: rgba(239,68,68,0.15);
+        background: rgba(239, 68, 68, 0.15);
         border-color: #f87171;
         color: #fff;
     }
@@ -110,20 +123,20 @@
 
 {% block extra_js %}
 <script>
-const _csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
-    || '{{ csrf_token }}';
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', async function() {
-        try {
-            const r = await fetch('/api/logout/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken }
-            });
-            if (r.ok) window.location.href = '/login/';
-        } catch(e) { console.error(e); }
-    });
-}
+    const _csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+        || '{{ csrf_token }}';
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async function () {
+            try {
+                const r = await fetch('/api/logout/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': _csrfToken }
+                });
+                if (r.ok) window.location.href = '/login/';
+            } catch (e) { console.error(e); }
+        });
+    }
 </script>
 {% block page_js %}{% endblock %}
 {% endblock %}

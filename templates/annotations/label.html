@@ -23,7 +23,6 @@
         <div class="topbar-info">
             <strong>{{ project.name }}</strong>
             {% if batch_code %} &rsaquo; <span style="color:#818cf8;">{{ batch_code }}</span>{% endif %}
-            &rsaquo; {{ task.image.filename }}
         </div>
         <div class="topbar-right">
             {% if annotation %}
@@ -35,8 +34,8 @@
                     {{ annotation.status|title }}
                 </span>
             {% endif %}
-            <a href="/" class="btn-outline" style="width:auto; padding: 7px 16px; margin: 0;">
-                <i class="fas fa-arrow-left me-1"></i> Dashboard
+            <a href="/" class="btn-outline" style="color:#ffffff; width:auto; padding: 7px 16px; margin: 0;border-color: #ffffff;">
+                <i class="fas fa-arrow-left me-1"></i> Go to Dashboard
             </a>
         </div>
     </div>
@@ -84,8 +83,8 @@
 
             <!-- Progress -->
             <div class="sidebar-section">
-                <div class="section-label">Batch Progress{% if batch_code %} — {{ batch_code }}{% endif %}</div>
-                <div class="progress-counter">
+                <div class="section-label">Batch Progress</div>
+                <div class="progress-counter" style="color:#8990a8;">
                     <span>Annotated in batch</span>
                     <span><strong>{{ annotated_in_batch }}</strong> / {{ total_in_batch }}</span>
                 </div>
@@ -118,10 +117,10 @@
             <div class="sidebar-section">
                 <div id="alertBox" class="alert-box"></div>
                 <button id="saveBtn" class="btn-save">
-                    <i class="fas fa-arrow-right-to-bracket"></i> Save & Next Image
+                    Save & Next Image
                 </button>
                 <a href="/" class="btn-outline">
-                    <i class="fas fa-times me-1"></i> Cancel &amp; Go to Dashboard
+                    Cancel
                 </a>
             </div>
 
@@ -136,20 +135,26 @@
 
         // Build label selector
         const labelGrid = document.getElementById('labelGrid');
-        const selectedLabels = new Set(existingLabels);
+        let selectedLabel = existingLabels.length > 0 ? existingLabels[0] : null;
 
         labelSet.forEach(label => {
             const item = document.createElement('div');
-            item.className = 'label-item' + (selectedLabels.has(label) ? ' active' : '');
+            item.className = 'label-item' + (selectedLabel === label ? ' active' : '');
             item.dataset.label = label;
             item.innerHTML = `<span class="label-name">${label}</span><div class="check-box"></div>`;
 
             item.addEventListener('click', () => {
-                if (selectedLabels.has(label)) {
-                    selectedLabels.delete(label);
+                // 1. If already selected, deselect it
+                if (selectedLabel === label) {
+                    selectedLabel = null;
                     item.classList.remove('active');
                 } else {
-                    selectedLabels.add(label);
+                    // 2. Deselect the previous one in the UI
+                    const currentActive = labelGrid.querySelector('.label-item.active');
+                    if (currentActive) currentActive.classList.remove('active');
+
+                    // 3. Select the new one
+                    selectedLabel = label;
                     item.classList.add('active');
                 }
             });
@@ -186,7 +191,8 @@
                         'X-CSRFToken': csrfToken,
                     },
                     body: JSON.stringify({
-                        labels: Array.from(selectedLabels),
+                        labels: selectedLabel ? [selectedLabel] : [], 
+                        
                         notes: notes,
                         action: 'save',
                     }),
@@ -201,8 +207,8 @@
                             window.location.href = data.next_task_url;
                         }, 700);
                     } else {
-                        showAlert('success', '✅ All done! No more images to annotate in this project.');
-                        btn.innerHTML = '<i class="fas fa-check"></i> All Images Done!';
+                        showAlert('success', 'All Annotations completed in this project.');
+                        btn.innerHTML = 'All Images Done!';
                         btn.style.background = 'linear-gradient(135deg, #10b981, #34d399)';
                     }
                 } else {
@@ -213,7 +219,7 @@
             } catch (err) {
                 showAlert('error', 'Network error. Please check your connection.');
                 btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Save & Next Image';
+                btn.innerHTML = ' Save & Next Image';
             }
         });
     </script>

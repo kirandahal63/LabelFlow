@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,28 +11,39 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/admin_dashboard.css' %}">
 
     <style>
         /* ── Global Reset & Font ── */
-        *, *::before, *::after { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; margin: 0; min-height: 100vh; }
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+        }
 
         /* ── Admin sidebar variables ── */
         :root {
             --sidebar-width: 260px;
             --sidebar-bg: #0f1015;
-            --sidebar-border: rgba(255,255,255,0.06);
-            --sidebar-hover: rgba(255,255,255,0.05);
-            --sidebar-active: rgba(79,70,229,0.15);
+            --sidebar-border: rgba(255, 255, 255, 0.06);
+            --sidebar-hover: rgba(255, 255, 255, 0.05);
+            --sidebar-active: rgba(79, 70, 229, 0.15);
             --primary: #4f46e5;
         }
 
         /* ── Sidebar ── */
         .lf-sidebar {
             position: fixed;
-            top: 0; left: 0;
+            top: 0;
+            left: 0;
             width: var(--sidebar-width);
             height: 100vh;
             background: var(--sidebar-bg);
@@ -58,24 +70,29 @@
         }
 
         .lf-sidebar .sidebar-logo .logo-icon {
-            width: 34px; height: 34px;
+            width: 34px;
+            height: 34px;
             background: linear-gradient(135deg, #4f46e5, #10b981);
             border-radius: 9px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.9rem; color: #fff; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            color: #fff;
+            flex-shrink: 0;
         }
 
         .lf-sidebar .sidebar-sub-label {
             margin-top: 5px;
             font-size: 0.66rem;
-            color: rgba(255,255,255,0.27);
+            color: rgba(255, 255, 255, 0.27);
             text-transform: uppercase;
             letter-spacing: 0.8px;
         }
 
         .lf-sidebar .section-label {
             font-size: 0.66rem;
-            color: rgba(255,255,255,0.28);
+            color: rgba(255, 255, 255, 0.28);
             text-transform: uppercase;
             letter-spacing: 1px;
             font-weight: 600;
@@ -94,7 +111,7 @@
             gap: 10px;
             padding: 9px 13px;
             border-radius: 9px;
-            color: rgba(255,255,255,0.62);
+            color: rgba(255, 255, 255, 0.62);
             font-size: 0.875rem;
             font-weight: 500;
             text-decoration: none;
@@ -121,8 +138,8 @@
 
         .lf-sidebar .sidebar-chip {
             margin: 8px 10px;
-            background: rgba(79,70,229,0.09);
-            border: 1px solid rgba(79,70,229,0.2);
+            background: rgba(79, 70, 229, 0.09);
+            border: 1px solid rgba(79, 70, 229, 0.2);
             border-radius: 9px;
             padding: 9px 13px;
             font-size: 0.8rem;
@@ -132,7 +149,7 @@
 
         .lf-sidebar .sidebar-chip .chip-label {
             display: block;
-            color: rgba(255,255,255,0.3);
+            color: rgba(255, 255, 255, 0.3);
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 0.6px;
@@ -151,24 +168,40 @@
             gap: 9px;
             padding: 9px 11px;
             border-radius: 9px;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .lf-sidebar .user-chip .avatar {
-            width: 32px; height: 32px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             background: linear-gradient(135deg, #4f46e5, #8b5cf6);
-            display: flex; align-items: center; justify-content: center;
-            color: #fff; font-weight: 700; font-size: 0.78rem; flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.78rem;
+            flex-shrink: 0;
         }
 
-        .lf-sidebar .user-chip .info { flex: 1; min-width: 0; }
-        .lf-sidebar .user-chip .info .name {
-            color: #fff; font-size: 0.8rem; font-weight: 600;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        .lf-sidebar .user-chip .info {
+            flex: 1;
+            min-width: 0;
         }
+
+        .lf-sidebar .user-chip .info .name {
+            color: #fff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .lf-sidebar .user-chip .info .role {
-            color: rgba(255,255,255,0.32); font-size: 0.67rem;
+            color: rgba(255, 255, 255, 0.32);
+            font-size: 0.67rem;
         }
 
         /* ── Layout helpers ── */
@@ -179,18 +212,20 @@
 
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="{% block body_class %}{% endblock %}">
 
     {% block sidebar %}{% endblock %}
 
     <div class="lf-main {% block main_class %}{% endblock %}">
 
+        {% block top_navbar %}
         <nav class="navbar {% block navbar_class %}{% endblock %}">
             <div class="container-fluid">
                 {% block navbar_brand %}
-                    <a class="navbar-brand navbar-brand-custom" href="/">
-                        <i class="fas fa-layer-group me-2"></i>LabelFlow
-                    </a>
+                <a class="navbar-brand navbar-brand-custom" href="/">
+                    <i class="fas fa-layer-group me-2"></i>LabelFlow
+                </a>
                 {% endblock %}
 
                 <div class="d-flex align-items-center gap-3">
@@ -198,12 +233,14 @@
                 </div>
             </div>
         </nav>
+        {% endblock %}
 
         <div class="{% block container_class %}{% endblock %}">
             {% if messages %}
             <div class="lf-messages">
                 {% for message in messages %}
-                <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show" role="alert">
+                <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-success{% endif %} alert-dismissible fade show"
+                    role="alert">
                     {{ message }}
                     <button type="button" class="btn-close btn-close-black" data-bs-dismiss="alert"></button>
                 </div>
@@ -221,4 +258,5 @@
     {% block extra_js %}{% endblock %}
 
 </body>
+
 </html>

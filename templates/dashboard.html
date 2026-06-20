@@ -48,8 +48,11 @@
             padding: 7px 15px; font-size: 0.85rem; font-weight: 500;
             text-decoration: none; display:inline-flex; align-items:center; gap:6px;
             transition: all 0.2s;
+            background: rgba(239, 68, 68, 0.08); 
+            color: #dc2626;
         }
-        .btn-nav-outline:hover { background: rgba(255,255,255,0.08); color:#fff; border-color:rgba(255,255,255,0.4); }
+        .btn-nav-outline:hover { background: rgba(239, 68, 68, 0.08); 
+            color: #dc2626; border-color:#dc2626; }
 
         /* ── Layout ── */
         .dashboard-wrap { max-width: 1200px; margin: 0 auto; padding: 36px 24px; }
@@ -179,6 +182,25 @@
 
         /* Divider between sections */
         .section-divider { border: none; border-top: 2px solid var(--border); margin: 6px 0 28px; }
+
+        .card-custom {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 24px;
+            margin-top: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+
+        .card-title-custom {
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
@@ -212,174 +234,180 @@
     {% endif %}
 
     <!-- ═══ ASSIGNED PROJECTS ═══ -->
-    <div class="section-hdr">
-        <div class="icon" style="background:rgba(79,70,229,0.1); color:var(--primary);"><i class="fas fa-folder-open"></i></div>
-        <div>
-            <h2>Assigned Projects</h2>
-            <span class="count">{{ member_projects_count }} project{{ member_projects_count|pluralize }}</span>
-        </div>
-    </div>
-
-    <div class="card-lf">
-        {% if member_project_entries %}
-        <div class="table-responsive">
-            <table class="table table-lf">
-                <thead>
-                    <tr>
-                        <th>Project</th>
-                        <th>Status</th>
-                        <th>Your Role</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in member_project_entries %}
-                    <tr>
-                        <td>
-                            <a href="/{{ entry.project.id }}/" class="proj-link">{{ entry.project.name }}</a>
-                            <div class="text-muted small mt-1">{{ entry.project.description|default:"No description."|truncatechars:70 }}</div>
-                        </td>
-                        <td>
-                            <span class="status-badge {% if entry.project.status == 'active' %}st-active{% else %}st-draft{% endif %}">
-                                {{ entry.project.status }}
-                            </span>
-                        </td>
-                        <td>
-                            <span class="role-badge {% if entry.role_in_project == 'reviewer' %}role-reviewer{% else %}role-annotator{% endif %}">
-                                <i class="fas {% if entry.role_in_project == 'reviewer' %}fa-search{% else %}fa-tag{% endif %}"></i>
-                                {{ entry.role_in_project|capfirst }}
-                            </span>
-                        </td>
-                        <td class="text-end">
-                            <a href="/{{ entry.project.id }}/" class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid rgba(79,70,229,0.2);border-radius:8px;font-weight:600;font-size:0.82rem;">
-                                View Project
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="card-body">
-            <div class="empty-state">
-                <i class="fas fa-folder"></i>
-                <p>No projects assigned yet. Wait for an admin to add you to a project.</p>
+    <div class="card-custom">
+        <div class="section-hdr">
+            <div class="icon" style="background:rgba(79,70,229,0.1); color:var(--primary);"><i class="fas fa-folder-open"></i></div>
+            <div>
+                <h2>Assigned Projects</h2>
+                <span class="count">{{ member_projects_count }} project{{ member_projects_count|pluralize }}</span>
             </div>
+        </div>  
+        <div class="card-lf" style="margin-top: 40px;">
+            {% if member_project_entries %}
+            <div class="table-responsive">
+                <table class="table table-lf">
+                    <thead>
+                        <tr>
+                            <th>Project</th>
+                            <th>Status</th>
+                            <th>Your Role</th>
+                            <th class="text-end">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in member_project_entries %}
+                        <tr>
+                            <td>
+                                <a href="/{{ entry.project.id }}/" class="proj-link">{{ entry.project.name }}</a>
+                                <div class="text-muted small mt-1">{{ entry.project.description|default:"No description."|truncatechars:70 }}</div>
+                            </td>
+                            <td>
+                                <span class="status-badge {% if entry.project.status == 'active' %}st-active{% else %}st-draft{% endif %}">
+                                    {{ entry.project.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="role-badge {% if entry.role_in_project == 'reviewer' %}role-reviewer{% else %}role-annotator{% endif %}">
+                                    <i class="fas {% if entry.role_in_project == 'reviewer' %}fa-search{% else %}fa-tag{% endif %}"></i>
+                                    {{ entry.role_in_project|capfirst }}
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a href="/{{ entry.project.id }}/" class="btn btn-sm" style="background:var(--primary-light);color:var(--primary);border:1px solid rgba(79,70,229,0.2);border-radius:8px;font-weight:600;font-size:0.82rem;">
+                                    View Project
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <div class="empty-state">
+                    <i class="fas fa-folder"></i>
+                    <p>No projects assigned yet. Wait for an admin to add you to a project.</p>
+                </div>
+            </div>
+            {% endif %}
         </div>
-        {% endif %}
     </div>
 
     <!-- ═══ MY ANNOTATION BATCHES (Annotator) ═══ -->
-    {% if my_batches %}
-    <hr class="section-divider">
-    <div class="section-hdr">
-        <div class="icon" style="background:rgba(245,158,11,0.1); color:var(--warning);"><i class="fas fa-layer-group"></i></div>
-        <div>
-            <h2>My Annotation Batches</h2>
-            <span class="count">{{ my_batches|length }} batch{{ my_batches|length|pluralize:"es" }} assigned</span>
-        </div>
-    </div>
+    
+        {% if my_batches %}
+            <div class="card-custom">
+                <div class="section-hdr">
+                    <div class="icon" style="background:rgba(245,158,11,0.1); color:var(--warning);"><i class="fas fa-layer-group"></i></div>
+                    <div>
+                        <h2>My Annotation Batches</h2>
+                        <span class="count">{{ my_batches|length }} batch{{ my_batches|length|pluralize:"es" }} assigned</span>
+                    </div>
+                </div>
 
-    <div class="batch-grid">
-        {% for b in my_batches %}
-        <div class="batch-card">
-            <span class="batch-code">{{ b.code }}</span>
-            <div class="batch-project-name">{{ b.project.name }}</div>
-            <div class="batch-project-role"><i class="fas fa-tag me-1"></i>Annotator</div>
+                <div class="batch-grid">
+                    {% for b in my_batches %}
+                    <div class="batch-card">
+                        <span class="batch-code">{{ b.code }}</span>
+                        <div class="batch-project-name">{{ b.project.name }}</div>
+                        <div class="batch-project-role"><i class="fas fa-tag me-1"></i>Annotator</div>
 
-            <!-- Progress bar -->
-            <div class="batch-progress-bar">
-                <div class="batch-progress-fill" style="width:{% if b.total > 0 %}{% widthratio b.annotated b.total 100 %}{% else %}0{% endif %}%;"></div>
+                        <!-- Progress bar -->
+                        <div class="batch-progress-bar">
+                            <div class="batch-progress-fill" style="width:{% if b.total > 0 %}{% widthratio b.annotated b.total 100 %}{% else %}0{% endif %}%;"></div>
+                        </div>
+                        <div class="batch-progress-label">
+                            <span>{{ b.annotated }} / {{ b.total }} annotated</span>
+                            {% if b.is_fully_submitted %}
+                                <span class="chip-submitted"><i class="fas fa-check me-1"></i>Submitted</span>
+                            {% elif b.all_annotated %}
+                                <span class="chip-submitted" style="background:rgba(79,70,229,0.1);color:var(--primary);border-color:rgba(79,70,229,0.2);">Ready to Submit</span>
+                            {% else %}
+                                <span class="chip-in-progress">In Progress</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action buttons -->
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            {% if not b.is_fully_submitted and b.first_task %}
+                            <a href="/annotations/task/{{ b.first_task.id }}/" class="btn-annotate">
+                                <i class="fas fa-pen-nib"></i>
+                                {% if b.annotated == 0 %}Start Annotating{% else %}Continue{% endif %}
+                            </a>
+                            {% endif %}
+
+                            {% if not b.is_fully_submitted %}
+                            <form method="POST" action="/annotations/submit-batch/{{ b.code }}/" style="margin:0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-submit-batch"
+                                    {% if not b.all_annotated %}disabled title="Annotate all {{ b.total }} images first"{% endif %}>
+                                    <i class="fas fa-paper-plane"></i> Submit
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if b.is_fully_submitted %}
+                            <a href="/{{ b.project.id }}/" class="btn btn-sm" style="color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;padding:7px 14px;">
+                                <i class="fas fa-folder-open me-1"></i>View Project
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="batch-progress-label">
-                <span>{{ b.annotated }} / {{ b.total }} annotated</span>
-                {% if b.is_fully_submitted %}
-                    <span class="chip-submitted"><i class="fas fa-check me-1"></i>Submitted</span>
-                {% elif b.all_annotated %}
-                    <span class="chip-submitted" style="background:rgba(79,70,229,0.1);color:var(--primary);border-color:rgba(79,70,229,0.2);">Ready to Submit</span>
-                {% else %}
-                    <span class="chip-in-progress">In Progress</span>
-                {% endif %}
-            </div>
+        {% endif %}
+    
 
-            <!-- Action buttons -->
-            <div class="d-flex align-items-center flex-wrap gap-2">
-                {% if not b.is_fully_submitted and b.first_task %}
-                <a href="/annotations/task/{{ b.first_task.id }}/" class="btn-annotate">
-                    <i class="fas fa-pen-nib"></i>
-                    {% if b.annotated == 0 %}Start Annotating{% else %}Continue{% endif %}
-                </a>
-                {% endif %}
-
-                {% if not b.is_fully_submitted %}
-                <form method="POST" action="/annotations/submit-batch/{{ b.code }}/" style="margin:0;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn-submit-batch"
-                        {% if not b.all_annotated %}disabled title="Annotate all {{ b.total }} images first"{% endif %}>
-                        <i class="fas fa-paper-plane"></i> Submit
-                    </button>
-                </form>
-                {% endif %}
-
-                {% if b.is_fully_submitted %}
-                <a href="/{{ b.project.id }}/" class="btn btn-sm" style="color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;padding:7px 14px;">
-                    <i class="fas fa-folder-open me-1"></i>View Project
-                </a>
-                {% endif %}
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- ═══ REVIEWER BATCHES ═══ -->
+    <!-- REVIEWER BATCHES -->
+     
     {% if reviewer_batches %}
-    <hr class="section-divider">
-    <div class="section-hdr">
-        <div class="icon" style="background:rgba(59,130,246,0.1); color:var(--info);"><i class="fas fa-clipboard-check"></i></div>
-        <div>
-            <h2>Batches Pending Review</h2>
-            <span class="count">{{ reviewer_batches|length }} batch{{ reviewer_batches|length|pluralize:"es" }} awaiting review</span>
+    <div class="card-custom">
+        <div class="section-hdr">
+            <div class="icon" style="background:rgba(59,130,246,0.1); color:var(--info);"><i class="fas fa-clipboard-check"></i></div>
+            <div>
+                <h2>Batches Pending Review</h2>
+                <span class="count">{{ reviewer_batches|length }} batch{{ reviewer_batches|length|pluralize:"es" }} awaiting review</span>
+            </div>
         </div>
-    </div>
 
-    <div class="batch-grid">
-        {% for b in reviewer_batches %}
-        <div class="batch-card" style="border-color:rgba(59,130,246,0.15);">
-            <span class="batch-code" style="color:var(--info);background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.2);">
-                <i class="fas fa-hashtag me-1"></i>{{ b.code }}
-            </span>
-            <div class="batch-project-name">{{ b.project.name }}</div>
-            <div class="batch-project-role">
-                <i class="fas fa-user me-1"></i>Annotated by {{ b.assigned_to.first_name }} {{ b.assigned_to.last_name }}
-            </div>
-
-            <!-- Progress bar (review progress) -->
-            {% with reviewed=b.approved|add:b.rejected %}
-            <div class="batch-progress-bar">
-                <div class="batch-progress-fill" style="background:linear-gradient(90deg,var(--info),#60a5fa); width:{% if b.total > 0 %}{% widthratio reviewed b.total 100 %}{% else %}0{% endif %}%;"></div>
-            </div>
-            <div class="batch-progress-label">
-                <span>{{ reviewed }} / {{ b.total }} reviewed</span>
-                <span class="chip-in-progress" style="background:rgba(59,130,246,0.1);color:var(--info);border-color:rgba(59,130,246,0.2);">
-                    {{ b.submitted }} pending
+        <div class="batch-grid">
+            {% for b in reviewer_batches %}
+            <div class="batch-card" style="border-color:rgba(59,130,246,0.15);">
+                <span class="batch-code" style="color:var(--info);background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.2);">
+                    <i class="fas fa-hashtag me-1"></i>{{ b.code }}
                 </span>
-            </div>
-            {% endwith %}
+                <div class="batch-project-name">{{ b.project.name }}</div>
+                <div class="batch-project-role">
+                    <i class="fas fa-user me-1"></i>Annotated by {{ b.assigned_to.first_name }} {{ b.assigned_to.last_name }}
+                </div>
 
-            <div class="d-flex gap-2 flex-wrap">
-                {% if b.first_task %}
-                <a href="/annotations/review/{{ b.first_task.id }}/" class="btn-review-start">
-                    <i class="fas fa-search"></i> Start Review
-                </a>
-                {% endif %}
-                <a href="/{{ b.project.id }}/" class="btn btn-sm" style="color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;padding:7px 14px;">
-                    <i class="fas fa-folder-open me-1"></i>Project
-                </a>
+                <!-- Progress bar (review progress) -->
+                {% with reviewed=b.approved|add:b.rejected %}
+                <div class="batch-progress-bar">
+                    <div class="batch-progress-fill" style="background:linear-gradient(90deg,var(--info),#60a5fa); width:{% if b.total > 0 %}{% widthratio reviewed b.total 100 %}{% else %}0{% endif %}%;"></div>
+                </div>
+                <div class="batch-progress-label">
+                    <span>{{ reviewed }} / {{ b.total }} reviewed</span>
+                    <span class="chip-in-progress" style="background:rgba(59,130,246,0.1);color:var(--info);border-color:rgba(59,130,246,0.2);">
+                        {{ b.submitted }} pending
+                    </span>
+                </div>
+                {% endwith %}
+
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if b.first_task %}
+                    <a href="/annotations/review/{{ b.first_task.id }}/" class="btn-review-start">
+                        <i class="fas fa-search"></i> Start Review
+                    </a>
+                    {% endif %}
+                    <a href="/{{ b.project.id }}/" class="btn btn-sm" style="color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:0.82rem;padding:7px 14px;">
+                        <i class="fas fa-folder-open me-1"></i>Project
+                    </a>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
     {% endif %}
 
