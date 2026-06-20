@@ -157,7 +157,7 @@
         }
 
         .sidebar-section {
-            padding: 20px;
+            padding: 15px;
             border-bottom: 1px solid var(--border);
         }
 
@@ -290,8 +290,25 @@
         .notes-textarea::placeholder {
             color: var(--muted);
         }
+        /* Form */
+        .form-control-custom { 
+            background: rgb(255, 255, 255); border: 1px solid rgba(18, 18, 18, 0.09); 
+            color: #fff !important; padding: 10px 14px; border-radius: 9px; 
+            width: 100%; font-size: 0.9rem; font-family: 'Inter',sans-serif;  resize: vertical; min-height: 80px; border-color: rgb(6 6 6);
+        }
+        .form-control-custom:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91,110,245,0.2); }
+        .form-control-custom::placeholder { color: var(--muted); }
 
         /* ─── Action buttons ─── */
+        .btn-approve { background: linear-gradient(135deg,var(--success),#34d399); color:#fff; font-weight:700; padding:12px 20px; border-radius:10px; border:none; width:100%; margin-bottom:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; transition:all 0.2s; }
+        .btn-approve:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,0.35); }
+        .btn-reject  { background: linear-gradient(135deg,var(--danger),#f87171); color:#fff; font-weight:700; padding:12px 20px; border-radius:10px; border:none; width:100%; margin-bottom:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; transition:all 0.2s; }
+        .btn-reject:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(239,68,68,0.35); }
+
+        .btn-outline-sm { background: transparent; color: rgb(205, 205, 205); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.18s; }
+        .btn-outline-sm:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+
         .btn-save {
             background: linear-gradient(135deg, var(--primary), #7c8ff7);
             color: #fff;
@@ -449,6 +466,10 @@
             background: linear-gradient(90deg, var(--primary), var(--success));
             border-radius: 3px;
         }
+
+        .notes-box { background: rgba(255,255,255,0.02); border: 1px solid black; border-radius: 8px; padding: 12px 14px; font-size: 0.9rem; color: #ccc; min-height: 56px; }
+
+        .batch-progress-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px; }
 
         /* ─── Scrollbar ─── */
         ::-webkit-scrollbar { width: 5px; height: 5px; }

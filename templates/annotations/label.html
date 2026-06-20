@@ -179,6 +179,12 @@
         document.getElementById('saveBtn').addEventListener('click', async () => {
             const btn = document.getElementById('saveBtn');
             const notes = document.getElementById('notesInput').value.trim();
+            if (!selectedLabel) {
+    showAlert('error', 'Please select a label before saving.');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-arrow-right-to-bracket"></i> Save & Next Image';
+    return;
+}
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
             hideAlert();

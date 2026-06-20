@@ -8,88 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/label.css' %}">
 
-    <style>
-        :root {
-            --bg: #0d0e12;
-            --panel: #13151c;
-            --card: #181b24;
-            --border: rgba(255,255,255,0.07);
-            --text: #f0f2f8;
-            --muted: #8990a8;
-            --primary: #5b6ef5;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --info: #3b82f6;
-        }
-        * { box-sizing: border-box; }
-        body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; margin: 0; display: flex; flex-direction: column; overflow: hidden; }
-
-        /* Topbar */
-        .topbar { height: 58px; background: var(--panel); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 22px; gap: 14px; flex-shrink: 0; z-index: 10; }
-        .topbar-brand { font-weight: 800; font-size: 1.2rem; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 8px; }
-        .topbar-brand i { background: linear-gradient(135deg,#5b6ef5,#10b981); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-        .topbar-divider { width: 1px; height: 24px; background: var(--border); }
-        .topbar-info { font-size: 0.82rem; color: var(--muted); max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .topbar-info strong { color: var(--text); }
-        .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-        .btn-outline-sm { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-size: 0.82rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.18s; }
-        .btn-outline-sm:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
-
-        /* Progress strip */
-        .progress-strip { height: 3px; background: rgba(255,255,255,0.04); flex-shrink: 0; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg,var(--info),var(--success)); transition: width 0.4s ease; }
-
-        /* Workspace */
-        .workspace { flex: 1; display: flex; overflow: hidden; }
-
-        /* Canvas */
-        .canvas-panel { flex: 1; display: flex; align-items: center; justify-content: center; background: #090a0e; border-right: 1px solid var(--border); position: relative; overflow: auto; padding: 24px; }
-        .canvas-img { max-width: 100%; max-height: calc(100vh - 90px); border-radius: 10px; box-shadow: 0 12px 48px rgba(0,0,0,0.7); object-fit: contain; display: block; }
-
-        /* Sidebar */
-        .sidebar { width: 380px; flex-shrink: 0; background: var(--panel); display: flex; flex-direction: column; overflow-y: auto; }
-        .sidebar-section { padding: 18px 20px; border-bottom: 1px solid var(--border); }
-        .sidebar-section:last-child { border-bottom: none; }
-        .section-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-
-        /* Batch progress */
-        .batch-progress-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; margin-bottom: 6px; }
-        .batch-bar-mini { height: 4px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-        .batch-bar-mini-fill { height: 100%; background: linear-gradient(90deg,var(--info),var(--success)); border-radius: 3px; }
-
-        /* Label selector from label.html */
-        .label-grid { display: flex; flex-direction: column; gap: 7px; }
-        .label-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 9px; padding: 11px 14px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; user-select: none; }
-        .label-item:hover { border-color: rgba(91,110,245,0.35); background: rgba(91,110,245,0.05); }
-        .label-item.active { background: rgba(91,110,245,0.12); border-color: var(--primary); }
-        .label-name { font-size: 0.9rem; font-weight: 500; }
-        .check-box { width: 18px; height: 18px; border-radius: 4px; border: 1.5px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
-        .label-item.active .check-box { background: var(--primary); border-color: var(--primary); }
-        .label-item.active .check-box::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: #fff; font-size: 9px; }
-
-        /* Notes */
-        .notes-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; font-size: 0.9rem; color: #ccc; min-height: 56px; }
-
-        /* Form */
-        .form-control-custom { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); color: #fff !important; padding: 10px 14px; border-radius: 9px; width: 100%; font-size: 0.9rem; font-family: 'Inter',sans-serif; transition: border-color 0.2s; resize: vertical; min-height: 80px; }
-        .form-control-custom:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91,110,245,0.2); }
-        .form-control-custom::placeholder { color: var(--muted); }
-
-        /* Buttons */
-        .btn-approve { background: linear-gradient(135deg,var(--success),#34d399); color:#fff; font-weight:700; padding:12px 20px; border-radius:10px; border:none; width:100%; margin-bottom:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; transition:all 0.2s; }
-        .btn-approve:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(16,185,129,0.35); }
-        .btn-reject  { background: linear-gradient(135deg,var(--danger),#f87171); color:#fff; font-weight:700; padding:12px 20px; border-radius:10px; border:none; width:100%; margin-bottom:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; font-size:0.95rem; transition:all 0.2s; }
-        .btn-reject:hover { transform:translateY(-1px); box-shadow:0 4px 14px rgba(239,68,68,0.35); }
-
-        /* Alert box */
-        .alert-box { border-radius: 9px; padding: 11px 14px; font-size: 0.88rem; display: none; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .alert-success { background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.25); color: #34d399; }
-        .alert-error { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.25); color: #f87171; }
-
-        ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
-    </style>
 </head>
 <body>
 
@@ -100,7 +20,6 @@
     <div class="topbar-info">
         <strong>{{ task.project.name }}</strong>
         {% if task.batch %} &rsaquo; <span style="color:#818cf8;">{{ task.batch }}</span>{% endif %}
-        &rsaquo; {{ task.image.filename }}
     </div>
     <div class="topbar-right">
         <a href="/{{ task.project.id }}/" class="btn-outline-sm">
@@ -132,7 +51,7 @@
         {% if task.batch %}
         <div class="sidebar-section">
             <div class="section-label">Batch Review Progress</div>
-            <div class="batch-progress-row">
+            <div class="batch-progress-row" style="color:#8990a8;">
                 <span>{{ task.batch }}</span>
                 <span><strong>{{ batch_reviewed }}</strong> / {{ batch_total }} reviewed</span>
             </div>
@@ -146,8 +65,8 @@
 
         <!-- Image info -->
         <div class="sidebar-section">
-            <div class="section-label">Image</div>
-            <div style="font-size:0.88rem;font-weight:600;color:#fff;word-break:break-all;margin-bottom:4px;">{{ task.image.filename }}</div>
+            <div class="section-label" >Image</div>
+            <div style="font-size:0.88rem;font-weight:600;color:#000000;word-break:break-all;margin-bottom:4px;">{{ task.image.filename }}</div>
             <div style="font-size:0.78rem;color:var(--muted);">
                 {{ task.image.width_px }} × {{ task.image.height_px }} &nbsp;·&nbsp; {{ task.image.file_size_bytes|filesizeformat }}
             </div>
@@ -172,11 +91,11 @@
 
         <!-- Review Form -->
         <div class="sidebar-section" style="flex:1;">
-            <div class="section-label">Your Decision</div>
             <div id="alertBox" class="alert-box"></div>
             <div class="mb-3">
                 <label class="section-label" for="comment">Feedback / Comment</label>
-                <textarea id="comment" name="comment" class="form-control-custom"
+                <textarea 
+                    id="comment" name="comment" class="form-control-custom"
                     placeholder="Explain approval or rejection reason (optional)…"></textarea>
             </div>
             <button id="btnApprove" class="btn-approve">
@@ -197,26 +116,33 @@
 
     // Build label selector
     const labelGrid = document.getElementById('labelGrid');
-    const selectedLabels = new Set(existingLabels);
+        let selectedLabel = existingLabels.length > 0 ? existingLabels[0] : null;
 
-    labelSet.forEach(label => {
-        const item = document.createElement('div');
-        item.className = 'label-item' + (selectedLabels.has(label) ? ' active' : '');
-        item.dataset.label = label;
-        item.innerHTML = `<span class="label-name">${label}</span><div class="check-box"></div>`;
+        labelSet.forEach(label => {
+            const item = document.createElement('div');
+            item.className = 'label-item' + (selectedLabel === label ? ' active' : '');
+            item.dataset.label = label;
+            item.innerHTML = `<span class="label-name">${label}</span><div class="check-box"></div>`;
 
-        item.addEventListener('click', () => {
-            if (selectedLabels.has(label)) {
-                selectedLabels.delete(label);
-                item.classList.remove('active');
-            } else {
-                selectedLabels.add(label);
-                item.classList.add('active');
-            }
+            item.addEventListener('click', () => {
+                // 1. If already selected, deselect it
+                if (selectedLabel === label) {
+                    selectedLabel = null;
+                    item.classList.remove('active');
+                } else {
+                    // 2. Deselect the previous one in the UI
+                    const currentActive = labelGrid.querySelector('.label-item.active');
+                    if (currentActive) currentActive.classList.remove('active');
+
+                    // 3. Select the new one
+                    selectedLabel = label;
+                    item.classList.add('active');
+                }
+            });
+
+            labelGrid.appendChild(item);
         });
 
-        labelGrid.appendChild(item);
-    });
 
     const alertBox = document.getElementById('alertBox');
     function showAlert(type, msg) {
@@ -227,54 +153,60 @@
     function hideAlert() { alertBox.style.display = 'none'; }
 
     async function submitReview(decision) {
-        const btnApprove = document.getElementById('btnApprove');
-        const btnReject = document.getElementById('btnReject');
-        const comment = document.getElementById('comment').value.trim();
-        
-        btnApprove.disabled = true;
-        btnReject.disabled = true;
-        hideAlert();
+    const btnApprove = document.getElementById('btnApprove');
+    const btnReject = document.getElementById('btnReject');
+    const comment = document.getElementById('comment').value.trim();
 
-        const btn = decision === 'approved' ? btnApprove : btnReject;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    // ✅ ONLY require label for APPROVE
+    if (decision === 'approved' && !selectedLabel) {
+        showAlert('error', 'Please select a label before approving.');
+        return;
+    }
 
-        try {
-            const res = await fetch(window.location.pathname, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken,
-                },
-                body: JSON.stringify({
-                    labels: Array.from(selectedLabels),
-                    comment: comment,
-                    decision: decision
-                }),
-            });
+    btnApprove.disabled = true;
+    btnReject.disabled = true;
+    hideAlert();
 
-            const data = await res.json();
+    const btn = decision === 'approved' ? btnApprove : btnReject;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-            if (res.ok) {
-                if (data.next_task_url) {
-                    window.location.href = data.next_task_url;
-                } else {
-                    showAlert('success', 'Batch review complete!');
-                    btn.innerHTML = '<i class="fas fa-check"></i> Done';
-                }
+    try {
+        const res = await fetch(window.location.pathname, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({
+                labels: decision === 'approved' ? [selectedLabel] : [],
+                comment: comment,
+                decision: decision
+            }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            if (data.next_task_url) {
+                window.location.href = data.next_task_url;
             } else {
-                showAlert('error', data.message || 'Failed to save review.');
-                btnApprove.disabled = false;
-                btnReject.disabled = false;
-                btn.innerHTML = originalText;
+                showAlert('success', 'Batch review complete!');
+                btn.innerHTML = '<i class="fas fa-check"></i> Done';
             }
-        } catch (err) {
-            showAlert('error', 'Network error. Please check your connection.');
+        } else {
+            showAlert('error', data.message || 'Failed to save review.');
             btnApprove.disabled = false;
             btnReject.disabled = false;
             btn.innerHTML = originalText;
         }
+    } catch (err) {
+        showAlert('error', 'Network error. Please check your connection.');
+        btnApprove.disabled = false;
+        btnReject.disabled = false;
+        btn.innerHTML = originalText;
     }
+}
 
     document.getElementById('btnApprove').addEventListener('click', () => submitReview('approved'));
     document.getElementById('btnReject').addEventListener('click', () => submitReview('rejected'));
