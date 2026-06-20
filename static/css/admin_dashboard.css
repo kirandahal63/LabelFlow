@@ -208,7 +208,7 @@
 
         /* Page content */
         .page-content {
-            padding: 32px;
+            padding: 42px 70px;
             flex: 1;
         }
 
@@ -226,7 +226,7 @@
             border: 1px solid var(--card-border);
             border-radius: 14px;
             padding: 24px;
-            margin-bottom: 24px;
+            margin-top: 32px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
 
@@ -243,11 +243,9 @@
         /* Stat mini cards */
         .stat-row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            grid-template-columns: repeat(4, minmax(180px, 1fr));
             gap: 16px;
-            margin-bottom: 24px;
         }
-
         .stat-mini {
             background: #fff;
             border: 1px solid var(--card-border);
@@ -257,6 +255,8 @@
             align-items: center;
             gap: 14px;
             box-shadow: 0 1px 5px rgba(0,0,0,0.04);
+            min-height: 90px;
+            width: 100%;
         }
 
         .stat-mini-icon {

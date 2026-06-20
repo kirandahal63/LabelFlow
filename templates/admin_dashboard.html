@@ -106,8 +106,8 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div>
-                        <div class="stat-mini-value">{% with active_count=0 %}{% for p in all_projects %}{% if p.status == 'active' %}{% with active_count=active_count|add:1 %}{% endwith %}{% endif %}{% endfor %}{{ all_projects|length }}{% endwith %}</div>
-                        <div class="stat-mini-label">All Projects</div>
+                        <div class="stat-mini-value">{{ total_unique_reviewers }}</div>
+                        <div class="stat-mini-label">Active Reviewers</div>
                     </div>
                 </div>
                 <div class="stat-mini">
@@ -124,7 +124,7 @@
                         <i class="fas fa-tasks"></i>
                     </div>
                     <div>
-                        <div class="stat-mini-value">{{ annotator_stats|length }}</div>
+                        <div class="stat-mini-value">{{ total_unique_annotators }}</div>
                         <div class="stat-mini-label">Active Annotators</div>
                     </div>
                 </div>
@@ -192,10 +192,10 @@
         </div>
 
         <!-- ────── PANEL: REVIEW & ANALYTICS ────── -->
-        <div class="panel" id="panel-review">
+        <div class="panel" id="panel-review" >
 
             <!-- Annotator Leaderboard -->
-            <div class="card-custom">
+            <div class="card-custom" style="margin-top: 0px;">
                 <div class="card-title-custom">
                     <span>Annotator Leaderboard</span>
                     <span class="text-muted fs-6 fw-normal">{{ annotator_stats|length }} annotators</span>
@@ -206,7 +206,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Annotator</th>
+                                <th>User</th>
                                 <th>Email</th>
                                 <th>Total</th>
                                 <th>Approved</th>
@@ -243,7 +243,7 @@
             </div>
 
             <!-- Per-Project Status -->
-            <div class="card-custom">
+            <div class="card-custom" >
                 <div class="card-title-custom">
                     <span><i class="fas fa-chart-bar me-2" style="color: var(--primary);"></i>Project Status</span>
                 </div>

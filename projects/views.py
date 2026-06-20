@@ -94,8 +94,7 @@ def dashboard_view(request):
 
     # ── REVIEWER: submitted batches in their assigned projects ──
     reviewer_project_ids = list(
-        ProjectMember.objects.filter(user=user, role_in_project='reviewer')
-        .values_list('project_id', flat=True)
+        ProjectMember.objects.filter(user=user, role_in_project='reviewer').values_list('project_id', flat=True)
     )
 
     reviewer_batches = []
@@ -149,6 +148,15 @@ def dashboard_view(request):
 
 @login_required
 def admin_dashboard_view(request):
+
+    # Count unique users who are reviewers in any project
+    total_unique_reviewers = ProjectMember.objects.filter(
+        role_in_project='reviewer'
+    ).values('user').distinct().count()
+    total_unique_annotators = ProjectMember.objects.filter(
+        role_in_project='annotator'
+    ).values('user').distinct().count()
+
     """Admin-only dashboard with sidenav, project management, profile and review stats."""
     if request.user.role != 'admin':
         messages.error(request, "Admin access required.")
@@ -156,8 +164,7 @@ def admin_dashboard_view(request):
 
     all_projects = Project.objects.all().select_related('created_by').order_by('-created_at')
 
-    annotator_stats = (
-        Annotation.objects.values(
+    annotator_stats = (Annotation.objects.values(
             'annotated_by__id',
             'annotated_by__first_name',
             'annotated_by__last_name',
@@ -212,6 +219,8 @@ def admin_dashboard_view(request):
         'all_projects_count': all_projects.count(),
         'project_review_stats': project_review_stats,
         'annotator_stats': annotator_stats,
+        'total_unique_reviewers': total_unique_reviewers,
+        'total_unique_annotators': total_unique_annotators,
         'all_users': all_users,
         'all_users_count': all_users.count(),
         'active_tab': request.GET.get('tab', 'projects'),
@@ -540,8 +549,6 @@ def download_annotations_view(request, project_id):
             'image_filename': ann.task.image.filename,
             'image_url': ann.task.image.storage_url,
             'labels': ann.labels,
-            'notes': ann.notes,
-            'annotated_by': ann.annotated_by.email if ann.annotated_by else None,
             'batch': ann.task.batch
         })
         
